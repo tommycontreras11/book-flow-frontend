@@ -6,21 +6,26 @@ import { ICreateLoanManagement, ILoanManagementFilter, IUpdateLoanManagement } f
 
 export const getAllLoanManagement = async (filters: ILoanManagementFilter) => {
     try {
-        let filtersString = '';
-        filters?.bibliographyType && (filtersString += `?bibliography_type=${filters.bibliographyType}${appendFilterString(filters?.language)}`)
-        filters?.language && (filtersString += `${appendFilterString(filters?.bibliographyType)}language=${filters.language}${appendFilterString(filters?.dateLoan)}}`)
-        filters?.dateLoan && (filtersString += `${appendFilterString(filters?.language)}dateLoan=${filters.dateLoan}${appendFilterString(filters?.dateReturn)}`)
-        filters?.dateReturn && (filtersString += `${appendFilterString(filters?.dateLoan)}dateReturn=${filters.dateReturn}`)
+        let filtersString = appendFilterString(filters);
 
-        const response = await axios.get(config.apiURL + '/loan-managements')
+        const response = await axios.get(config.apiURL + '/loan-managements/' + filtersString)
         return response.data
     } catch (error) {
         console.log(error)        
     }
 }
 
-const appendFilterString = async(filter?: string) => {
+const appendSignFilterString = async(filter?: string) => {
     return filter !== null ? '&' : '?'; 
+}
+
+const appendFilterString = async(filters: ILoanManagementFilter, filtersString?: string) => {
+    filters?.bibliographyType && (filtersString += `?bibliography_type=${filters.bibliographyType}${appendSignFilterString(filters?.language)}`)
+    filters?.language && (filtersString += `${appendSignFilterString(filters?.bibliographyType)}language=${filters.language}${appendSignFilterString(filters?.dateLoan)}}`)
+    filters?.dateLoan && (filtersString += `${appendSignFilterString(filters?.language)}dateLoan=${filters.dateLoan}${appendSignFilterString(filters?.dateReturn)}`)
+    filters?.dateReturn && (filtersString += `${appendSignFilterString(filters?.dateLoan)}dateReturn=${filters.dateReturn}`)
+    
+    return filtersString;
 }
 
 export const getOneLoanManagement = async (uuid: string) => {
