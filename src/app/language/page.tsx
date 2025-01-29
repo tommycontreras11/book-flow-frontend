@@ -1,7 +1,17 @@
 "use client";
 
-import { ICreateLanguage, ILanguage, IUpdateLanguage } from "@/interfaces/language.interface";
-import { deleteLanguage, getAllLanguage } from "@/lib/language.lib";
+import {
+  ICreateLanguage,
+  ILanguage,
+  IUpdateLanguage,
+} from "@/interfaces/language.interface";
+import {
+  deleteLanguage,
+  getAllLanguage,
+  getOneLanguage,
+  updateLanguage,
+  createLanguage,
+} from "@/lib/language.lib";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,8 +36,12 @@ import { IMessage } from "@/interfaces/message.interface";
 import { CreateUpdateForm, IFormField } from "@/components/common/create";
 
 export default function Language() {
-  let [languages, setLanguages] = useState<ILanguage[]>([]);
-  
+  const [languages, setLanguages] = useState<ILanguage[]>([]);
+  const [selectedLanguage, setSelectedLanguage] =
+    useState<IUpdateLanguage | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uuid, setUUID] = useState("");
+
   const languageFields: IFormField[] = [
     { name: "description", label: "Description", type: "text" },
   ];
@@ -36,38 +50,65 @@ export default function Language() {
     getAllLanguage()
       .then((languages) => {
         setLanguages(languages.data);
+        setIsModalOpen(false);
+        setSelectedLanguage(null);
       })
       .catch((err) => console.log(err));
-  }
+  };
 
   useEffect(() => {
     fetchLanguages();
   }, []);
 
   const handleDelete = (uuid: string) => {
-    deleteLanguage(uuid).then((data: IMessage) => {
-      fetchLanguages();
-      console.log(data.message);
-    }).catch((err) => console.log(err));
-  }
+    deleteLanguage(uuid)
+      .then((data: IMessage) => {
+        fetchLanguages();
+        console.log(data.message);
+      })
+      .catch((err) => console.log(err));
+  };
 
   const handleUpdate = (uuid: string) => {
-    console.log(uuid);
-  }
+    getOneLanguage(uuid)
+      .then((language) => {
+        setSelectedLanguage(language.data);
+        setIsModalOpen(true);
+        setUUID(uuid);
+      })
+      .catch((err) => console.log(err));
+  };
 
-  const handleSave = async (formData: ICreateLanguage | IUpdateLanguage) => {
-    console.log(formData);
+  const modifyLanguage = (language: IUpdateLanguage) => {
+    updateLanguage(uuid, language)
+      .then((data: IMessage) => {
+        console.log(data.message);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const saveLanguage = (language: ICreateLanguage) => {
+    createLanguage(language)
+      .then((data: IMessage) => {
+        console.log(data.message);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleSubmit = async (formData: ICreateLanguage | IUpdateLanguage) => {
+    if (uuid) {
+      modifyLanguage(formData);
+      fetchLanguages();
+      return;
+    }
+
+    saveLanguage(formData);
     fetchLanguages();
   };
 
   return (
     <div className="mx-auto w-full max-w-2xl overflow-x-auto">
-      <CreateUpdateForm<ICreateLanguage>
-        isEditable={false}
-        entityName="Language"
-        fields={languageFields}
-        onSubmit={handleSave}
-      />
+      <button onClick={() => setIsModalOpen(true)}>Create Language</button>
       <Table>
         <TableCaption>Languages List</TableCaption>
         <TableHeader>
@@ -83,7 +124,7 @@ export default function Language() {
               <TableCell>{language.uuid}</TableCell>
               <TableCell>{language.description}</TableCell>
               <TableCell>{language.status}</TableCell>
-              
+
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -112,6 +153,15 @@ export default function Language() {
           ))}
         </TableBody>
       </Table>
+      {isModalOpen && (
+        <CreateUpdateForm<ICreateLanguage | IUpdateLanguage>
+          isEditable={!!selectedLanguage}
+          entityName="Language"
+          fields={languageFields}
+          existingData={selectedLanguage || {}}
+          onSubmit={handleSubmit}
+        />
+      )}
     </div>
   );
 }
