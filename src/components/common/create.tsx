@@ -1,21 +1,29 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 export interface IFormField {
   name: string;
   label: string;
-  type?: "text" | "number" | "email";
+  type?: "text" | "number" | "email" | "select";
   defaultValue?: string | number;
+  options?: IOptionsFormField[];
+}
+
+export interface IOptionsFormField {
+  label: string; 
+  value: string;
 }
 
 interface CreateUpdateFormProps<T> {
@@ -24,6 +32,7 @@ interface CreateUpdateFormProps<T> {
   fields: IFormField[];
   existingData?: Partial<T>;
   onSubmit: (data: Partial<T>) => void;
+  onChange?: (name: keyof T, value: string) => void;
 }
 
 export function CreateUpdateForm<T>({
@@ -32,6 +41,7 @@ export function CreateUpdateForm<T>({
   fields,
   existingData = {},
   onSubmit,
+  onChange
 }: CreateUpdateFormProps<T>) {
   const [formData, setFormData] = useState<Partial<T>>(existingData);
 
@@ -44,27 +54,57 @@ export function CreateUpdateForm<T>({
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">{isEditable ? `Update ${entityName}` : `Create ${entityName}`}</Button>
-      </DialogTrigger>
+    <Dialog open={true}>
+      <DialogTrigger asChild></DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{isEditable ? `Update ${entityName}` : `Create ${entityName}`}</DialogTitle>
+          <DialogTitle>
+            {isEditable ? `Update ${entityName}` : `Create ${entityName}`}
+          </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           {fields.map((field) => (
-            <div key={field.name} className="grid grid-cols-4 items-center gap-4">
+            <div
+              key={field.name}
+              className="grid grid-cols-4 items-center gap-4"
+            >
               <Label htmlFor={field.name} className="text-right">
                 {field.label}
               </Label>
-              <Input
-                id={field.name}
-                type={field.type || "text"}
-                value={formData[field.name as keyof T] as string | number | readonly string[] | undefined || ""}
-                onChange={(e) => handleChange(field.name, e.target.value)}
-                className="col-span-3"
-              />
+              {field.type !== "select" && (
+                <Input
+                  id={field.name}
+                  type={field.type || "text"}
+                  value={
+                    (formData[field.name as keyof T] as
+                      | string
+                      | number
+                      | readonly string[]
+                      | undefined) || ""
+                  }
+                  onChange={(e) => handleChange(field.name, e.target.value)}
+                  className="col-span-3"
+                />
+              )}
+              {field.type === "select" && field.options && onChange && (
+                <Select
+                  value={(formData[field.name as keyof T] as
+                    | string
+                    | undefined) || ""}
+                  onValueChange={(value) => onChange(field.name as keyof T, value)}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select an option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {field.options.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           ))}
         </div>
