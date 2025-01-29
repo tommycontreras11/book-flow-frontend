@@ -3,9 +3,9 @@
 import axios from "axios"
 import { config } from "./config"
 
-export const getAllCountry = async () => {
+export const getAllCountries = async () => {
     try {
-        const response = await axios.get(config.apiURL + '/countrys')
+        const response = await axios.get(config.apiURL + '/countries')
         return response.data
     } catch (error) {
         console.log(error)        
@@ -14,7 +14,7 @@ export const getAllCountry = async () => {
 
 export const getOneCountry = async (uuid: string) => {
     try {
-        const response = await axios.get(config.apiURL + '/countrys/' + uuid)
+        const response = await axios.get(config.apiURL + '/countries/' + uuid)
         return response.data
     } catch (error) {
         console.log(error)        
