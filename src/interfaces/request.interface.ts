@@ -10,8 +10,8 @@ export interface IRequest {
 }
 
 export interface ICreateRequest extends Partial<Omit<IRequest, "uuid" | "book" | "user" | "status">> { 
-  user_id: number;
-  book_id: number;
+  userUUID: number;
+  bookUUID: number;
 }
 
 export interface IUpdateRequest extends Partial<ICreateRequest> { }
