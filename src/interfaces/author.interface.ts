@@ -6,13 +6,15 @@ export interface IAuthor {
   uuid: string;
   name: string;
   birthCountry: ICountry;
+  birthCountryName: string;
   nativeLanguage: ILanguage;
+  nativeLanguageDescription: string;
   status: StatusEnum;
 }
 
-export interface ICreateAuthor extends Partial<Omit<IAuthor, "uuid" | "birthCountry" | "nativeLanguage" | "status">> { 
-  birth_country_id: number;
-  native_language_id: number;
+export interface ICreateAuthor extends Partial<Omit<IAuthor, "uuid" | "birthCountry" | "nativeLanguage" | "birthCountryName" | "nativeLanguageDescription" | "status">> { 
+  birthCountryUUID: number;
+  nativeLanguageUUID: number;
 }
 
 export interface IUpdateAuthor extends Partial<ICreateAuthor> { }
