@@ -47,7 +47,7 @@ export default function Author() {
   const [authorFields, setAuthorFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
   ]);
-
+  const [formData, setFormData] = useState<Record<string, any>>({});
 
   const fetchAuthors = async () => {
     getAllAuthor()
@@ -57,6 +57,13 @@ export default function Author() {
         setAuthor(null);
       })
       .catch((err) => console.log(err));
+  };
+
+  const handleChange = (name: string, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   useEffect(() => {
@@ -73,7 +80,7 @@ export default function Author() {
         setAuthorFields((prevFields) => [
           ...prevFields,
           {
-            name: "birth_country_id",
+            name: "birthCountryUUID",
             label: "Birth Country",
             type: "select",
             options: countryOptions,
@@ -92,7 +99,7 @@ export default function Author() {
         setAuthorFields((prevFields) => [
           ...prevFields,
           {
-            name: "native_language_id",
+            name: "nativeLanguageUUID",
             label: "Native Language",
             type: "select",
             options: languageOptions,
@@ -170,8 +177,8 @@ export default function Author() {
             <TableRow key={author.uuid}>
               <TableCell>{author.uuid}</TableCell>
               <TableCell>{author.name}</TableCell>
-              <TableCell>{author.birthCountry.name}</TableCell>
-              <TableCell>{author.nativeLanguage.description}</TableCell>
+              <TableCell>{author.birthCountryName}</TableCell>
+              <TableCell>{author.nativeLanguageDescription}</TableCell>
               <TableCell>{author.status}</TableCell>
 
               <TableCell>
@@ -205,6 +212,7 @@ export default function Author() {
           fields={authorFields}
           existingData={selectedAuthor || {}}
           onSubmit={handleSubmit}
+          onChange={handleChange}
         />
       )}
     </div>

@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -11,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
 
 export interface IFormField {
   name: string;
@@ -22,7 +21,7 @@ export interface IFormField {
 }
 
 export interface IOptionsFormField {
-  label: string; 
+  label: string;
   value: string;
 }
 
@@ -41,12 +40,16 @@ export function CreateUpdateForm<T>({
   fields,
   existingData = {},
   onSubmit,
-  onChange
+  onChange,
 }: CreateUpdateFormProps<T>) {
   const [formData, setFormData] = useState<Partial<T>>(existingData);
 
   const handleChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    if (onChange) {
+      onChange(field as keyof T, value.toString());
+    }
   };
 
   const handleSave = () => {
@@ -88,16 +91,17 @@ export function CreateUpdateForm<T>({
               )}
               {field.type === "select" && field.options && onChange && (
                 <Select
-                  value={(formData[field.name as keyof T] as
-                    | string
-                    | undefined) || ""}
-                  onValueChange={(value) => onChange(field.name as keyof T, value)}
+                  onValueChange={(value) => handleChange(field.name, value)}
                 >
                   <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select an option" />
+                    {field.options.filter(
+                      (x) => x.value === formData[field.name as keyof T]
+                    )[0]?.label ||
+                      "" ||
+                      "Select an option"}
                   </SelectTrigger>
                   <SelectContent>
-                    {field.options.map((option) => (
+                    {field.options?.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
