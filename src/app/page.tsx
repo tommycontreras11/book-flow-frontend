@@ -12,6 +12,8 @@ export default function Home() {
       <a href="/publisher">Go to publisher page</a>
       <br />
       <a href="/author">Go to author page</a>
+      <br />
+      <a href="/book">Go to book page</a>
     </div>
   );
 }

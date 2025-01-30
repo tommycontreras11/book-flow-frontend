@@ -11,11 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
+import { MultiSelect } from "../ui/multi-select";
 
 export interface IFormField {
   name: string;
   label: string;
-  type?: "text" | "number" | "email" | "select";
+  type?: "text" | "number" | "email" | "select" | "multi-select";
   defaultValue?: string | number;
   options?: IOptionsFormField[];
 }
@@ -44,7 +45,7 @@ export function CreateUpdateForm<T>({
 }: CreateUpdateFormProps<T>) {
   const [formData, setFormData] = useState<Partial<T>>(existingData);
 
-  const handleChange = (field: string, value: string | number) => {
+  const handleChange = (field: string, value: string | string[] | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     if (onChange) {
@@ -89,7 +90,7 @@ export function CreateUpdateForm<T>({
                   className="col-span-3"
                 />
               )}
-              {field.type === "select" && field.options && onChange && (
+              {field.type === "select" && field.options && (
                 <Select
                   onValueChange={(value) => handleChange(field.name, value)}
                 >
@@ -108,6 +109,15 @@ export function CreateUpdateForm<T>({
                     ))}
                   </SelectContent>
                 </Select>
+              )}
+              {field.type === "multi-select" && field.options && (
+                <MultiSelect
+                options={field.options}
+                  onValueChange={(value) => handleChange(field.name, value)}
+                  defaultValue={(formData[field.name as keyof T] as string[]) || []}
+                  placeholder="Select options"
+                />
+                
               )}
             </div>
           ))}
