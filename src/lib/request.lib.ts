@@ -2,11 +2,12 @@
 
 import axios from "axios"
 import { config } from "./config"
-import { ICreateRequest, IUpdateRequest } from "@/interfaces/request.interface"
+import { ICreateRequest, IUpdateRequest, IUpdateRequestEmployeeStatus } from "@/interfaces/request.interface"
+import { StatusRequestEnum } from "@/enums/request.enum"
 
-export const getAllRequest = async () => {
+export const getAllRequest = async (status: StatusRequestEnum) => {
     try {
-        const response = await axios.get(config.apiURL + '/requests')
+        const response = await axios.get(`${config.apiURL}/requests?status=${status}`)
         return response.data
     } catch (error) {
         console.log(error)        
@@ -34,6 +35,15 @@ export const createRequest = async (request: ICreateRequest) => {
 export const updateRequest = async (uuid: string, request: IUpdateRequest) => {
     try {
         const response = await axios.patch(config.apiURL + '/requests/' + uuid, request)
+        return response.data
+    } catch (error) {
+        console.log(error)        
+    }
+}
+
+export const updateRequestEmployeeStatus = async ({ employeeUUID, requestUUID, status }: IUpdateRequestEmployeeStatus) => {
+    try {
+        const response = await axios.patch(`${config.apiURL}/requests/${requestUUID}/employees/${employeeUUID}/status`, { status })
         return response.data
     } catch (error) {
         console.log(error)        

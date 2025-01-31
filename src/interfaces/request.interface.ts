@@ -10,8 +10,14 @@ export interface IRequest {
 }
 
 export interface ICreateRequest extends Partial<Omit<IRequest, "uuid" | "book" | "user" | "status">> { 
-  userUUID: number;
-  bookUUID: number;
+  userUUID: string;
+  bookUUID: string;
 }
 
 export interface IUpdateRequest extends Partial<ICreateRequest> { }
+
+export interface IUpdateRequestEmployeeStatus {
+  requestUUID: string;
+  employeeUUID: string;
+  status: StatusRequestEnum;
+}

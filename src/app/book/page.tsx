@@ -29,6 +29,7 @@ import { IBook, ICreateBook, IUpdateBook } from "@/interfaces/book.interface";
 import { ILanguage } from "@/interfaces/language.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import { IPublisher } from "@/interfaces/publisher.interface";
+import { ICreateRequest } from "@/interfaces/request.interface";
 import { IScience } from "@/interfaces/science.interface";
 import { getAllAuthor } from "@/lib/author.lib";
 import { getAllBibliographyType } from "@/lib/bibliography-type.lib";
@@ -41,6 +42,7 @@ import {
 } from "@/lib/book.lib";
 import { getAllLanguage } from "@/lib/language.lib";
 import { getAllPublisher } from "@/lib/publisher.lib";
+import { createRequest } from "@/lib/request.lib";
 import { getAllScience } from "@/lib/science.lib";
 import { MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -230,6 +232,18 @@ export default function Book() {
     fetchBooks();
   };
 
+  const saveRequest = (request: ICreateRequest) => {
+    createRequest(request)
+      .then((data: IMessage) => {
+        console.log(data.message);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleRequestBook = async (bookUUID: string) => {
+    saveRequest({ bookUUID, userUUID: "c28920ea-1612-4269-8ab1-702461da99fd" });
+  };
+
   useEffect(() => {}, [bookFields]);
 
   return (
@@ -281,6 +295,9 @@ export default function Book() {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleDelete(book.uuid)}>
                       Delete
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRequestBook(book.uuid)}>
+                      Request book
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

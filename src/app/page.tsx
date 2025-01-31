@@ -14,6 +14,8 @@ export default function Home() {
       <a href="/author">Go to author page</a>
       <br />
       <a href="/book">Go to book page</a>
+      <br />
+      <a href="/request">Go to request page</a>
     </div>
   );
 }
