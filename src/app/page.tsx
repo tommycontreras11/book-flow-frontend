@@ -16,6 +16,8 @@ export default function Home() {
       <a href="/book">Go to book page</a>
       <br />
       <a href="/request">Go to request page</a>
+      <br />
+      <a href="/auth/signIn">Go to signIn page</a>
     </div>
   );
 }
