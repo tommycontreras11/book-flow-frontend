@@ -4,13 +4,19 @@ import axios from "axios"
 import { config } from "./config"
 import { ICreateRequest, IUpdateRequest, IUpdateRequestEmployeeStatus } from "@/interfaces/request.interface"
 import { StatusRequestEnum } from "@/enums/request.enum"
+import { getCookie } from "./auth.lib"
 
-export const getAllRequest = async (status: StatusRequestEnum) => {
+export const getAllRequest = async (status?: StatusRequestEnum) => {
     try {
-        const response = await axios.get(`${config.apiURL}/requests?status=${status}`)
+        const jwt = await getCookie();
+        const response = await axios.get(`${config.apiURL}/requests${status ? `?status=${status}` : ''}`,  {
+            headers: {
+                Authorization: jwt
+            }
+        })
         return response.data
     } catch (error) {
-        console.log(error)        
+        return error        
     }
 }
 
@@ -43,7 +49,12 @@ export const updateRequest = async (uuid: string, request: IUpdateRequest) => {
 
 export const updateRequestEmployeeStatus = async ({ employeeUUID, requestUUID, status }: IUpdateRequestEmployeeStatus) => {
     try {
-        const response = await axios.patch(`${config.apiURL}/requests/${requestUUID}/employees/${employeeUUID}/status`, { status })
+        const jwt = await getCookie();
+        const response = await axios.patch(`${config.apiURL}/requests/${requestUUID}/employees/${employeeUUID}/status`, { status }, {
+            headers: {
+                Authorization: jwt
+            }
+        })
         return response.data
     } catch (error) {
         console.log(error)        
