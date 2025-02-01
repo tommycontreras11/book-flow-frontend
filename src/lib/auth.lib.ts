@@ -1,39 +1,57 @@
-'use server'
+"use server";
 
-import { IAuth } from "@/interfaces/auth.interface"
-import axios from "axios"
-import { config } from "./config"
-import { cookies } from "next/headers"
+import { IAuth } from "@/interfaces/auth.interface";
+import axios from "axios";
+import { cookies } from "next/headers";
+import { config } from "./config";
 
 export const signIn = async (auth: IAuth) => {
-    try {
-        console.log(auth)
-        const response = await axios.post(config.apiURL + '/auth/signIn', auth)
-        await saveCookie(response.data.originalToken)
-        return "success"
-    } catch (error) {
-        console.log(error)        
-    }
-}
+  try {
+    const response = await axios.post(config.apiURL + "/auth/signIn", auth);
+    await saveCookie(response.data.originalToken);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const signOut = async () => {
-    try {
-        const response = await axios.post(config.apiURL + '/auth/signOut')
-        return response.data
-    } catch (error) {
-        console.log(error)        
-    }
-}
+  try {
+    const response = await axios.post(config.apiURL + "/auth/signOut");
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const me = async () => {
+  try {
+    const jwt = await getCookie();
+    const response = await axios.get(config.apiURL + "/auth/me", {
+      headers: {
+        Authorization: jwt,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
 
 const configCookie = {
-    maxAge: 60 * 60 * 24,
-    path: "/",
-    domain: "localhost",
-    httpOnly: true,
-    secure: false,
-  };
+  maxAge: 60 * 60 * 24,
+  path: "/",
+  domain: "localhost",
+  httpOnly: true,
+  secure: false,
+};
 
 export const saveCookie = async (token: string) => {
-    const cookieStore = await cookies();
-    cookieStore.set("jwt", token, configCookie);
-}
+  const cookieStore = await cookies();
+  cookieStore.set("jwt", token, configCookie);
+};
+
+export const getCookie = async () => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("jwt")?.value;
+  return token;
+};
