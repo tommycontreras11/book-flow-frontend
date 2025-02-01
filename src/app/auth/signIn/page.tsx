@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { signIn } from "@/lib/auth.lib";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -21,6 +22,8 @@ const formSchema = z.object({
 });
 
 export default function SignIn() {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -29,9 +32,9 @@ export default function SignIn() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) {    
     signIn(values)
-      .then((res) => console.log(res))
+      .then(() => router.push("/"))
       .catch((err) => console.log(err));
   }
 
