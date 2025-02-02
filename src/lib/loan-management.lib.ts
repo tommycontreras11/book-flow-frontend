@@ -42,10 +42,10 @@ export const getOneLoanManagement = async (uuid: string) => {
     }
 }
 
-export const createLoanManagement = async (loanManagement: ICreateLoanManagement, requestUUID: string) => {
+export const createLoanManagement = async (loanManagement: ICreateLoanManagement) => {
     try {
         const jwt = await getCookie();
-        const response = await axios.post(`${config.apiURL}/loan-managements/${requestUUID}`, loanManagement, {
+        const response = await axios.post(`${config.apiURL}/loan-managements/${loanManagement.requestUUID}`, loanManagement, {
             headers: {
                 Authorization: jwt
             }

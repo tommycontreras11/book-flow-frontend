@@ -32,10 +32,9 @@ export default function loanManagement() {
     { name: "date_return", label: "Date Return", type: "text" },
     { name: "comment", label: "Comment", type: "text" },
   ]);
-  const [uuid, setUUID] = useState("");
 
   const fetchRequests = async (isUser: boolean | null) => {
-    getAllRequest(isUser ? StatusRequestEnum.APPROVAL : undefined)
+    getAllRequest(isUser ? [StatusRequestEnum.APPROVAL, StatusRequestEnum.BORROWED] : undefined)
       .then((request) => setRequests(request.data))
       .catch((err) => console.log(err));
   };
@@ -58,7 +57,7 @@ export default function loanManagement() {
   }, []);
 
   const saveLoanManagement = (loanManagement: ICreateLoanManagement) => {
-    createLoanManagement(loanManagement, uuid)
+    createLoanManagement(loanManagement)
       .then((data: IMessage) => {
         setIsModalOpen(false);
         console.log(data.message);
@@ -66,12 +65,12 @@ export default function loanManagement() {
       .catch((err) => console.log(err));
   };
 
-  const handleLoanManagement = (requestUUID: string) => {
-    setUUID(requestUUID);
-    setIsModalOpen(true);
+  const handleLoanManagement = (requestUUID: string, status: StatusRequestEnum) => {
+    status === StatusRequestEnum.BORROWED && handleSubmit({ requestUUID, date_loan: new Date().toISOString() });
+    status === StatusRequestEnum.APPROVAL && setIsModalOpen(true);
   };
 
-  const handleSubmit = async (formData: ICreateLoanManagement) => {
+  const handleSubmit = async (formData: Partial<ICreateLoanManagement>) => {
     saveLoanManagement(formData as ICreateLoanManagement);
     fetchRequests(isUser);
   };
@@ -89,10 +88,10 @@ export default function loanManagement() {
               <CardTitle>{request.book.description}</CardTitle>
             </CardHeader>
             <CardContent>{request.status}</CardContent>
-            {isUser && request.status === StatusRequestEnum.APPROVAL && (
+            {isUser && (request.status === StatusRequestEnum.APPROVAL || request.status === StatusRequestEnum.BORROWED) && (
               <CardFooter className="flex justify-between">
-                <Button onClick={() => handleLoanManagement(request.uuid)}>
-                  Borrow
+                <Button onClick={() => handleLoanManagement(request.uuid, request.status)}>
+                  {request.status === StatusRequestEnum.APPROVAL ? "Borrow" : "Return"}
                 </Button>
               </CardFooter>
             )}
