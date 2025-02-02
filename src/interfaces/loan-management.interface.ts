@@ -8,13 +8,12 @@ export interface ILoanManagement {
   date_return: string;
   amount_day: number;
   quantity_day: number;
-  comment: string;
+  comment: string | null;
   request: IRequest;
   status: LoanManagementEnum;
 }
 
 export interface ICreateLoanManagement extends Partial<Omit<ILoanManagement, "uuid" | "loan_number" | "quantity_day" | "amount_day" | "status">> { 
-  request_id: number;
 }
 
 export interface IUpdateLoanManagement extends Partial<ICreateLoanManagement> { }

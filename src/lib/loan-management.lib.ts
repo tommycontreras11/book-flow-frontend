@@ -3,12 +3,17 @@
 import axios from "axios"
 import { config } from "./config"
 import { ICreateLoanManagement, ILoanManagementFilter, IUpdateLoanManagement } from "@/interfaces/loan-management.interface"
+import { getCookie } from "./auth.lib"
 
 export const getAllLoanManagement = async (filters: ILoanManagementFilter) => {
     try {
         let filtersString = appendFilterString(filters);
-
-        const response = await axios.get(config.apiURL + '/loan-managements/' + filtersString)
+        const jwt = await getCookie();
+        const response = await axios.get(config.apiURL + '/loan-managements/' + filtersString, {
+            headers: {
+                Authorization: jwt
+            }
+        })
         return response.data
     } catch (error) {
         console.log(error)        
@@ -37,9 +42,14 @@ export const getOneLoanManagement = async (uuid: string) => {
     }
 }
 
-export const createLoanManagement = async (loanManagement: ICreateLoanManagement) => {
+export const createLoanManagement = async (loanManagement: ICreateLoanManagement, requestUUID: string) => {
     try {
-        const response = await axios.post(config.apiURL + '/loan-managements', loanManagement)
+        const jwt = await getCookie();
+        const response = await axios.post(`${config.apiURL}/loan-managements/${requestUUID}`, loanManagement, {
+            headers: {
+                Authorization: jwt
+            }
+        })
         return response.data
     } catch (error) {
         console.log(error)        
