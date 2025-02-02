@@ -1,4 +1,6 @@
 export enum StatusRequestEnum {
+  COMPLETED = "COMPLETED",
+  BORROWED = "BORROWED",
   APPROVAL = "APPROVAL",
   DENIED = "DENIED",
   PENDING = "PENDING",
