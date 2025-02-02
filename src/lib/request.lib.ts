@@ -6,7 +6,7 @@ import { ICreateRequest, IUpdateRequest, IUpdateRequestEmployeeStatus } from "@/
 import { StatusRequestEnum } from "@/enums/request.enum"
 import { getCookie } from "./auth.lib"
 
-export const getAllRequest = async (status?: StatusRequestEnum) => {
+export const getAllRequest = async (status?: StatusRequestEnum[]) => {
     try {
         const jwt = await getCookie();
         const response = await axios.get(`${config.apiURL}/requests${status ? `?status=${status}` : ''}`,  {
