@@ -7,11 +7,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
-import { MultiSelect } from "../ui/multi-select";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export interface IFormField {
   name: string;
@@ -30,10 +40,27 @@ interface CreateUpdateFormProps<T> {
   isEditable: boolean;
   entityName: string;
   fields: IFormField[];
-  existingData?: Partial<T>;
-  onSubmit: (data: Partial<T>) => void;
+  existingData?: Partial<z.infer<typeof formSchema>>;
+  onSubmit: (data: Partial<z.infer<typeof formSchema>>) => void;
   onChange?: (name: keyof T, value: string) => void;
 }
+
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .refine((value) => value.trim().length > 0, "Name is required"),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(100, "Username must be less than 20 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    identification: z
+      .string()
+      .min(11, "Identification must be at least 11 characters")
+      .max(100, "Identification must be less than 100 characters"),
+  })
+  .required();
 
 export function CreateUpdateForm<T>({
   isEditable,
@@ -43,7 +70,18 @@ export function CreateUpdateForm<T>({
   onSubmit,
   onChange,
 }: CreateUpdateFormProps<T>) {
-  const [formData, setFormData] = useState<Partial<T>>(existingData);
+  const [formData, setFormData] =
+    useState<Partial<z.infer<typeof formSchema>>>(existingData);
+
+  const form = useForm<Partial<z.infer<typeof formSchema>>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      username: "",
+      password: "",
+      identification: "",
+    },
+  });
 
   const handleChange = (field: string, value: string | string[] | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -67,7 +105,66 @@ export function CreateUpdateForm<T>({
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          {fields.map((field) => (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSave)} className="space-y-8">
+              {fields.map((fieldInput) => (
+                <FormField
+                  control={form.control}
+                  name={fieldInput.name as keyof z.infer<typeof formSchema>}
+                  render={({ field, fieldState }) => (
+                    <>
+                      {fieldInput.type === "text" && (
+                        <FormItem key={fieldInput.name}>
+                          <FormLabel
+                            className={fieldState?.error?.message && "text-red-500"}
+                          >
+                            {fieldInput.label}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={`Type your ${fieldInput.name}`}
+                              {...field}
+                              onChange={(e) => handleChange(field.name, e.target.value)}
+                              value={
+                                formData[field.name as keyof z.infer<typeof formSchema>] || ""
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    </>
+                  )}
+                />
+              ))}
+            {/* <FormField
+            control={form.control}
+            name="person_type"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel className={fieldState?.error?.message && 'text-red-500'}>Person Type</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a person type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="NATURAL">Natural</SelectItem>
+                    <SelectItem value="LEGAL">Legal</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          /> */}
+              <Button type="submit">Submit</Button>
+            </form>
+          </Form>
+          {/* {fields.map((field) => (
             <div
               key={field.name}
               className="grid grid-cols-4 items-center gap-4"
@@ -120,13 +217,13 @@ export function CreateUpdateForm<T>({
                 
               )}
             </div>
-          ))}
+          ))} */}
         </div>
-        <DialogFooter>
+        {/* <DialogFooter>
           <Button type="button" onClick={handleSave}>
             Save changes
           </Button>
-        </DialogFooter>
+        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );
