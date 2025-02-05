@@ -45,9 +45,9 @@ export default function SignIn() {
           <FormField
             control={form.control}
             name="username"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel className={fieldState?.error?.message && 'text-red-500'}>Username</FormLabel>
                 <FormControl>
                   <Input placeholder="Type your username" {...field} />
                 </FormControl>
@@ -58,9 +58,9 @@ export default function SignIn() {
           <FormField
             control={form.control}
             name="password"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel className={fieldState?.error?.message && 'text-red-500'}>Password</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="Type your password" {...field} />
                 </FormControl>

@@ -70,9 +70,9 @@ export default function Register() {
           <FormField
             control={form.control}
             name="name"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel className={fieldState?.error?.message && 'text-red-500'}>Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Type your name" {...field} />
                 </FormControl>
@@ -83,9 +83,9 @@ export default function Register() {
           <FormField
             control={form.control}
             name="username"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel className={fieldState?.error?.message && 'text-red-500'}>Username</FormLabel>
                 <FormControl>
                   <Input placeholder="Type your username" {...field} />
                 </FormControl>
@@ -96,9 +96,9 @@ export default function Register() {
           <FormField
             control={form.control}
             name="password"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel className={fieldState?.error?.message && 'text-red-500'}>Password</FormLabel>
                 <FormControl>
                   <Input placeholder="Type your password" {...field} />
                 </FormControl>
@@ -109,9 +109,9 @@ export default function Register() {
           <FormField
             control={form.control}
             name="identification"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Identification</FormLabel>
+                <FormLabel className={fieldState?.error?.message && 'text-red-500'}>Identification</FormLabel>
                 <FormControl>
                   <Input placeholder="Type your identification" {...field} />
                 </FormControl>
@@ -122,9 +122,9 @@ export default function Register() {
           <FormField
             control={form.control}
             name="person_type"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
-                <FormLabel>Person Type</FormLabel>
+                <FormLabel className={fieldState?.error?.message && 'text-red-500'}>Person Type</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
