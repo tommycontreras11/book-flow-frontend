@@ -9,6 +9,6 @@ export enum PersonTypeEnum {
 }
 
 export enum UserRoleEnum {
-  USER = 'user',
-  EMPLOYEE = 'employee'
+  USER = 'USER',
+  EMPLOYEE = 'EMPLOYEE'
 }
