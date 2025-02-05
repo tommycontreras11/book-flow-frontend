@@ -23,7 +23,7 @@ export default function Request() {
   const [isEmployee, setIsEmployee] = useState<boolean | null>(null);
 
   const fetchRequests = async (isUserEmployee: boolean | null) => {
-    getAllRequest(isUserEmployee ? StatusRequestEnum.PENDING : undefined)
+    getAllRequest(isUserEmployee ? [StatusRequestEnum.PENDING] : undefined)
       .then((request) => setRequests(request.data))
       .catch((err) => console.log(err));
   };
