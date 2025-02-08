@@ -5,24 +5,6 @@ import {
   IFormField,
   IOptionsFormField,
 } from "@/components/common/create-update";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   IAuthor,
   ICreateAuthor,
@@ -42,9 +24,10 @@ import { getAllCountries } from "@/lib/country.lib";
 import { getAllLanguage } from "@/lib/language.lib";
 import { formAuthorSchema } from "@/schema/author.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { columns } from "./table/column";
+import DataTable from "./table/data-table";
 
 export default function Author() {
   const [authors, setAuthors] = useState<IAuthor[]>([]);
@@ -170,51 +153,17 @@ export default function Author() {
 
   return (
     <div className="mx-auto w-full max-w-2xl overflow-x-auto">
-      <button onClick={() => setIsModalOpen(true)}>Create Author</button>
-      <Table>
-        <TableCaption>Authors List</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>UUID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Birth Country</TableHead>
-            <TableHead>Native Language</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {authors.map((author) => (
-            <TableRow key={author.uuid}>
-              <TableCell>{author.uuid}</TableCell>
-              <TableCell>{author.name}</TableCell>
-              <TableCell>{author.birthCountryName}</TableCell>
-              <TableCell>{author.nativeLanguageDescription}</TableCell>
-              <TableCell>{author.status}</TableCell>
+      <button
+        className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
+        onClick={() => setIsModalOpen(true)}
+      >
+        Create
+      </button>
+      <DataTable
+        data={authors}
+        columns={columns({ handleUpdate, handleDelete })}
+      />
 
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleUpdate(author.uuid)}>
-                      Update
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDelete(author.uuid)}>
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
       {isModalOpen && (
         <CreateUpdateForm<ICreateAuthor | IUpdateAuthor>
           isEditable={form.getValues("name") ? true : false}
