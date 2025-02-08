@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { IMessage } from "@/interfaces/message.interface";
-import { CreateUpdateForm, IFormField } from "@/components/common/create";
+import { CreateUpdateForm, IFormField } from "@/components/common/create-update";
 
 export default function Publisher() {
   const [publishers, setPublishers] = useState<IPublisher[]>([]);
