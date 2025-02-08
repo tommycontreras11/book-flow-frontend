@@ -28,6 +28,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
 import DataTable from "./table/data-table";
+import { fillFormInput } from "@/lib/utils";
 
 export default function Author() {
   const [authors, setAuthors] = useState<IAuthor[]>([]);
@@ -110,9 +111,11 @@ export default function Author() {
   const handleUpdate = (uuid: string) => {
     getOneAuthor(uuid)
       .then((author) => {
-        form.setValue("name", author.data.name);
-        form.setValue("birthCountryUUID", author.data.birthCountry.uuid);
-        form.setValue("nativeLanguageUUID", author.data.nativeLanguage.uuid);
+        fillFormInput(form, [
+          { property: "name", value: author.data.name },
+          { property: "birthCountryUUID", value: author.data.birthCountry.uuid },
+          { property: "nativeLanguageUUID", value: author.data.nativeLanguage.uuid },
+        ]);        
 
         setIsModalOpen(true);
         setUUID(uuid);
