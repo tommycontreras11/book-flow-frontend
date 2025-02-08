@@ -1,19 +1,19 @@
 "use client";
 
 import {
-  ICreateAuthor,
-  IAuthor,
-  IUpdateAuthor,
-} from "@/interfaces/author.interface";
-import {
-  deleteAuthor,
-  getAllAuthor,
-  getOneAuthor,
-  updateAuthor,
-  createAuthor,
-} from "@/lib/author.lib";
-import { useEffect, useState } from "react";
+  CreateUpdateForm,
+  IFormField,
+  IOptionsFormField,
+} from "@/components/common/create-update";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -24,51 +24,57 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-import { IMessage } from "@/interfaces/message.interface";
-import { CreateUpdateForm, IFormField, IOptionsFormField } from "@/components/common/create";
-import { getAllCountries } from "@/lib/country.lib";
+  IAuthor,
+  ICreateAuthor,
+  IUpdateAuthor,
+} from "@/interfaces/author.interface";
 import { ICountry } from "@/interfaces/country.interface";
-import { getAllLanguage } from "@/lib/language.lib";
 import { ILanguage } from "@/interfaces/language.interface";
+import { IMessage } from "@/interfaces/message.interface";
+import {
+  createAuthor,
+  deleteAuthor,
+  getAllAuthor,
+  getOneAuthor,
+  updateAuthor,
+} from "@/lib/author.lib";
+import { getAllCountries } from "@/lib/country.lib";
+import { getAllLanguage } from "@/lib/language.lib";
+import { formAuthorSchema } from "@/schema/author.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { MoreHorizontal } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function Author() {
   const [authors, setAuthors] = useState<IAuthor[]>([]);
-  const [selectedAuthor, setAuthor] = useState<IUpdateAuthor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uuid, setUUID] = useState("");
   const [authorFields, setAuthorFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
   ]);
-  const [formData, setFormData] = useState<Record<string, any>>({});
+
+  const form = useForm<ICreateAuthor | IUpdateAuthor>({
+    resolver: zodResolver(formAuthorSchema),
+    defaultValues: {
+      name: "",
+      birthCountryUUID: "",
+      nativeLanguageUUID: "",
+    },
+  });
 
   const fetchAuthors = async () => {
     getAllAuthor()
       .then((authors) => {
         setAuthors(authors.data);
         setIsModalOpen(false);
-        setAuthor(null);
       })
       .catch((err) => console.log(err));
   };
 
-  const handleChange = (name: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   useEffect(() => {
-    let countryOptions: IOptionsFormField[] = []
-    let languageOptions: IOptionsFormField[] = []
+    let countryOptions: IOptionsFormField[] = [];
+    let languageOptions: IOptionsFormField[] = [];
     fetchAuthors();
     getAllCountries()
       .then((countries) => {
@@ -121,7 +127,10 @@ export default function Author() {
   const handleUpdate = (uuid: string) => {
     getOneAuthor(uuid)
       .then((author) => {
-        setAuthor(author.data);
+        form.setValue("name", author.data.name);
+        form.setValue("birthCountryUUID", author.data.birthCountry.uuid);
+        form.setValue("nativeLanguageUUID", author.data.nativeLanguage.uuid);
+
         setIsModalOpen(true);
         setUUID(uuid);
       })
@@ -131,6 +140,8 @@ export default function Author() {
   const modifyAuthor = (author: IUpdateAuthor) => {
     updateAuthor(uuid, author)
       .then((data: IMessage) => {
+        form.reset();
+
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -139,7 +150,9 @@ export default function Author() {
   const saveAuthor = (author: ICreateAuthor) => {
     createAuthor(author)
       .then((data: IMessage) => {
-        console.log(data.message);
+        form.reset();
+
+        console.log(data);
       })
       .catch((err) => console.log(err));
   };
@@ -154,9 +167,6 @@ export default function Author() {
     saveAuthor(formData as ICreateAuthor);
     fetchAuthors();
   };
-
-  useEffect(() => {
-  }, [authorFields]); 
 
   return (
     <div className="mx-auto w-full max-w-2xl overflow-x-auto">
@@ -207,12 +217,11 @@ export default function Author() {
       </Table>
       {isModalOpen && (
         <CreateUpdateForm<ICreateAuthor | IUpdateAuthor>
-          isEditable={!!selectedAuthor}
+          isEditable={form.getValues("name") ? true : false}
           entityName="Author"
           fields={authorFields}
-          existingData={selectedAuthor || {}}
+          form={form}
           onSubmit={handleSubmit}
-          onChange={handleChange}
         />
       )}
     </div>
