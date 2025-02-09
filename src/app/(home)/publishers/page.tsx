@@ -1,57 +1,51 @@
 "use client";
 
 import {
+  CreateUpdateForm,
+  IFormField,
+} from "@/components/common/modal/create-update";
+import DataTable from "@/components/common/table/data-table";
+import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { IMessage } from "@/interfaces/message.interface";
+import {
   ICreatePublisher,
   IPublisher,
   IUpdatePublisher,
 } from "@/interfaces/publisher.interface";
 import {
+  createPublisher,
   deletePublisher,
   getAllPublisher,
   getOnePublisher,
   updatePublisher,
-  createPublisher,
 } from "@/lib/publisher.lib";
+import { fillFormInput } from "@/lib/utils";
+import { publisherFormSchema } from "@/schema/publisher.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-import { IMessage } from "@/interfaces/message.interface";
-import { CreateUpdateForm, IFormField } from "@/components/common/create-update";
+import { useForm } from "react-hook-form";
+import { columns } from "./table/column";
 
 export default function Publisher() {
   const [publishers, setPublishers] = useState<IPublisher[]>([]);
-  const [selectedPublisher, setPublisher] =
-    useState<IUpdatePublisher | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uuid, setUUID] = useState("");
-
   const publisherFields: IFormField[] = [
-    { name: "description", label: "Description", type: "text" },
+    { name: "name", label: "Name", type: "text" },
   ];
+
+  const form = useForm<ICreatePublisher | IUpdatePublisher>({
+    resolver: zodResolver(publisherFormSchema),
+    defaultValues: {
+      name: "",
+    },
+  });
 
   const fetchPublishers = async () => {
     getAllPublisher()
       .then((publishers) => {
         setPublishers(publishers.data);
         setIsModalOpen(false);
-        setPublisher(null);
       })
       .catch((err) => console.log(err));
   };
@@ -72,7 +66,8 @@ export default function Publisher() {
   const handleUpdate = (uuid: string) => {
     getOnePublisher(uuid)
       .then((publisher) => {
-        setPublisher(publisher.data);
+        fillFormInput(form, [{ property: "name", value: publisher.data.name }]);
+
         setIsModalOpen(true);
         setUUID(uuid);
       })
@@ -82,6 +77,8 @@ export default function Publisher() {
   const modifyPublisher = (publisher: IUpdatePublisher) => {
     updatePublisher(uuid, publisher)
       .then((data: IMessage) => {
+        form.reset();
+
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -90,12 +87,16 @@ export default function Publisher() {
   const savePublisher = (publisher: ICreatePublisher) => {
     createPublisher(publisher)
       .then((data: IMessage) => {
+        form.reset();
+
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
-  const handleSubmit = async (formData: ICreatePublisher | IUpdatePublisher) => {
+  const handleSubmit = async (
+    formData: ICreatePublisher | IUpdatePublisher
+  ) => {
     if (uuid) {
       modifyPublisher(formData);
       fetchPublishers();
@@ -108,57 +109,23 @@ export default function Publisher() {
 
   return (
     <div className="mx-auto w-full max-w-2xl overflow-x-auto">
-      <button onClick={() => setIsModalOpen(true)}>Create Publisher</button>
-      <Table>
-        <TableCaption>Publishers List</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>UUID</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {publishers.map((publisher) => (
-            <TableRow key={publisher.uuid}>
-              <TableCell>{publisher.uuid}</TableCell>
-              <TableCell>{publisher.description}</TableCell>
-              <TableCell>{publisher.status}</TableCell>
-
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => handleUpdate(publisher.uuid)}
-                    >
-                      Update
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(publisher.uuid)}
-                    >
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <button
+        className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
+        onClick={() => setIsModalOpen(true)}
+      >
+        Create
+      </button>
+      <DataTable
+        data={publishers}
+        columns={columns({ handleUpdate, handleDelete })}
+        definitions={commonStatusTableDefinitions}
+      />
       {isModalOpen && (
         <CreateUpdateForm<ICreatePublisher | IUpdatePublisher>
-          isEditable={!!selectedPublisher}
+          isEditable={form.getValues("name") ? true : false}
           entityName="Publisher"
           fields={publisherFields}
-          existingData={selectedPublisher || {}}
+          form={form}
           onSubmit={handleSubmit}
         />
       )}
