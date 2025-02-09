@@ -5,9 +5,9 @@ import clsx from "clsx";
 
 import { IAuthor } from "@/interfaces/author.interface";
 import { StatusEnum } from "@/enums/common.enum";
-import { DataTableColumnHeader } from "../../languages/table/data-table-column-header";
-import { DataTableRowActions } from "../../languages/table/data-table-row-actions";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { DataTableColumnHeader } from "@/components/common/table/data-table-column-header";
+import { DataTableRowActions } from "@/components/common/table/data-table-row-actions";
 
 // Pass `handleUpdate` and `handleDelete` as props to columns
 export const columns = ({

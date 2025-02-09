@@ -83,7 +83,7 @@ export default function Author() {
     getAllLanguage()
       .then((languages) => {
         languageOptions = languages.data.map((language: ILanguage) => ({
-          label: language.description,
+          label: language.name,
           value: language.uuid,
         }));
 
@@ -114,9 +114,15 @@ export default function Author() {
       .then((author) => {
         fillFormInput(form, [
           { property: "name", value: author.data.name },
-          { property: "birthCountryUUID", value: author.data.birthCountry.uuid },
-          { property: "nativeLanguageUUID", value: author.data.nativeLanguage.uuid },
-        ]);        
+          {
+            property: "birthCountryUUID",
+            value: author.data.birthCountry.uuid,
+          },
+          {
+            property: "nativeLanguageUUID",
+            value: author.data.nativeLanguage.uuid,
+          },
+        ]);
 
         setIsModalOpen(true);
         setUUID(uuid);
@@ -167,7 +173,7 @@ export default function Author() {
         data={authors}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
-/>
+      />
 
       {isModalOpen && (
         <CreateUpdateForm<ICreateAuthor | IUpdateAuthor>
