@@ -25,13 +25,15 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { IStatusTableDefinitions } from "@/interfaces/table.interface";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  definitions: IStatusTableDefinitions[];
 }
 
-export default function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export default function DataTable<TData, TValue>({ columns, data, definitions }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
     location: false,
@@ -59,7 +61,7 @@ export default function DataTable<TData, TValue>({ columns, data }: DataTablePro
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} definitions={definitions} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>

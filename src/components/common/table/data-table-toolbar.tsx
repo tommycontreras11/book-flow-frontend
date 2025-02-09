@@ -6,15 +6,16 @@ import { Table } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import { IStatusTableDefinitions } from "@/interfaces/table.interface";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { usersStatus } from "./definitions";
 import { DataTableViewOptions } from "./data-table-view-options";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  definitions: IStatusTableDefinitions[];
 }
 
-export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
+export function DataTableToolbar<TData>({ table, definitions }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
@@ -31,7 +32,7 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
           <DataTableFacetedFilter
             column={table.getColumn("status")}
             title={"Status"}
-            options={usersStatus}
+            options={definitions}
           />
         )}
 

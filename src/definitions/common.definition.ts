@@ -1,6 +1,7 @@
+import { IStatusTableDefinitions } from "@/interfaces/table.interface";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 
-export const usersStatus = [
+export const commonStatusTableDefinitions: IStatusTableDefinitions[] = [
   {
     value: "ACTIVE",
     label: "Active",

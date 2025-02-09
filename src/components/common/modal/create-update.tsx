@@ -32,14 +32,14 @@ export interface IOptionsFormField {
 }
 
 import { FieldValues } from "react-hook-form";
-import { MultiSelect } from "../ui/multi-select";
+import { MultiSelect } from "../../ui/multi-select";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../../ui/select";
 
 interface CreateUpdateFormProps<T extends FieldValues> {
   isEditable: boolean;
