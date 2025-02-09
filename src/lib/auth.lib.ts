@@ -1,13 +1,14 @@
 "use server";
 
+import api from "./api";
+
 import { IAuth } from "@/interfaces/auth.interface";
-import axios from "axios";
 import { cookies } from "next/headers";
 import { config } from "./config";
 
 export const signIn = async (auth: IAuth) => {
   try {
-    const response = await axios.post(config.apiURL + "/auth/signIn", auth);
+    const response = await api.post(config.apiURL + "/auth/signIn", auth);
     await saveCookie(response.data.originalToken);
   } catch (error) {
     console.log(error);
@@ -16,7 +17,7 @@ export const signIn = async (auth: IAuth) => {
 
 export const signOut = async () => {
   try {
-    const response = await axios.post(config.apiURL + "/auth/signOut");
+    const response = await api.post(config.apiURL + "/auth/signOut");
     return response.data;
   } catch (error) {
     console.log(error);
@@ -25,12 +26,7 @@ export const signOut = async () => {
 
 export const me = async () => {
   try {
-    const jwt = await getCookie();
-    const response = await axios.get(config.apiURL + "/auth/me", {
-      headers: {
-        Authorization: jwt,
-      },
-    });
+    const response = await api.get(config.apiURL + "/auth/me");
     return response.data;
   } catch (error) {
     return error;
