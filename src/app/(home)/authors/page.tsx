@@ -22,7 +22,7 @@ import {
 } from "@/lib/author.lib";
 import { getAllCountries } from "@/lib/country.lib";
 import { getAllLanguage } from "@/lib/language.lib";
-import { formAuthorSchema } from "@/schema/author.schema";
+import { authorFormSchema } from "@/schema/author.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -40,7 +40,7 @@ export default function Author() {
   ]);
 
   const form = useForm<ICreateAuthor | IUpdateAuthor>({
-    resolver: zodResolver(formAuthorSchema),
+    resolver: zodResolver(authorFormSchema),
     defaultValues: {
       name: "",
       birthCountryUUID: "",

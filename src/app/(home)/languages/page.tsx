@@ -20,7 +20,7 @@ import {
   updateLanguage,
 } from "@/lib/language.lib";
 import { fillFormInput } from "@/lib/utils";
-import { formLanguageSchema } from "@/schema/language.schema";
+import { languageFormSchema } from "@/schema/language.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -35,7 +35,7 @@ export default function Language() {
   ];
 
   const form = useForm<ICreateLanguage | IUpdateLanguage>({
-    resolver: zodResolver(formLanguageSchema),
+    resolver: zodResolver(languageFormSchema),
     defaultValues: {
       name: "",
     },
