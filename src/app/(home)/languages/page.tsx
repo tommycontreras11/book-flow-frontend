@@ -29,6 +29,7 @@ import { columns } from "./table/column";
 export default function Language() {
   const [languages, setLanguages] = useState<ILanguage[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
   const languageFields: IFormField[] = [
     { name: "name", label: "Name", type: "text" },
@@ -69,7 +70,7 @@ export default function Language() {
         fillFormInput(form, [
           { property: "name", value: language.data.name },
         ]);
-
+        setIsEditable(true);
         setIsModalOpen(true);
         setUUID(uuid);
       })
@@ -80,7 +81,7 @@ export default function Language() {
     updateLanguage(uuid, language)
       .then((data: IMessage) => {
         form.reset();
-
+        setIsEditable(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -122,7 +123,7 @@ export default function Language() {
       />
       {isModalOpen && (
         <CreateUpdateForm<ICreateLanguage | IUpdateLanguage>
-          isEditable={form.getValues("name") ? true : false}
+          isEditable={isEditable}
           entityName="Language"
           fields={languageFields}
           form={form}

@@ -31,6 +31,7 @@ export default function BibliographyType() {
     IBibliographyType[]
   >([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
 
   const bibliographyTypeFields: IFormField[] = [
@@ -72,7 +73,7 @@ export default function BibliographyType() {
         fillFormInput(form, [
           { property: "name", value: bibliographyType.data.name },
         ]);
-
+        setIsEditable(true);
         setIsModalOpen(true);
         setUUID(uuid);
       })
@@ -85,7 +86,7 @@ export default function BibliographyType() {
     updateBibliographyType(uuid, bibliographyType)
       .then((data: IMessage) => {
         form.reset();
-
+        setIsEditable(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -129,7 +130,7 @@ export default function BibliographyType() {
       />
       {isModalOpen && (
         <CreateUpdateForm<ICreateBibliographyType | IUpdateBibliographyType>
-          isEditable={form.getValues("name") ? true : false}
+          isEditable={isEditable}
           entityName="Bibliography Type"
           fields={bibliographyTypeFields}
           form={form}

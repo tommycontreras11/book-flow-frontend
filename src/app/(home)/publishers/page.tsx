@@ -29,6 +29,7 @@ import { columns } from "./table/column";
 export default function Publisher() {
   const [publishers, setPublishers] = useState<IPublisher[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
   const publisherFields: IFormField[] = [
     { name: "name", label: "Name", type: "text" },
@@ -67,7 +68,7 @@ export default function Publisher() {
     getOnePublisher(uuid)
       .then((publisher) => {
         fillFormInput(form, [{ property: "name", value: publisher.data.name }]);
-
+        setIsEditable(true);
         setIsModalOpen(true);
         setUUID(uuid);
       })
@@ -78,7 +79,7 @@ export default function Publisher() {
     updatePublisher(uuid, publisher)
       .then((data: IMessage) => {
         form.reset();
-
+        setIsEditable(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -122,7 +123,7 @@ export default function Publisher() {
       />
       {isModalOpen && (
         <CreateUpdateForm<ICreatePublisher | IUpdatePublisher>
-          isEditable={form.getValues("name") ? true : false}
+          isEditable={isEditable}
           entityName="Publisher"
           fields={publisherFields}
           form={form}

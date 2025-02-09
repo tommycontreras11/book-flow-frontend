@@ -34,6 +34,7 @@ import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 export default function Author() {
   const [authors, setAuthors] = useState<IAuthor[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
   const [authorFields, setAuthorFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
@@ -124,6 +125,7 @@ export default function Author() {
           },
         ]);
 
+        setIsEditable(true);
         setIsModalOpen(true);
         setUUID(uuid);
       })
@@ -134,7 +136,7 @@ export default function Author() {
     updateAuthor(uuid, author)
       .then((data: IMessage) => {
         form.reset();
-
+        setIsEditable(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -177,7 +179,7 @@ export default function Author() {
 
       {isModalOpen && (
         <CreateUpdateForm<ICreateAuthor | IUpdateAuthor>
-          isEditable={form.getValues("name") ? true : false}
+          isEditable={isEditable}
           entityName="Author"
           fields={authorFields}
           form={form}
