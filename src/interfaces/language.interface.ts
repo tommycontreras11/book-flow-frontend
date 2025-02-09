@@ -2,7 +2,7 @@ import { StatusEnum } from "@/enums/common.enum";
 
 export interface ILanguage {
   uuid: string;
-  description: string;
+  name: string;
   status: StatusEnum;
 }
 
