@@ -4,10 +4,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import clsx from "clsx";
 
 import { IAuthor } from "@/interfaces/author.interface";
-import { DataTableColumnHeader } from "./data-table-column-header";
-import { DataTableRowActions } from "./data-table-row-actions";
-import { usersStatus } from "./definitions";
 import { StatusEnum } from "@/enums/common.enum";
+import { DataTableColumnHeader } from "../../languages/table/data-table-column-header";
+import { DataTableRowActions } from "../../languages/table/data-table-row-actions";
+import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 
 // Pass `handleUpdate` and `handleDelete` as props to columns
 export const columns = ({
@@ -44,7 +44,7 @@ export const columns = ({
       <DataTableColumnHeader column={column} title={"Status"} />
     ),
     cell: ({ row }) => {
-      const status = usersStatus.find(
+      const status = commonStatusTableDefinitions.find(
         (status) => status.value === row.getValue("status")
       );
       if (!status) {

@@ -4,7 +4,7 @@ import {
   CreateUpdateForm,
   IFormField,
   IOptionsFormField,
-} from "@/components/common/create-update";
+} from "@/components/common/modal/create-update";
 import {
   IAuthor,
   ICreateAuthor,
@@ -27,8 +27,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
-import DataTable from "./table/data-table";
 import { fillFormInput } from "@/lib/utils";
+import DataTable from "@/components/common/table/data-table";
+import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 
 export default function Author() {
   const [authors, setAuthors] = useState<IAuthor[]>([]);
@@ -165,7 +166,8 @@ export default function Author() {
       <DataTable
         data={authors}
         columns={columns({ handleUpdate, handleDelete })}
-      />
+        definitions={commonStatusTableDefinitions}
+/>
 
       {isModalOpen && (
         <CreateUpdateForm<ICreateAuthor | IUpdateAuthor>
