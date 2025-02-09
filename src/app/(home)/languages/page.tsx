@@ -1,57 +1,51 @@
 "use client";
 
 import {
+  CreateUpdateForm,
+  IFormField,
+} from "@/components/common/modal/create-update";
+import DataTable from "@/components/common/table/data-table";
+import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import {
   ICreateLanguage,
   ILanguage,
   IUpdateLanguage,
 } from "@/interfaces/language.interface";
+import { IMessage } from "@/interfaces/message.interface";
 import {
+  createLanguage,
   deleteLanguage,
   getAllLanguage,
   getOneLanguage,
   updateLanguage,
-  createLanguage,
 } from "@/lib/language.lib";
+import { fillFormInput } from "@/lib/utils";
+import { formLanguageSchema } from "@/schema/language.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-import { IMessage } from "@/interfaces/message.interface";
-import { CreateUpdateForm, IFormField } from "@/components/common/modal/create-update";
+import { useForm } from "react-hook-form";
+import { columns } from "./table/column";
 
 export default function Language() {
   const [languages, setLanguages] = useState<ILanguage[]>([]);
-  const [selectedLanguage, setSelectedLanguage] =
-    useState<IUpdateLanguage | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uuid, setUUID] = useState("");
-
   const languageFields: IFormField[] = [
-    { name: "description", label: "Description", type: "text" },
+    { name: "name", label: "Name", type: "text" },
   ];
+
+  const form = useForm<ICreateLanguage | IUpdateLanguage>({
+    resolver: zodResolver(formLanguageSchema),
+    defaultValues: {
+      name: "",
+    },
+  });
 
   const fetchLanguages = async () => {
     getAllLanguage()
       .then((languages) => {
         setLanguages(languages.data);
         setIsModalOpen(false);
-        setSelectedLanguage(null);
       })
       .catch((err) => console.log(err));
   };
@@ -72,7 +66,10 @@ export default function Language() {
   const handleUpdate = (uuid: string) => {
     getOneLanguage(uuid)
       .then((language) => {
-        setSelectedLanguage(language.data);
+        fillFormInput(form, [
+          { property: "name", value: language.data.name },
+        ]);
+
         setIsModalOpen(true);
         setUUID(uuid);
       })
@@ -82,6 +79,8 @@ export default function Language() {
   const modifyLanguage = (language: IUpdateLanguage) => {
     updateLanguage(uuid, language)
       .then((data: IMessage) => {
+        form.reset();
+
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -90,6 +89,8 @@ export default function Language() {
   const saveLanguage = (language: ICreateLanguage) => {
     createLanguage(language)
       .then((data: IMessage) => {
+        form.reset();
+
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -108,57 +109,23 @@ export default function Language() {
 
   return (
     <div className="mx-auto w-full max-w-2xl overflow-x-auto">
-      <button onClick={() => setIsModalOpen(true)}>Create Language</button>
-      <Table>
-        <TableCaption>Languages List</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>UUID</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {languages.map((language) => (
-            <TableRow key={language.uuid}>
-              <TableCell>{language.uuid}</TableCell>
-              <TableCell>{language.description}</TableCell>
-              <TableCell>{language.status}</TableCell>
-
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => handleUpdate(language.uuid)}
-                    >
-                      Update
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(language.uuid)}
-                    >
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <button
+        className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
+        onClick={() => setIsModalOpen(true)}
+      >
+        Create
+      </button>
+      <DataTable
+        data={languages}
+        columns={columns({ handleUpdate, handleDelete })}
+        definitions={commonStatusTableDefinitions}
+      />
       {isModalOpen && (
         <CreateUpdateForm<ICreateLanguage | IUpdateLanguage>
-          isEditable={!!selectedLanguage}
+          isEditable={form.getValues("name") ? true : false}
           entityName="Language"
           fields={languageFields}
-          existingData={selectedLanguage || {}}
+          form={form}
           onSubmit={handleSubmit}
         />
       )}
