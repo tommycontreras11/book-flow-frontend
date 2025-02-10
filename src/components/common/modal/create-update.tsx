@@ -89,6 +89,16 @@ export function CreateUpdateForm<T extends FieldValues>({
                         </FormControl>
                       )}
 
+                      {fieldInput.type === "number" && (
+                        <FormControl>
+                          <Input
+                            placeholder={"Type your " + field.name}
+                            type="number"
+                            {...field}
+                          />
+                        </FormControl>
+                      )}
+
                       {fieldInput.type === "select" && (
                         <Select
                           onValueChange={field.onChange}

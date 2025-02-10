@@ -4,25 +4,9 @@ import {
   CreateUpdateForm,
   IFormField,
   IOptionsFormField,
-} from "@/components/common/create-update";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+} from "@/components/common/modal/create-update";
+import DataTable from "@/components/common/table/data-table";
+import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { IAuthor } from "@/interfaces/author.interface";
 import { IBibliographyType } from "@/interfaces/bibliography-type.interface";
 import { IBook, ICreateBook, IUpdateBook } from "@/interfaces/book.interface";
@@ -44,37 +28,50 @@ import { getAllLanguage } from "@/lib/language.lib";
 import { getAllPublisher } from "@/lib/publisher.lib";
 import { createRequest } from "@/lib/request.lib";
 import { getAllScience } from "@/lib/science.lib";
-import { MoreHorizontal } from "lucide-react";
+import { fillFormInput } from "@/lib/utils";
+import { bookFormSchema } from "@/schema/book.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { columns } from "./table/column";
 
 export default function Book() {
   const [books, setBooks] = useState<IBook[]>([]);
-  const [selectedBook, setBook] = useState<IUpdateBook | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
   const [bookFields, setBookFields] = useState<IFormField[]>([
-    { name: "description", label: "Description", type: "text" },
-    { name: "topographical_signature", label: "Topographical Signature", type: "text" },
+    { name: "name", label: "Name", type: "text" },
+    {
+      name: "topographicalSignature",
+      label: "Topographical Signature",
+      type: "text",
+    },
     { name: "isbn", label: "Isbn", type: "text" },
-    { name: "publication_year", label: "Publication Year", type: "number" },
+    { name: "publicationYear", label: "Publication Year", type: "number" },
   ]);
-  const [formData, setFormData] = useState<Record<string, any>>({});
+
+  const form = useForm<ICreateBook | IUpdateBook>({
+    resolver: zodResolver(bookFormSchema),
+    defaultValues: {
+      name: "",
+      topographicalSignature: "",
+      isbn: "",
+      publicationYear: 0,
+      bibliographyTypeUUID: "",
+      publisherUUID: "",
+      languageUUID: "",
+      scienceUUID: "",
+    },
+  });
 
   const fetchBooks = async () => {
     getAllBook()
       .then((books) => {
         setBooks(books.data);
         setIsModalOpen(false);
-        setBook(null);
       })
       .catch((err) => console.log(err));
-  };
-
-  const handleChange = (name: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   useEffect(() => {
@@ -90,7 +87,7 @@ export default function Book() {
       .then((bibliographyTypes) => {
         bibliographyTypeOptions = bibliographyTypes.data.map(
           (bibliographyType: IBibliographyType) => ({
-            label: bibliographyType.description,
+            label: bibliographyType.name,
             value: bibliographyType.uuid,
           })
         );
@@ -110,7 +107,7 @@ export default function Book() {
     getAllScience()
       .then((sciences) => {
         scienceOptions = sciences.data.map((science: IScience) => ({
-          label: science.description,
+          label: science.name,
           value: science.uuid,
         }));
 
@@ -148,7 +145,7 @@ export default function Book() {
     getAllLanguage()
       .then((languages) => {
         languageOptions = languages.data.map((language: ILanguage) => ({
-          label: language.description,
+          label: language.name,
           value: language.uuid,
         }));
 
@@ -167,7 +164,7 @@ export default function Book() {
     getAllPublisher()
       .then((publishers) => {
         publisherOptions = publishers.data.map((publisher: IPublisher) => ({
-          label: publisher.description,
+          label: publisher.name,
           value: publisher.uuid,
         }));
 
@@ -196,7 +193,37 @@ export default function Book() {
   const handleUpdate = (uuid: string) => {
     getOneBook(uuid)
       .then((book) => {
-        setBook(book.data);
+        fillFormInput(form, [
+          { property: "name", value: book.data.name },
+          {
+            property: "topographicalSignature",
+            value: book.data.topographicalSignature.uuid,
+          },
+          {
+            property: "isbn",
+            value: book.data.isbn,
+          },
+          {
+            property: "publicationYear",
+            value: book.data.publicationYear,
+          },
+          {
+            property: "bibliographyTypeUUID",
+            value: book.data.bibliographyTypeUUID,
+          },
+          {
+            property: "publisherUUID",
+            value: book.data.publisherUUID,
+          },
+          {
+            property: "languageUUID",
+            value: book.data.languageUUID,
+          },
+          {
+            property: "scienceUUID",
+            value: book.data.scienceUUID,
+          },
+        ]);
         setIsModalOpen(true);
         setUUID(uuid);
       })
@@ -206,6 +233,8 @@ export default function Book() {
   const modifyBook = (book: IUpdateBook) => {
     updateBook(uuid, book)
       .then((data: IMessage) => {
+        form.reset();
+        setIsEditable(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -220,8 +249,6 @@ export default function Book() {
   };
 
   const handleSubmit = async (formData: ICreateBook | IUpdateBook) => {
-    formData.publication_year = formData.publication_year ? parseInt(formData.publication_year.toString()) : undefined;
-
     if (uuid) {
       modifyBook(formData);
       fetchBooks();
@@ -244,76 +271,27 @@ export default function Book() {
     saveRequest({ bookUUID, userUUID: "c28920ea-1612-4269-8ab1-702461da99fd" });
   };
 
-  useEffect(() => {}, [bookFields]);
-
   return (
     <div className="mx-auto w-full max-w-5xl overflow-x-auto">
-      <button onClick={() => setIsModalOpen(true)}>Create Book</button>
-      <Table>
-        <TableCaption>Books List</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>UUID</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Topographical Signature</TableHead>
-            <TableHead>Isbn</TableHead>
-            <TableHead>Publication Year</TableHead>
-            <TableHead>Bibliography Type</TableHead>
-            <TableHead>Publisher</TableHead>
-            <TableHead>Language</TableHead>
-            <TableHead>Science</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {books.map((book) => (
-            <TableRow key={book.uuid}>
-              <TableCell>{book.uuid}</TableCell>
-              <TableCell>{book.description}</TableCell>
-              <TableCell>{book.topographical_signature}</TableCell>
-              <TableCell>{book.isbn}</TableCell>
-              <TableCell>{book.publication_year}</TableCell>
-              <TableCell>{book.bibliographyTypeName}</TableCell>
-              <TableCell>{book.publisherName}</TableCell>
-              <TableCell>{book.languageName}</TableCell>
-              <TableCell>{book.scienceDescription}</TableCell>
-              <TableCell>{book.status}</TableCell>
+      <button
+        className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
+        onClick={() => setIsModalOpen(true)}
+      >
+        Create
+      </button>
+      <DataTable
+        data={books}
+        columns={columns({ handleUpdate, handleDelete })}
+        definitions={commonStatusTableDefinitions}
+      />
 
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleUpdate(book.uuid)}>
-                      Update
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDelete(book.uuid)}>
-                      Delete
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleRequestBook(book.uuid)}>
-                      Request book
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
       {isModalOpen && (
         <CreateUpdateForm<ICreateBook | IUpdateBook>
-          isEditable={!!selectedBook}
+          isEditable={isEditable}
           entityName="Book"
           fields={bookFields}
-          existingData={selectedBook || {}}
+          form={form}
           onSubmit={handleSubmit}
-          onChange={handleChange}
         />
       )}
     </div>

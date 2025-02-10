@@ -7,9 +7,9 @@ import { IScience } from "./science.interface";
 export interface IBook {
   uuid: string;
   name: string;
-  topographical_signature: string;
+  topographicalSignature: string;
   isbn: string;
-  publication_year: number;
+  publicationYear: number;
   publisher: IPublisher;
   publisherName: string,
   language: ILanguage;
@@ -22,10 +22,10 @@ export interface IBook {
 }
 
 export interface ICreateBook extends Partial<Omit<IBook, "uuid" | "language" | "languageName" | "science" | "scienceDescription" | "bibliographyType" | "bibliographyTypeName" | "publisher" | "publisherName" | "status">> { 
-  bibliographyTypeUUID: number;
-  publisherUUID: number;
-  languageUUID: number;
-  scienceUUID: number;
+  bibliographyTypeUUID: string;
+  publisherUUID: string;
+  languageUUID: string;
+  scienceUUID: string;
   authorUUIDs: string[];
 }
 
