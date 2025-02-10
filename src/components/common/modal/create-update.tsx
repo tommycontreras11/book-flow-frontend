@@ -18,6 +18,16 @@ import {
 } from "@/components/ui/form";
 import { Path, UseFormReturn } from "react-hook-form";
 
+import { FieldValues } from "react-hook-form";
+import { MultiSelect } from "../../ui/multi-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../ui/select";
+
 export interface IFormField {
   name: string;
   label: string;
@@ -30,16 +40,6 @@ export interface IOptionsFormField {
   label: string;
   value: string;
 }
-
-import { FieldValues } from "react-hook-form";
-import { MultiSelect } from "../../ui/multi-select";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../ui/select";
 
 interface CreateUpdateFormProps<T extends FieldValues> {
   isEditable: boolean;
