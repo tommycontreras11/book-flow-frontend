@@ -2,7 +2,7 @@ import { StatusEnum } from "@/enums/common.enum";
 
 export interface IScience {
   uuid: string;
-  description: string;
+  name: string;
   status: StatusEnum;
 }
 

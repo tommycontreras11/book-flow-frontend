@@ -4,7 +4,7 @@ import {
   CreateUpdateForm,
   IFormField,
   IOptionsFormField,
-} from "@/components/common/create";
+} from "@/components/common/create-update";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

@@ -6,7 +6,7 @@ import { IScience } from "./science.interface";
 
 export interface IBook {
   uuid: string;
-  description: string;
+  name: string;
   topographical_signature: string;
   isbn: string;
   publication_year: number;

@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateUpdateForm, IFormField } from "@/components/common/create";
+import { CreateUpdateForm, IFormField } from "@/components/common/create-update";
 import { Button } from "@/components/ui/button";
 import {
   Card,

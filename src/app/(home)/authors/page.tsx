@@ -1,74 +1,66 @@
 "use client";
 
 import {
-  ICreateAuthor,
+  CreateUpdateForm,
+  IFormField,
+  IOptionsFormField,
+} from "@/components/common/modal/create-update";
+import {
   IAuthor,
+  ICreateAuthor,
   IUpdateAuthor,
 } from "@/interfaces/author.interface";
+import { ICountry } from "@/interfaces/country.interface";
+import { ILanguage } from "@/interfaces/language.interface";
+import { IMessage } from "@/interfaces/message.interface";
 import {
+  createAuthor,
   deleteAuthor,
   getAllAuthor,
   getOneAuthor,
   updateAuthor,
-  createAuthor,
 } from "@/lib/author.lib";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-import { IMessage } from "@/interfaces/message.interface";
-import { CreateUpdateForm, IFormField, IOptionsFormField } from "@/components/common/create";
 import { getAllCountries } from "@/lib/country.lib";
-import { ICountry } from "@/interfaces/country.interface";
 import { getAllLanguage } from "@/lib/language.lib";
-import { ILanguage } from "@/interfaces/language.interface";
+import { authorFormSchema } from "@/schema/author.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { columns } from "./table/column";
+import { fillFormInput } from "@/lib/utils";
+import DataTable from "@/components/common/table/data-table";
+import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 
 export default function Author() {
   const [authors, setAuthors] = useState<IAuthor[]>([]);
-  const [selectedAuthor, setAuthor] = useState<IUpdateAuthor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
   const [authorFields, setAuthorFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
   ]);
-  const [formData, setFormData] = useState<Record<string, any>>({});
+
+  const form = useForm<ICreateAuthor | IUpdateAuthor>({
+    resolver: zodResolver(authorFormSchema),
+    defaultValues: {
+      name: "",
+      birthCountryUUID: "",
+      nativeLanguageUUID: "",
+    },
+  });
 
   const fetchAuthors = async () => {
     getAllAuthor()
       .then((authors) => {
         setAuthors(authors.data);
         setIsModalOpen(false);
-        setAuthor(null);
       })
       .catch((err) => console.log(err));
   };
 
-  const handleChange = (name: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   useEffect(() => {
-    let countryOptions: IOptionsFormField[] = []
-    let languageOptions: IOptionsFormField[] = []
+    let countryOptions: IOptionsFormField[] = [];
+    let languageOptions: IOptionsFormField[] = [];
     fetchAuthors();
     getAllCountries()
       .then((countries) => {
@@ -92,7 +84,7 @@ export default function Author() {
     getAllLanguage()
       .then((languages) => {
         languageOptions = languages.data.map((language: ILanguage) => ({
-          label: language.description,
+          label: language.name,
           value: language.uuid,
         }));
 
@@ -121,7 +113,19 @@ export default function Author() {
   const handleUpdate = (uuid: string) => {
     getOneAuthor(uuid)
       .then((author) => {
-        setAuthor(author.data);
+        fillFormInput(form, [
+          { property: "name", value: author.data.name },
+          {
+            property: "birthCountryUUID",
+            value: author.data.birthCountry.uuid,
+          },
+          {
+            property: "nativeLanguageUUID",
+            value: author.data.nativeLanguage.uuid,
+          },
+        ]);
+
+        setIsEditable(true);
         setIsModalOpen(true);
         setUUID(uuid);
       })
@@ -131,6 +135,8 @@ export default function Author() {
   const modifyAuthor = (author: IUpdateAuthor) => {
     updateAuthor(uuid, author)
       .then((data: IMessage) => {
+        form.reset();
+        setIsEditable(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -139,7 +145,9 @@ export default function Author() {
   const saveAuthor = (author: ICreateAuthor) => {
     createAuthor(author)
       .then((data: IMessage) => {
-        console.log(data.message);
+        form.reset();
+
+        console.log(data);
       })
       .catch((err) => console.log(err));
   };
@@ -155,64 +163,27 @@ export default function Author() {
     fetchAuthors();
   };
 
-  useEffect(() => {
-  }, [authorFields]); 
-
   return (
     <div className="mx-auto w-full max-w-2xl overflow-x-auto">
-      <button onClick={() => setIsModalOpen(true)}>Create Author</button>
-      <Table>
-        <TableCaption>Authors List</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>UUID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Birth Country</TableHead>
-            <TableHead>Native Language</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {authors.map((author) => (
-            <TableRow key={author.uuid}>
-              <TableCell>{author.uuid}</TableCell>
-              <TableCell>{author.name}</TableCell>
-              <TableCell>{author.birthCountryName}</TableCell>
-              <TableCell>{author.nativeLanguageDescription}</TableCell>
-              <TableCell>{author.status}</TableCell>
+      <button
+        className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
+        onClick={() => setIsModalOpen(true)}
+      >
+        Create
+      </button>
+      <DataTable
+        data={authors}
+        columns={columns({ handleUpdate, handleDelete })}
+        definitions={commonStatusTableDefinitions}
+      />
 
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleUpdate(author.uuid)}>
-                      Update
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDelete(author.uuid)}>
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
       {isModalOpen && (
         <CreateUpdateForm<ICreateAuthor | IUpdateAuthor>
-          isEditable={!!selectedAuthor}
+          isEditable={isEditable}
           entityName="Author"
           fields={authorFields}
-          existingData={selectedAuthor || {}}
+          form={form}
           onSubmit={handleSubmit}
-          onChange={handleChange}
         />
       )}
     </div>
