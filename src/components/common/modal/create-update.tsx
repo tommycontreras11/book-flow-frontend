@@ -59,7 +59,10 @@ export function CreateUpdateForm<T extends FieldValues>({
   return (
     <Dialog open={true}>
       <DialogTrigger asChild></DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]" aria-describedby={undefined}>
+      <DialogContent
+        className="w-full max-w-full sm:max-w-lg p-4 sm:p-6"
+        aria-describedby={undefined}
+      >
         <DialogHeader>
           <DialogTitle>
             {isEditable ? `Update ${entityName}` : `Create ${entityName}`}
@@ -67,24 +70,29 @@ export function CreateUpdateForm<T extends FieldValues>({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            >
               {fields.map((fieldInput) => (
                 <FormField
                   key={fieldInput.name}
                   control={form.control}
                   name={fieldInput.name as Path<T>}
                   render={({ field, fieldState }) => (
-                    <FormItem>
+                    <FormItem className="col-span-1">
                       <FormLabel
                         className={fieldState?.error?.message && "text-red-500"}
                       >
                         {fieldInput.label}
                       </FormLabel>
+
                       {fieldInput.type === "text" && (
                         <FormControl>
                           <Input
-                            placeholder={"Type your " + field.name}
+                            placeholder={`Type your ${field.name}`}
                             {...field}
+                            className="w-full"
                           />
                         </FormControl>
                       )}
@@ -92,9 +100,9 @@ export function CreateUpdateForm<T extends FieldValues>({
                       {fieldInput.type === "number" && (
                         <FormControl>
                           <Input
-                            placeholder={"Type your " + field.name}
-                            type="number"
+                            placeholder={`Type your ${field.name}`}
                             {...field}
+                            className="w-full"
                           />
                         </FormControl>
                       )}
@@ -105,7 +113,7 @@ export function CreateUpdateForm<T extends FieldValues>({
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full">
                               <SelectValue
                                 placeholder={`Select a ${fieldInput.label.toLowerCase()}`}
                               />
@@ -131,6 +139,7 @@ export function CreateUpdateForm<T extends FieldValues>({
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                             placeholder="Select options"
+                            className="w-full"
                           />
                         )}
 
@@ -139,7 +148,13 @@ export function CreateUpdateForm<T extends FieldValues>({
                   )}
                 />
               ))}
-              <Button type="submit">Submit</Button>
+
+              {/* Button spans full width on small screens and aligns right on larger screens */}
+              <div className="col-span-1 sm:col-span-2 flex justify-end">
+                <Button type="submit" className="w-full sm:w-auto">
+                  Submit
+                </Button>
+              </div>
             </form>
           </Form>
         </div>
