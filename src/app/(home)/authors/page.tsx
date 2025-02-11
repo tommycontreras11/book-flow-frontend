@@ -137,6 +137,7 @@ export default function Author() {
       .then((data: IMessage) => {
         form.reset();
         setIsEditable(false);
+        setIsModalOpen(false);        
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -146,7 +147,7 @@ export default function Author() {
     createAuthor(author)
       .then((data: IMessage) => {
         form.reset();
-
+        setIsModalOpen(false);
         console.log(data);
       })
       .catch((err) => console.log(err));

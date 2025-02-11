@@ -80,6 +80,7 @@ export default function Publisher() {
       .then((data: IMessage) => {
         form.reset();
         setIsEditable(false);
+        setIsModalOpen(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -89,7 +90,7 @@ export default function Publisher() {
     createPublisher(publisher)
       .then((data: IMessage) => {
         form.reset();
-
+        setIsModalOpen(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));

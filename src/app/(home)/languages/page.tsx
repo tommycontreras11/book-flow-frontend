@@ -82,6 +82,7 @@ export default function Language() {
       .then((data: IMessage) => {
         form.reset();
         setIsEditable(false);
+        setIsModalOpen(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -91,8 +92,8 @@ export default function Language() {
     createLanguage(language)
       .then((data: IMessage) => {
         form.reset();
-
-        console.log(data.message);
+        setIsModalOpen(false);
+        console.log(data);
       })
       .catch((err) => console.log(err));
   };

@@ -240,6 +240,7 @@ export default function Book() {
       .then((data: IMessage) => {
         form.reset();
         setIsEditable(false);
+        setIsModalOpen(false);  
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -248,7 +249,9 @@ export default function Book() {
   const saveBook = (book: ICreateBook) => {
     createBook(book)
       .then((data: IMessage) => {
-        console.log(data.message);
+        form.reset();
+        setIsModalOpen(false);
+        console.log(data);
       })
       .catch((err) => console.log(err));
   };
