@@ -197,7 +197,7 @@ export default function Book() {
           { property: "name", value: book.data.name },
           {
             property: "topographicalSignature",
-            value: book.data.topographicalSignature.uuid,
+            value: book.data.topographicalSignature,
           },
           {
             property: "isbn",
@@ -223,7 +223,12 @@ export default function Book() {
             property: "scienceUUID",
             value: book.data.scienceUUID,
           },
+          {
+            property: "authorUUIDs",
+            value: book.data.authorUUIDs,
+          },
         ]);
+        setIsEditable(true);
         setIsModalOpen(true);
         setUUID(uuid);
       })
