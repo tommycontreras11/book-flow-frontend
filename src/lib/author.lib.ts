@@ -3,7 +3,6 @@
 import api from "./api";
 
 import { ICreateAuthor, IUpdateAuthor } from "@/interfaces/author.interface";
-import { getCookie } from "./auth.lib";
 import { config } from "./config";
 
 export const getAllAuthor = async () => {
@@ -17,12 +16,7 @@ export const getAllAuthor = async () => {
 
 export const getOneAuthor = async (uuid: string) => {
   try {
-    const jwt = await getCookie();
-    const response = await api.get(config.apiURL + "/authors/" + uuid, {
-      headers: {
-        Authorization: jwt,
-      },
-    });
+    const response = await api.get(config.apiURL + "/authors/" + uuid);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -31,12 +25,7 @@ export const getOneAuthor = async (uuid: string) => {
 
 export const createAuthor = async (author: ICreateAuthor) => {
   try {
-    const jwt = await getCookie();
-    const response = await api.post(config.apiURL + "/authors", author, {
-      headers: {
-        Authorization: jwt,
-      },
-    });
+    const response = await api.post(config.apiURL + "/authors", author);
     return response.data;
   } catch (error) {
     console.log(error);
