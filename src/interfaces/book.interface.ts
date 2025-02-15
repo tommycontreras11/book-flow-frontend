@@ -3,6 +3,7 @@ import { IBibliographyType } from "./bibliography-type.interface";
 import { ILanguage } from "./language.interface";
 import { IPublisher } from "./publisher.interface";
 import { IScience } from "./science.interface";
+import { IRequest } from "./request.interface";
 
 export interface IBook {
   uuid: string;
@@ -18,10 +19,12 @@ export interface IBook {
   scienceDescription: string,
   bibliographyType: IBibliographyType;
   bibliographyTypeName: string,
+  requests: IRequest[];
   status: StatusEnum;
+  url: string;
 }
 
-export interface ICreateBook extends Partial<Omit<IBook, "uuid" | "language" | "languageName" | "science" | "scienceDescription" | "bibliographyType" | "bibliographyTypeName" | "publisher" | "publisherName" | "status">> { 
+export interface ICreateBook extends Partial<Omit<IBook, "uuid" | "language" | "languageName" | "science" | "scienceDescription" | "bibliographyType" | "bibliographyTypeName" | "publisher" | "publisherName" | "status" | "requests">> { 
   bibliographyTypeUUID: string;
   publisherUUID: string;
   languageUUID: string;
