@@ -4,13 +4,16 @@ import { me } from "./lib/auth.lib";
 import { UserRoleEnum } from "./enums/common.enum";
 
 const protectedRoutes = [
-  "/language",
-  "/bibliography-type",
-  "/science",
-  "/publisher",
-  "/author",
-  "/country",
-  "/book",
+  "/languages",
+  "/bibliography-types",
+  "/sciences",
+  "/publishers",
+  "/authors",
+  "/countries",
+  "/employees",
+  "/users",
+  "/loans-management",
+  "/books",
 ];
 
 // Helper function to check if a path is protected

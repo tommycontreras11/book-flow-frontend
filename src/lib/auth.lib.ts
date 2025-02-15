@@ -18,6 +18,7 @@ export const signIn = async (auth: IAuth) => {
 export const signOut = async () => {
   try {
     const response = await api.post(config.apiURL + "/auth/signOut");
+    await deleteCookie();
     return response.data;
   } catch (error) {
     console.log(error);
@@ -50,4 +51,11 @@ export const getCookie = async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get("jwt")?.value;
   return token;
+};
+
+export const deleteCookie = async (): Promise<void> => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("jwt")?.value;
+
+  token && cookieStore.delete("jwt");
 };
