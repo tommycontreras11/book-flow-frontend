@@ -13,7 +13,6 @@ import { IBook, ICreateBook, IUpdateBook } from "@/interfaces/book.interface";
 import { ILanguage } from "@/interfaces/language.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import { IPublisher } from "@/interfaces/publisher.interface";
-import { ICreateRequest } from "@/interfaces/request.interface";
 import { IScience } from "@/interfaces/science.interface";
 import { getAllAuthor } from "@/lib/author.lib";
 import { getAllBibliographyType } from "@/lib/bibliography-type.lib";
@@ -26,7 +25,6 @@ import {
 } from "@/lib/book.lib";
 import { getAllLanguage } from "@/lib/language.lib";
 import { getAllPublisher } from "@/lib/publisher.lib";
-import { createRequest } from "@/lib/request.lib";
 import { getAllScience } from "@/lib/science.lib";
 import { fillFormInput } from "@/lib/utils";
 import { bookFormSchema } from "@/schema/book.schema";
@@ -49,6 +47,7 @@ export default function Book() {
     },
     { name: "isbn", label: "Isbn", type: "text" },
     { name: "publicationYear", label: "Publication Year", type: "number" },
+    { name: "file", label: "File", type: "file" },
   ]);
 
   const form = useForm<ICreateBook | IUpdateBook>({
@@ -62,6 +61,7 @@ export default function Book() {
       publisherUUID: "",
       languageUUID: "",
       scienceUUID: "",
+      file: undefined,
     },
   });
 
@@ -235,18 +235,18 @@ export default function Book() {
       .catch((err) => console.log(err));
   };
 
-  const modifyBook = (book: IUpdateBook) => {
+  const modifyBook = (book: FormData) => {
     updateBook(uuid, book)
       .then((data: IMessage) => {
         form.reset();
         setIsEditable(false);
-        setIsModalOpen(false);  
+        setIsModalOpen(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
-  const saveBook = (book: ICreateBook) => {
+  const saveBook = (book: FormData) => {
     createBook(book)
       .then((data: IMessage) => {
         form.reset();
@@ -256,27 +256,35 @@ export default function Book() {
       .catch((err) => console.log(err));
   };
 
-  const handleSubmit = async (formData: ICreateBook | IUpdateBook) => {
+  const handleSubmit = async (book: ICreateBook | IUpdateBook) => {
+    const formData = new FormData();
+
+    bookFields
+      .filter((x) => x.name !== "authorUUIDs")
+      .forEach((field) => {
+        const value =
+          book?.[field.name as keyof ICreateBook | keyof IUpdateBook];
+        if (value !== undefined && value !== null) {
+          formData.append(field.name, value.toString());
+        }
+      });
+
+    book?.authorUUIDs?.forEach((uuid) =>
+      formData.append("authorUUIDs[]", uuid)
+    );
+
+    if (book?.file) {
+      formData.append("file", book.file);
+    }
+
     if (uuid) {
       modifyBook(formData);
       fetchBooks();
       return;
     }
 
-    saveBook(formData as ICreateBook);
+    saveBook(formData);
     fetchBooks();
-  };
-
-  const saveRequest = (request: ICreateRequest) => {
-    createRequest(request)
-      .then((data: IMessage) => {
-        console.log(data.message);
-      })
-      .catch((err) => console.log(err));
-  };
-
-  const handleRequestBook = async (bookUUID: string) => {
-    saveRequest({ bookUUID, userUUID: "c28920ea-1612-4269-8ab1-702461da99fd" });
   };
 
   return (

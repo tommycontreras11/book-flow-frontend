@@ -22,6 +22,7 @@ export interface IBook {
   requests: IRequest[];
   status: StatusEnum;
   url: string;
+  file: File
 }
 
 export interface ICreateBook extends Partial<Omit<IBook, "uuid" | "language" | "languageName" | "science" | "scienceDescription" | "bibliographyType" | "bibliographyTypeName" | "publisher" | "publisherName" | "status" | "requests">> { 

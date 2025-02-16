@@ -3,7 +3,6 @@
 import api from "./api";
 
 import { config } from "./config";
-import { ICreateBook, IUpdateBook } from "@/interfaces/book.interface";
 
 export const getAllBook = async () => {
   try {
@@ -23,18 +22,26 @@ export const getOneBook = async (uuid: string) => {
   }
 };
 
-export const createBook = async (book: ICreateBook) => {
+export const createBook = async (book: FormData) => {
   try {
-    const response = await api.post(config.apiURL + "/books", book);
+    const response = await api.post(config.apiURL + "/books", book, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      }
+    });
     return response.data;
   } catch (error) {
     console.log(error);
   }
 };
 
-export const updateBook = async (uuid: string, book: IUpdateBook) => {
+export const updateBook = async (uuid: string, book: FormData) => {
   try {
-    const response = await api.patch(config.apiURL + "/books/" + uuid, book);
+    const response = await api.patch(config.apiURL + "/books/" + uuid, book, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      }
+    });
     return response.data;
   } catch (error) {
     console.log(error);

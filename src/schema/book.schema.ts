@@ -1,13 +1,19 @@
 import { z } from "zod";
 
+const isBrowser = typeof window !== "undefined";
+
 export const bookFormSchema = z.object({
-    name: z.string().refine((value) => value.trim().length > 0, "Name is required"),
-    topographicalSignature: z.string().refine((value) => value.trim().length > 0, "Name is required"),
-    isbn: z.string().refine((value) => value.trim().length > 0, "Name is required"),
-    publicationYear: z.coerce.number().refine((value) => value > 0, "Publication year must be greater than 0"), 
-    bibliographyTypeUUID: z.string().uuid({ message: "Bibliography type must be an UUID" }).refine((value) => value.trim().length > 0, "Bibliography type is required"),
-    publisherUUID: z.string().uuid({ message: "Publisher must be an UUID" }).refine((value) => value.trim().length > 0, "Publisher is required"),
-    languageUUID: z.string().uuid({ message: "Language must be an UUID" }).refine((value) => value.trim().length > 0, "Language is required"),
-    scienceUUID: z.string().uuid({ message: "Science must be an UUID" }).refine((value) => value.trim().length > 0, "Science is required"),
-    authorUUIDs: z.array(z.string().uuid({ message: "Authors must be an UUID" })).refine((value) => value.length > 0, "Author is required")
-})
+  name: z.string().min(1, "Name is required"),
+  topographicalSignature: z.string().min(1, "Topographical Signature is required"),
+  isbn: z.string().min(1, "ISBN is required"),
+  publicationYear: z.coerce.number().min(1, "Publication year must be greater than 0"),
+  bibliographyTypeUUID: z.string().uuid("Bibliography type must be a valid UUID"),
+  publisherUUID: z.string().uuid("Publisher must be a valid UUID"),
+  languageUUID: z.string().uuid("Language must be a valid UUID"),
+  scienceUUID: z.string().uuid("Science must be a valid UUID"),
+  authorUUIDs: z.array(z.string().uuid("Authors must be a valid UUID")).min(1, "At least one author is required"),
+
+  file: isBrowser
+    ? z.instanceof(File, { message: "File is required" }) // ✅ Runs only in browser
+    : z.any().optional(), // ✅ Prevents SSR issues
+});
