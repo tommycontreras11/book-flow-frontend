@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Path, UseFormReturn } from "react-hook-form";
+import { Controller, Path, UseFormReturn } from "react-hook-form";
 
 import { FieldValues } from "react-hook-form";
 import { MultiSelect } from "../../ui/multi-select";
@@ -31,7 +31,7 @@ import {
 export interface IFormField {
   name: string;
   label: string;
-  type?: "text" | "number" | "email" | "select" | "multi-select";
+  type?: "text" | "number" | "select" | "multi-select" | "file";
   defaultValue?: string | number;
   options?: IOptionsFormField[];
 }
@@ -95,6 +95,23 @@ export function CreateUpdateForm<T extends FieldValues>({
                             className="w-full"
                           />
                         </FormControl>
+                      )}
+
+                      {fieldInput.type === "file" && (
+                        <Controller
+                        name={"file" as Path<T>}
+                        control={form.control}
+                        render={({ field: { onChange, ref } }) => (
+                          <FormControl>
+                            <Input
+                              type="file"
+                              className="w-full"
+                              ref={ref} // ✅ Correctly handle ref
+                              onChange={(e) => onChange(e.target.files?.[0] || null)} // ✅ Handle file change
+                            />
+                          </FormControl>
+                        )}
+                      />
                       )}
 
                       {fieldInput.type === "number" && (
