@@ -23,7 +23,7 @@ export default function HomeLayout({
   const items: IAppSidebarProps[] = [
     {
       title: "Home",
-      url: "#",
+      url: "/",
       icon: Home,
     },
     {
