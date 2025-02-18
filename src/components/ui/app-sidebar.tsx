@@ -1,10 +1,6 @@
 import {
-  Calendar,
   ChevronUp,
-  Home,
-  Inbox,
-  Search,
-  Settings,
+  Settings
 } from "lucide-react";
 
 import {
@@ -18,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { IAppSidebarProps } from "@/interfaces/sidebar.interface";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,31 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 
-// Menu items.
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-];
-
-export function AppSidebar() {
+export function AppSidebar({ items }: { items: IAppSidebarProps[] }) {
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarContent>
@@ -86,7 +59,11 @@ export function AppSidebar() {
                 className="w-[--radix-popper-anchor-width]"
               >
                 <DropdownMenuItem>
-                  <span>Sign out</span>
+                  <SidebarMenuButton asChild>
+                  <a href={"/auth/signOut"}>
+                      <span>Sign Out</span>
+                    </a>
+                  </SidebarMenuButton>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
