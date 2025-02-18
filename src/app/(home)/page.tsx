@@ -46,7 +46,7 @@ export default function Home() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl overflow-x-auto">
+    <div className="w-full max-w-6xl mx-auto flex flex-wrap gap-4 justify-center">
       {books.map((book) => (
         <BookCard
           key={book.uuid}
