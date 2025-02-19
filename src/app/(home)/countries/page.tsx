@@ -49,10 +49,10 @@ export default function Country() {
       })
       .catch((err) => console.log(err));
   };
-  
+
   useEffect(() => {
     fetchCountries();
-  }, [])
+  }, []);
 
   const handleDelete = (uuid: string) => {
     deleteCountry(uuid)
@@ -107,7 +107,7 @@ export default function Country() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl overflow-x-auto">
+    <div className="mx-auto w-full overflow-x-auto">
       <button
         className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
         onClick={() => setIsModalOpen(true)}
@@ -120,15 +120,15 @@ export default function Country() {
         definitions={commonStatusTableDefinitions}
       />
 
-      {isModalOpen && (
-        <CreateUpdateForm<ICreateCountry | IUpdateCountry>
-          isEditable={isEditable}
-          entityName="Country"
-          fields={countryFields}
-          form={form}
-          onSubmit={handleSubmit}
-        />
-      )}
+      <CreateUpdateForm<ICreateCountry | IUpdateCountry>
+        isEditable={isEditable}
+        entityName="Country"
+        fields={countryFields}
+        form={form}
+        onSubmit={handleSubmit}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

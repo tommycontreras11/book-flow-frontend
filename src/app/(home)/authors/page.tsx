@@ -137,7 +137,7 @@ export default function Author() {
       .then((data: IMessage) => {
         form.reset();
         setIsEditable(false);
-        setIsModalOpen(false);        
+        setIsModalOpen(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -165,7 +165,7 @@ export default function Author() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl overflow-x-auto">
+    <div className="mx-auto w-full overflow-x-auto">
       <button
         className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
         onClick={() => setIsModalOpen(true)}
@@ -178,15 +178,15 @@ export default function Author() {
         definitions={commonStatusTableDefinitions}
       />
 
-      {isModalOpen && (
-        <CreateUpdateForm<ICreateAuthor | IUpdateAuthor>
-          isEditable={isEditable}
-          entityName="Author"
-          fields={authorFields}
-          form={form}
-          onSubmit={handleSubmit}
-        />
-      )}
+      <CreateUpdateForm<ICreateAuthor | IUpdateAuthor>
+        isEditable={isEditable}
+        entityName="Author"
+        fields={authorFields}
+        form={form}
+        onSubmit={handleSubmit}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

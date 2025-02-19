@@ -87,7 +87,7 @@ export default function BibliographyType() {
       .then((data: IMessage) => {
         form.reset();
         setIsEditable(false);
-        setIsModalOpen(false);        
+        setIsModalOpen(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -97,7 +97,7 @@ export default function BibliographyType() {
     createBibliographyType(bibliographyType)
       .then((data: IMessage) => {
         form.reset();
-        setIsModalOpen(false);    
+        setIsModalOpen(false);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -117,7 +117,7 @@ export default function BibliographyType() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl overflow-x-auto">
+    <div className="mx-auto w-full overflow-x-auto">
       <button
         className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
         onClick={() => setIsModalOpen(true)}
@@ -129,15 +129,16 @@ export default function BibliographyType() {
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
-      {isModalOpen && (
-        <CreateUpdateForm<ICreateBibliographyType | IUpdateBibliographyType>
-          isEditable={isEditable}
-          entityName="Bibliography Type"
-          fields={bibliographyTypeFields}
-          form={form}
-          onSubmit={handleSubmit}
-        />
-      )}
+
+      <CreateUpdateForm<ICreateBibliographyType | IUpdateBibliographyType>
+        isEditable={isEditable}
+        entityName="Bibliography Type"
+        fields={bibliographyTypeFields}
+        form={form}
+        onSubmit={handleSubmit}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

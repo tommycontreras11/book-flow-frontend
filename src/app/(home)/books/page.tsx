@@ -288,7 +288,7 @@ export default function Book() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl overflow-x-auto">
+    <div className="mx-auto w-full overflow-x-auto">
       <button
         className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
         onClick={() => setIsModalOpen(true)}
@@ -301,15 +301,15 @@ export default function Book() {
         definitions={commonStatusTableDefinitions}
       />
 
-      {isModalOpen && (
-        <CreateUpdateForm<ICreateBook | IUpdateBook>
-          isEditable={isEditable}
-          entityName="Book"
-          fields={bookFields}
-          form={form}
-          onSubmit={handleSubmit}
-        />
-      )}
+      <CreateUpdateForm<ICreateBook | IUpdateBook>
+        isEditable={isEditable}
+        entityName="Book"
+        fields={bookFields}
+        form={form}
+        onSubmit={handleSubmit}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

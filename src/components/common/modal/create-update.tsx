@@ -47,6 +47,8 @@ interface CreateUpdateFormProps<T extends FieldValues> {
   fields: IFormField[];
   form: UseFormReturn<T>;
   onSubmit: (data: Partial<T>) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function CreateUpdateForm<T extends FieldValues>({
@@ -55,9 +57,12 @@ export function CreateUpdateForm<T extends FieldValues>({
   fields,
   form,
   onSubmit,
+  isOpen,
+  onClose,
 }: CreateUpdateFormProps<T>) {
+
   return (
-    <Dialog open={true}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTrigger asChild></DialogTrigger>
       <DialogContent
         className="w-full max-w-full sm:max-w-lg p-4 sm:p-6"

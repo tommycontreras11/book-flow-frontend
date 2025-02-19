@@ -67,9 +67,7 @@ export default function Language() {
   const handleUpdate = (uuid: string) => {
     getOneLanguage(uuid)
       .then((language) => {
-        fillFormInput(form, [
-          { property: "name", value: language.data.name },
-        ]);
+        fillFormInput(form, [{ property: "name", value: language.data.name }]);
         setIsEditable(true);
         setIsModalOpen(true);
         setUUID(uuid);
@@ -110,7 +108,7 @@ export default function Language() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl overflow-x-auto">
+    <div className="mx-auto w-full overflow-x-auto">
       <button
         className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
         onClick={() => setIsModalOpen(true)}
@@ -122,15 +120,16 @@ export default function Language() {
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
-      {isModalOpen && (
-        <CreateUpdateForm<ICreateLanguage | IUpdateLanguage>
-          isEditable={isEditable}
-          entityName="Language"
-          fields={languageFields}
-          form={form}
-          onSubmit={handleSubmit}
-        />
-      )}
+
+      <CreateUpdateForm<ICreateLanguage | IUpdateLanguage>
+        isEditable={isEditable}
+        entityName="Language"
+        fields={languageFields}
+        form={form}
+        onSubmit={handleSubmit}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

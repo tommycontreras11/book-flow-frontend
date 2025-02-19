@@ -110,7 +110,7 @@ export default function Publisher() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl overflow-x-auto">
+    <div className="mx-auto w-full overflow-x-auto">
       <button
         className="bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 px-4 rounded mb-4"
         onClick={() => setIsModalOpen(true)}
@@ -122,15 +122,16 @@ export default function Publisher() {
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
-      {isModalOpen && (
-        <CreateUpdateForm<ICreatePublisher | IUpdatePublisher>
-          isEditable={isEditable}
-          entityName="Publisher"
-          fields={publisherFields}
-          form={form}
-          onSubmit={handleSubmit}
-        />
-      )}
+
+      <CreateUpdateForm<ICreatePublisher | IUpdatePublisher>
+        isEditable={isEditable}
+        entityName="Publisher"
+        fields={publisherFields}
+        form={form}
+        onSubmit={handleSubmit}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

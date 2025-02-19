@@ -76,10 +76,11 @@ export default function HomeLayout({
   return (
     <SidebarProvider>
       <AppSidebar items={items} />
-      <main>
-        <SidebarTrigger />
-        {children}
-      </main>
+      <SidebarTrigger />
+
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="grid auto-rows-min gap-4">{children}</div>
+      </div>
     </SidebarProvider>
   );
 }

@@ -64,7 +64,7 @@ export default function Request() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-2xl overflow-x-auto">
+    <div className="mx-auto w-full  overflow-x-auto">
       {user?.role}
       {!requests || !requests?.find((request) => request.status === StatusRequestEnum.PENDING) && <h1>No pending requests</h1>}
       {requests &&
