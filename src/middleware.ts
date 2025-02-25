@@ -11,6 +11,7 @@ const protectedRoutes = [
   "/authors",
   "/countries",
   "/employees",
+  "/requests",
   "/users",
   "/loans-management",
   "/books",

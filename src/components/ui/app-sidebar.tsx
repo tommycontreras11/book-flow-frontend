@@ -1,7 +1,4 @@
-import {
-  ChevronUp,
-  Settings
-} from "lucide-react";
+import { ChevronUp, Settings } from "lucide-react";
 
 import {
   Sidebar,
@@ -21,8 +18,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
+import { IMeUser } from "@/interfaces/auth.interface";
 
-export function AppSidebar({ items }: { items: IAppSidebarProps[] }) {
+export function AppSidebar({
+  items,
+  userLogged,
+}: {
+  items: IAppSidebarProps[];
+  userLogged?: IMeUser;
+}) {
+  const isUserLogged = userLogged?.uuid ? true : false;
+
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarContent>
@@ -30,16 +36,22 @@ export function AppSidebar({ items }: { items: IAppSidebarProps[] }) {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items
+                .filter((item) =>
+                  !isUserLogged
+                    ? item.default
+                    : item.userRole == userLogged?.role || item.bothRoles
+                )
+                .map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -60,8 +72,10 @@ export function AppSidebar({ items }: { items: IAppSidebarProps[] }) {
               >
                 <DropdownMenuItem>
                   <SidebarMenuButton asChild>
-                  <a href={"/auth/signOut"}>
-                      <span>Sign Out</span>
+                    <a
+                      href={`/auth/${userLogged?.uuid ? "signOut" : "signIn"}`}
+                    >
+                      <span>{userLogged?.uuid ? "Sign Out" : "Sign In"}</span>
                     </a>
                   </SidebarMenuButton>
                 </DropdownMenuItem>
