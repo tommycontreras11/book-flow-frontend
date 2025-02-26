@@ -1,7 +1,7 @@
 import { StatusEnum, UserRoleEnum } from "@/enums/common.enum";
 
 export interface IAuth {
-  username: string;
+  email: string;
   password: string;
 }
 

@@ -24,9 +24,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const formSchema = z.object({
-  username: z
+  email: z
     .string()
-    .refine((value) => value.trim().length > 0, "Username is required"),
+    .email({ message: "Invalid email" })
+    .refine((value) => value.trim().length > 0, "Email is required"),
   password: z
     .string()
     .refine((value) => value.trim().length > 0, "Password is required"),
@@ -38,7 +39,7 @@ export default function SignIn() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -69,7 +70,7 @@ export default function SignIn() {
                   <div className="grid gap-2">
                     <FormField
                       control={form.control}
-                      name="username"
+                      name="email"
                       render={({ field, fieldState }) => (
                         <FormItem>
                           <FormLabel
@@ -77,13 +78,10 @@ export default function SignIn() {
                               fieldState?.error?.message && "text-red-500"
                             }
                           >
-                            Username
+                            Email
                           </FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder="Type your username"
-                              {...field}
-                            />
+                            <Input placeholder="Type your email" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -122,7 +120,10 @@ export default function SignIn() {
                 </div>
                 <div className="mt-4 text-center text-sm">
                   Don&apos;t have an account?{" "}
-                  <a href="/auth/signUp" className="underline underline-offset-4">
+                  <a
+                    href="/auth/signUp"
+                    className="underline underline-offset-4"
+                  >
                     Sign up
                   </a>
                 </div>
