@@ -117,7 +117,7 @@ const data = {
   user: {
     name: "shadcn",
     email: "m@example.com",
-    isUserLogged: true,
+    isUserLogged: false,
   },
   navMain: [
     {
