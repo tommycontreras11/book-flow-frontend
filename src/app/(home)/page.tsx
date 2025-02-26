@@ -1,6 +1,7 @@
 "use client";
 
 import BookCard from "@/components/common/card/book";
+import { UserRoleEnum } from "@/enums/common.enum";
 import { IMeUser } from "@/interfaces/auth.interface";
 import { IBook } from "@/interfaces/book.interface";
 import { IMessage } from "@/interfaces/message.interface";
@@ -46,8 +47,8 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-wrap gap-4 justify-center">
-      {books.map((book) => (
+    <div className="w-full max-w-6xl mx-auto flex flex-wrap gap-4 justify-left">
+      {(user?.role === UserRoleEnum.USER || !user) && books.map((book) => (
         <BookCard
           key={book.uuid}
           book={book}

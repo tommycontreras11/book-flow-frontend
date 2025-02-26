@@ -67,6 +67,7 @@ export function CreateUpdateForm<T extends FieldValues>({
       <DialogContent
         className="w-full max-w-full sm:max-w-lg p-4 sm:p-6"
         aria-describedby={undefined}
+        aria-description="Create or update a resource"
       >
         <DialogHeader>
           <DialogTitle>

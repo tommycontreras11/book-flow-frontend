@@ -49,7 +49,7 @@ export default function Request() {
     uuid: string,
     status: StatusRequestEnum
   ) => {
-    if (!user || user?.role !== UserRoleEnum.EMPLOYEE) return;
+    if (user?.role !== UserRoleEnum.EMPLOYEE) return;
 
     updateRequestEmployeeStatus({
       requestUUID: uuid,
@@ -64,14 +64,14 @@ export default function Request() {
   };
 
   return (
-    <div className="mx-auto w-full  overflow-x-auto">
+    <div className="mx-auto w-full overflow-x-auto">
       {user?.role}
       {!requests || !requests?.find((request) => request.status === StatusRequestEnum.PENDING) && <h1>No pending requests</h1>}
       {requests &&
         requests.map((request) => (
           <Card className="w-[350px]" key={request.uuid}>
             <CardHeader>
-              <CardTitle>{request.book.description}</CardTitle>
+              <CardTitle>{request.book.name}</CardTitle>
             </CardHeader>
             <CardContent>{request.status}</CardContent>
             {isEmployee && request.status === StatusRequestEnum.PENDING && (

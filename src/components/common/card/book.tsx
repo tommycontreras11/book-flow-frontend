@@ -31,7 +31,7 @@ export default function BookCard({
           This is a description of the product.
         </p>
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold">$49.99</span>
+          <span className="text-lg font-bold">{book.publicationYear}</span>
           <Button disabled={isOwnedByUser} onClick={handleSubmit}>
             {isOwnedByUser ? "Owned by you" : "Request book"}
           </Button>
