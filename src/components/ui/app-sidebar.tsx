@@ -1,124 +1,130 @@
-import { ChevronUp, Settings } from "lucide-react";
+import { useEffect } from "react";
 
-// import {
-//   Sidebar,
-//   SidebarContent,
-//   SidebarFooter,
-//   SidebarGroup,
-//   SidebarGroupContent,
-//   SidebarGroupLabel,
-//   SidebarMenu,
-//   SidebarMenuButton,
-//   SidebarMenuItem,
-// } from "@/components/ui/sidebar";
-// import { IAppSidebarProps } from "@/interfaces/sidebar.interface";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from "./dropdown-menu";
-// import { IMeUser } from "@/interfaces/auth.interface";
-
-// export function AppSidebar({
-//   items,
-//   userLogged,
-// }: {
-//   items: IAppSidebarProps[];
-//   userLogged?: IMeUser;
-// }) {
-//   const isUserLogged = userLogged?.uuid ? true : false;
-
-//   return (
-//     <Sidebar variant="floating" collapsible="icon">
-//       <SidebarContent>
-//         <SidebarGroup>
-//           <SidebarGroupLabel>Application</SidebarGroupLabel>
-//           <SidebarGroupContent>
-//             <SidebarMenu>
-//               {items
-//                 .filter((item) =>
-//                   !isUserLogged
-//                     ? item.default
-//                     : item.userRole == userLogged?.role || item.bothRoles
-//                 )
-//                 .map((item) => (
-//                   <SidebarMenuItem key={item.title}>
-//                     <SidebarMenuButton asChild>
-//                       <a href={item.url}>
-//                         <item.icon />
-//                         <span>{item.title}</span>
-//                       </a>
-//                     </SidebarMenuButton>
-//                   </SidebarMenuItem>
-//                 ))}
-//             </SidebarMenu>
-//           </SidebarGroupContent>
-//         </SidebarGroup>
-//       </SidebarContent>
-//       <SidebarFooter>
-//         <SidebarMenu>
-//           <SidebarMenuItem>
-//             <DropdownMenu>
-//               <DropdownMenuTrigger asChild>
-//                 <SidebarMenuButton>
-//                   <Settings /> Settings
-//                   <ChevronUp className="ml-auto" />
-//                 </SidebarMenuButton>
-//               </DropdownMenuTrigger>
-//               <DropdownMenuContent
-//                 side="top"
-//                 className="w-[--radix-popper-anchor-width]"
-//               >
-//                 <DropdownMenuItem>
-//                   <SidebarMenuButton asChild>
-//                     <a
-//                       href={`/auth/${userLogged?.uuid ? "signOut" : "signIn"}`}
-//                     >
-//                       <span>{userLogged?.uuid ? "Sign Out" : "Sign In"}</span>
-//                     </a>
-//                   </SidebarMenuButton>
-//                 </DropdownMenuItem>
-//               </DropdownMenuContent>
-//             </DropdownMenu>
-//           </SidebarMenuItem>
-//         </SidebarMenu>
-//       </SidebarFooter>
-//     </Sidebar>
-//   );
-// }
-
-import * as React from "react"
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { NavUser } from "./nav-user";
-import { NavProjects } from "./nav-projects";
-import { TeamSwitcher } from "./team-switcher";
+} from "@/components/ui/sidebar";
+import { UserRoleEnum } from "@/enums/common.enum";
+import { IMeUser } from "@/interfaces/auth.interface";
+import { IAppSidebarProps } from "@/interfaces/sidebar.interface";
+import { me } from "@/lib/auth.lib";
+import {
+  Book,
+  BookA,
+  BookOpenCheck,
+  BookType,
+  BookUser,
+  Building,
+  ClipboardList,
+  Earth,
+  Home,
+  Languages,
+  SquareTerminal,
+  UserCog,
+} from "lucide-react";
+import * as React from "react";
 import { NavMain } from "./nav-main";
+import { NavProjects } from "./nav-projects";
+import { NavUser } from "./nav-user";
+import { TeamSwitcher } from "./team-switcher";
+
 // This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    isUserLogged: false,
-  },
+const data: IAppSidebarProps = {
+  projects: [
+    {
+      name: "Home",
+      url: "/",
+      icon: Home,
+      isActive: true,
+      visibleProps: {
+        bothRoles: true,
+        default: true,
+      },
+    },
+    {
+      name: "Authors",
+      url: "/authors",
+      icon: BookUser,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Books",
+      url: "/books",
+      icon: Book,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Bibliography Types",
+      url: "/bibliography-types",
+      icon: BookType,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Countries",
+      url: "/countries",
+      icon: Earth,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Languages",
+      url: "/languages",
+      icon: Languages,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Sciences",
+      url: "/sciences",
+      icon: BookA,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Employees",
+      url: "/employees",
+      icon: Building,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Users",
+      url: "/users",
+      icon: UserCog,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Loans Management",
+      url: "/loans-management",
+      icon: BookOpenCheck,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Requests",
+      url: "/requests",
+      icon: ClipboardList,
+      visibleProps: {
+        bothRoles: true,
+      },
+    },
+  ],
   navMain: [
     {
       title: "Playground",
@@ -140,105 +146,37 @@ const data = {
         },
       ],
     },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-}
+};
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [user, setUser] = React.useState<IMeUser>();
+
+  useEffect(() => {
+    me()
+      .then((res) => setUser(res.data))
+      .catch((err) => console.log(err));
+  }, []);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavProjects projects={data.projects} />
+        <NavProjects
+          projects={data.projects.filter((project) =>
+            !user?.uuid
+              ? project.visibleProps?.default
+              : project.visibleProps?.userRole == user.role ||
+                project.visibleProps?.bothRoles
+          )}
+        />
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
-

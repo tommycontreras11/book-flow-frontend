@@ -4,8 +4,7 @@ import {
   Folder,
   Forward,
   MoreHorizontal,
-  Trash2,
-  type LucideIcon,
+  Trash2
 } from "lucide-react"
 
 import {
@@ -24,15 +23,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { IAppSidebarProjectItemProps } from "@/interfaces/sidebar.interface"
 
 export function NavProjects({
   projects,
 }: {
-  projects: {
-    name: string
-    url: string
-    icon: LucideIcon
-  }[]
+  projects: IAppSidebarProjectItemProps[]
 }) {
   const { isMobile } = useSidebar()
 
@@ -77,12 +73,6 @@ export function NavProjects({
             </DropdownMenu>
           </SidebarMenuItem>
         ))}
-        <SidebarMenuItem>
-          <SidebarMenuButton className="text-sidebar-foreground/70">
-            <MoreHorizontal className="text-sidebar-foreground/70" />
-            <span>More</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   )

@@ -3,23 +3,37 @@ import { LucideProps } from "lucide-react";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 
 export interface IAppSidebarProps {
+  navMain: IAppSidebarNavMainItemProps[];
+  projects: IAppSidebarProjectItemProps[];
+}
+
+export interface IAppSidebarNavMainItemProps extends IAppSidebarItemProps {
   icon: ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
   >;
   visibleProps?: IAppSidebarVisibleProps;
-  items?: IAppSidebarItemProps[];
+  isActive?: boolean;
+  items: IAppSidebarItemProps[];
 }
 
 export interface IAppSidebarItemProps {
   title: string;
   url: string;
-  visibleProps?: IAppSidebarVisibleProps;
+}
+
+export interface IAppSidebarProjectItemProps
+  extends Partial<Omit<IAppSidebarNavMainItemProps, "items">> {
+  icon: ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+  >;
+  name: string;
+  url: string;
 }
 
 export interface IAppSidebarUserProps {
   name: string;
   email: string;
-  isUserLogged?: IAppSidebarVisibleProps;
+  isUserLogged?: boolean;
 }
 
 export interface IAppSidebarVisibleProps {

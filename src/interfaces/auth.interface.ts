@@ -8,6 +8,7 @@ export interface IAuth {
 export interface IMeUser {
   uuid: string;
   name: string;
+  email: string;
   status: StatusEnum;
   role: UserRoleEnum;
 }
