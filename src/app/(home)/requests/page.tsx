@@ -8,41 +8,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { StatusRequestEnum } from "@/enums/request.enum";
-import { IMeUser } from "@/interfaces/auth.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import { IRequest } from "@/interfaces/request.interface";
-import { me } from "@/lib/auth.lib";
 import { getAllRequest, updateRequestEmployeeStatus } from "@/lib/request.lib";
 import { useEffect, useState } from "react";
 
 export default function Request() {
-  const [requests, setRequests] = useState<IRequest[]>([]);
-  const [user, setUser] = useState<IMeUser>();
   const [isEmployee, setIsEmployee] = useState<boolean | null>(null);
+  const [requests, setRequests] = useState<IRequest[]>([]);
+  const { user } = useAuth();
 
   const fetchRequests = async (isUserEmployee: boolean | null) => {
-    getAllRequest(isUserEmployee ? [StatusRequestEnum.PENDING] : undefined)
-      .then((request) => setRequests(request.data))
+    if(!user) return;
+
+    getAllRequest(isUserEmployee ? [StatusRequestEnum.PENDING] : [StatusRequestEnum.PENDING])
+      .then((request) => {
+        setRequests(request.data)
+        console.log(request.data);
+      })
       .catch((err) => console.log(err));
   };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userResponse = await me();
-        const fetchedUser = userResponse.data;
-        setUser(fetchedUser);
-        const employeeStatus = fetchedUser?.role === UserRoleEnum.EMPLOYEE;
-        setIsEmployee(employeeStatus);
-        fetchRequests(employeeStatus);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchUser();
+    setIsEmployee(user?.role === UserRoleEnum.EMPLOYEE);
+    fetchRequests(isEmployee);
   }, []);
 
   const modifyRequestEmployeeStatus = (
@@ -65,7 +57,6 @@ export default function Request() {
 
   return (
     <div className="mx-auto w-full overflow-x-auto">
-      {user?.role}
       {!requests || !requests?.find((request) => request.status === StatusRequestEnum.PENDING) && <h1>No pending requests</h1>}
       {requests &&
         requests.map((request) => (

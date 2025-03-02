@@ -5,12 +5,9 @@ import { QuickStatsCard } from "@/components/common/card/quick-stats";
 import { RecentActivitiesCard } from "@/components/common/card/recent-activities";
 import { TopBorrowedBooksCard } from "@/components/common/card/top-borrowed-books";
 import { useAuth } from "@/contexts/auth-context";
-import { UserRoleEnum } from "@/enums/common.enum";
-import { IMeUser } from "@/interfaces/auth.interface";
 import { IBook } from "@/interfaces/book.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import { ICreateRequest } from "@/interfaces/request.interface";
-import { me } from "@/lib/auth.lib";
 import { getAllBook } from "@/lib/book.lib";
 import { createRequest } from "@/lib/request.lib";
 import { useEffect, useState } from "react";
@@ -117,9 +114,9 @@ export default function Home() {
           ]}
         />
       </div>
-      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
-        {(user?.role === UserRoleEnum.USER || !user) &&
-          books.map((book) => (
+      <div className="min-h-[100vh] flex-1 rounded-xl md:min-h-min">
+        <div className="w-full max-w-6xl mx-auto flex flex-wrap gap-4 items-start justify-start">
+          {books.map((book) => (
             <BookCard
               key={book.uuid}
               book={book}
@@ -127,6 +124,7 @@ export default function Home() {
               handleSubmit={() => handleRequestBook(book.uuid)}
             />
           ))}
+        </div>
       </div>
     </>
 

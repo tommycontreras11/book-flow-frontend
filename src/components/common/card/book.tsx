@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/auth-context";
+import { UserRoleEnum } from "@/enums/common.enum";
+import { StatusRequestEnum } from "@/enums/request.enum";
 import { IBook } from "@/interfaces/book.interface";
 
 export default function BookCard({
@@ -14,6 +17,8 @@ export default function BookCard({
     (request) => request?.user?.uuid === userUUID
   );
   const isOwnedByUser = userBook?.book?.uuid === book.uuid;
+
+  const { user } = useAuth();
 
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl dark:bg-gray-950">
@@ -32,9 +37,16 @@ export default function BookCard({
         </p>
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold">{book.publicationYear}</span>
-          <Button disabled={isOwnedByUser} onClick={handleSubmit}>
-            {isOwnedByUser ? "Owned by you" : "Request book"}
-          </Button>
+          {user?.role === UserRoleEnum.USER && (
+            <Button disabled={isOwnedByUser} onClick={handleSubmit}>
+              {isOwnedByUser
+                ? userBook?.status != StatusRequestEnum.DENIED &&
+                  userBook?.status != StatusRequestEnum.PENDING
+                  ? "Owned by you"
+                  : "Pending to approval"
+                : "Request book"}
+            </Button>
+          )}
         </div>
       </div>
     </div>

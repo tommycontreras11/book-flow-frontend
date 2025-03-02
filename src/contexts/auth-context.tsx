@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cookie) {
         me()
         .then(({ data }: { data: IMeUser }) => {
-          setUser(data);
+            setUser(data);
             setIsLoggedIn(true);
           })
           .catch((err) => console.log(err));
