@@ -1,15 +1,13 @@
 "use client";
 
-import { signOut } from "@/lib/auth.lib";
+import { useAuth } from "@/contexts/auth-context";
 import { useEffect } from "react";
 
 export default function SignOut() {
+    const { logout } = useAuth();
+  
   useEffect(() => {
-    signOut()
-      .then(() => {
-        window.location.replace("/"); 
-      })
-      .catch((err) => console.log(err));
+    logout();
   }, []);
 
   return <div>Signing you out...</div>; 

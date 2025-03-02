@@ -24,48 +24,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PersonTypeEnum } from "@/enums/common.enum";
 import { createUser } from "@/lib/user.lib";
+import { userFormSchema } from "@/schema/user.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const formSchema = z
-  .object({
-    name: z
-      .string()
-      .refine((value) => value.trim().length > 0, "Name is required"),
-    username: z
-      .string()
-      .min(3, "Username must be at least 3 characters")
-      .max(100, "Username must be less than 20 characters"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    identification: z
-      .string()
-      .min(11, "Identification must be at least 11 characters")
-      .max(100, "Identification must be less than 100 characters"),
-    person_type: z.enum([PersonTypeEnum.LEGAL, PersonTypeEnum.NATURAL], {
-      required_error: "Person type is required",
-    }),
-  })
-  .required();
-
 export default function SignUp() {
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof userFormSchema>>({
+    resolver: zodResolver(userFormSchema),
     defaultValues: {
       name: "",
-      username: "",
+      email: "",
       password: "",
       identification: "",
       person_type: undefined,
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof userFormSchema>) {
     createUser(values)
       .then(() => router.push("/auth/signIn"))
       .catch((err) => console.log(err));
@@ -113,7 +93,7 @@ export default function SignUp() {
                   <div className="grid gap-2">
                     <FormField
                       control={form.control}
-                      name="username"
+                      name="email"
                       render={({ field, fieldState }) => (
                         <FormItem>
                           <FormLabel
@@ -121,11 +101,11 @@ export default function SignUp() {
                               fieldState?.error?.message && "text-red-500"
                             }
                           >
-                            Username
+                            Email
                           </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Type your username"
+                              placeholder="Type your email"
                               {...field}
                             />
                           </FormControl>

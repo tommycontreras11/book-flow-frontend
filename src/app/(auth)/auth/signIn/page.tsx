@@ -17,13 +17,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signIn } from "@/lib/auth.lib";
+import { useAuth } from "@/contexts/auth-context";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const formSchema = z.object({
+export const formSchema = z.object({
   email: z
     .string()
     .email({ message: "Invalid email" })
@@ -34,7 +33,7 @@ const formSchema = z.object({
 });
 
 export default function SignIn() {
-  const router = useRouter();
+  const { login } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,9 +44,7 @@ export default function SignIn() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    signIn(values)
-      .then(() => router.push("/"))
-      .catch((err) => console.log(err));
+    login(values);
   }
 
   return (
