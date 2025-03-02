@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { me } from "./lib/auth.lib";
+import { NextResponse } from "next/server";
 import { UserRoleEnum } from "./enums/common.enum";
+import { me } from "./lib/auth.lib";
 
 const protectedRoutes = [
   "/languages",
