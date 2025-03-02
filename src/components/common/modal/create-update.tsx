@@ -27,11 +27,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 export interface IFormField {
   name: string;
   label: string;
-  type?: "text" | "number" | "select" | "multi-select" | "file";
+  type?:
+    | "text"
+    | "password"
+    | "date"
+    | "number"
+    | "select"
+    | "multi-select"
+    | "file";
   defaultValue?: string | number;
   options?: IOptionsFormField[];
 }
@@ -60,7 +76,6 @@ export function CreateUpdateForm<T extends FieldValues>({
   isOpen,
   onClose,
 }: CreateUpdateFormProps<T>) {
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTrigger asChild></DialogTrigger>
@@ -103,21 +118,65 @@ export function CreateUpdateForm<T extends FieldValues>({
                         </FormControl>
                       )}
 
+                      {fieldInput.type === "date" && (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[240px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "yyyy-MM-dd")
+                                ) : (
+                                  <span>Pick a date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      )}
+
+                      {fieldInput.type === "password" && (
+                        <FormControl>
+                          <Input
+                            placeholder={`Type your ${field.name}`}
+                            {...field}
+                            type="password"
+                            className="w-full"
+                          />
+                        </FormControl>
+                      )}
+
                       {fieldInput.type === "file" && (
                         <Controller
-                        name={"file" as Path<T>}
-                        control={form.control}
-                        render={({ field: { onChange, ref } }) => (
-                          <FormControl>
-                            <Input
-                              type="file"
-                              className="w-full"
-                              ref={ref} // ✅ Correctly handle ref
-                              onChange={(e) => onChange(e.target.files?.[0] || null)} // ✅ Handle file change
-                            />
-                          </FormControl>
-                        )}
-                      />
+                          name={"file" as Path<T>}
+                          control={form.control}
+                          render={({ field: { onChange, ref } }) => (
+                            <FormControl>
+                              <Input
+                                type="file"
+                                className="w-full"
+                                ref={ref} // ✅ Correctly handle ref
+                                onChange={(e) =>
+                                  onChange(e.target.files?.[0] || null)
+                                } // ✅ Handle file change
+                              />
+                            </FormControl>
+                          )}
+                        />
                       )}
 
                       {fieldInput.type === "number" && (

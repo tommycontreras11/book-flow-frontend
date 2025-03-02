@@ -1,6 +1,10 @@
 "use client";
 
 import BookCard from "@/components/common/card/book";
+import { QuickStatsCard } from "@/components/common/card/quick-stats";
+import { RecentActivitiesCard } from "@/components/common/card/recent-activities";
+import { TopBorrowedBooksCard } from "@/components/common/card/top-borrowed-books";
+import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { IMeUser } from "@/interfaces/auth.interface";
 import { IBook } from "@/interfaces/book.interface";
@@ -12,13 +16,13 @@ import { createRequest } from "@/lib/request.lib";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [user, setUser] = useState<IMeUser>();
   const [books, setBooks] = useState<IBook[]>([]);
+
+  const { user } = useAuth();
 
   const fetchData = async () => {
     try {
-      const [userRes, booksRes] = await Promise.all([me(), getAllBook()]);
-      setUser(userRes.data);
+      const booksRes = await getAllBook();
       setBooks(booksRes.data);
     } catch (error) {
       console.log(error);
@@ -47,15 +51,94 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-wrap gap-4 justify-left">
-      {(user?.role === UserRoleEnum.USER || !user) && books.map((book) => (
-        <BookCard
-          key={book.uuid}
-          book={book}
-          userUUID={user?.uuid}
-          handleSubmit={() => handleRequestBook(book.uuid)}
+    <>
+      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+        <QuickStatsCard
+          quickStats={[
+            {
+              id: "1",
+              title: "Total Books",
+              value: 100,
+              type: "total",
+            },
+            {
+              id: "2",
+              title: "Available Books",
+              value: 80,
+              type: "available",
+            },
+            {
+              id: "3",
+              title: "Borrowed Books",
+              value: 20,
+              type: "borrowed",
+            },
+          ]}
         />
-      ))}
-    </div>
+        <RecentActivitiesCard
+          activities={[
+            {
+              id: "1",
+              title: "The Great Gatsby",
+              timestamp: "2023-08-01",
+              type: "borrowed",
+            },
+            {
+              id: "2",
+              title: "1984",
+              timestamp: "2023-08-01",
+              type: "returned",
+            },
+            {
+              id: "3",
+              title: "John Doe",
+              timestamp: "2023-08-01",
+              type: "registered",
+            },
+          ]}
+        />
+        <TopBorrowedBooksCard
+          books={[
+            {
+              id: "1",
+              title: "The Great Gatsby",
+              borrowCount: 10,
+            },
+            {
+              id: "2",
+              title: "1984",
+              borrowCount: 8,
+            },
+            {
+              id: "3",
+              title: "Brave New World",
+              borrowCount: 6,
+            },
+          ]}
+        />
+      </div>
+      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
+        {(user?.role === UserRoleEnum.USER || !user) &&
+          books.map((book) => (
+            <BookCard
+              key={book.uuid}
+              book={book}
+              userUUID={user?.uuid}
+              handleSubmit={() => handleRequestBook(book.uuid)}
+            />
+          ))}
+      </div>
+    </>
+
+    // <div className="w-full max-w-6xl mx-auto flex flex-wrap gap-4 justify-left">
+    //   {(user?.role === UserRoleEnum.USER || !user) && books.map((book) => (
+    //     <BookCard
+    //       key={book.uuid}
+    //       book={book}
+    //       userUUID={user?.uuid}
+    //       handleSubmit={() => handleRequestBook(book.uuid)}
+    //     />
+    //   ))}
+    // </div>
   );
 }
