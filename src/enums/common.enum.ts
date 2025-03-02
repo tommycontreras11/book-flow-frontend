@@ -8,6 +8,12 @@ export enum PersonTypeEnum {
   LEGAL = 'LEGAL'
 }
 
+export enum WorkShiftEnum {
+  MORNING = 'MORNING',
+  AFTERNOON = 'AFTERNOON',
+  NIGHT = 'NIGHT'
+}
+
 export enum UserRoleEnum {
   USER = 'USER',
   EMPLOYEE = 'EMPLOYEE'

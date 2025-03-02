@@ -8,4 +8,4 @@ export interface IEmployee extends Partial<Omit<IUser, "carnet_number" | "person
 
 export interface ICreateEmployee extends Partial<Omit<IEmployee, "uuid" | "status">> { }
 
-export interface IUpdateEmployee extends Partial<IEmployee> { }
+export interface IUpdateEmployee extends Partial<ICreateEmployee> { }
