@@ -30,6 +30,7 @@ import { NavMain } from "./nav-main";
 import { NavProjects } from "./nav-projects";
 import { NavUser } from "./nav-user";
 import { TeamSwitcher } from "./team-switcher";
+import { useAuth } from "@/contexts/auth-context";
 
 // This is sample data.
 const data: IAppSidebarProps = {
@@ -149,13 +150,7 @@ const data: IAppSidebarProps = {
   ],
 };
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [user, setUser] = React.useState<IMeUser>();
-
-  useEffect(() => {
-    me()
-      .then((res) => setUser(res.data))
-      .catch((err) => console.log(err));
-  }, []);
+  const { user } = useAuth();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -174,7 +169,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

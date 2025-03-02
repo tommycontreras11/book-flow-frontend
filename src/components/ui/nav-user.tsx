@@ -21,19 +21,18 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { IMeUser } from "@/interfaces/auth.interface";
+import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 
-export function NavUser({
-  user,
-}: {
-  user?: IMeUser;
-}) {
+export function NavUser() {
   const { isMobile } = useSidebar();
   const router = useRouter();
 
-  const isUserLogged = user?.uuid ? true : false;
+  const { user, isLoggedIn } = useAuth();
+
+  
   const fullNameInitials = user?.name?.split(" ").map((name) => name[0]).join("");
+  console.log("klk ", user);
 
   return (
     <SidebarMenu>
@@ -43,18 +42,18 @@ export function NavUser({
             <SidebarMenuButton
               size="lg"
               className={
-                isUserLogged
+                isLoggedIn
                   ? "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   : ""
               }
               onClick={() => {
-                if(!isUserLogged) {
+                if(!isLoggedIn) {
                   router.push("/auth/signIn");
                 }
               }}
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                {isUserLogged ? (
+                {isLoggedIn ? (
                   <AvatarFallback className="rounded-lg">{fullNameInitials}</AvatarFallback>
                 ) : (
                   <User className="rounded-lg"></User>
@@ -63,16 +62,16 @@ export function NavUser({
 
               <div className={"grid flex-1 text-left text-sm leading-tight"}>
                 <span className="truncate font-semibold">
-                  {isUserLogged ? user?.name : "Sign In"}
+                  {isLoggedIn ? user?.name : "Sign In"}
                 </span>
                 <span className="truncate text-xs">
-                  {isUserLogged ? user?.email : "Login to your account"}
+                  {isLoggedIn ? user?.email : "Login to your account"}
                 </span>
               </div>
-              {isUserLogged && <ChevronsUpDown className="ml-auto" />}
+              {isLoggedIn && <ChevronsUpDown className="ml-auto" />}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          {isUserLogged && (
+          {isLoggedIn && (
             <DropdownMenuContent
               className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
               side={isMobile ? "bottom" : "right"}
