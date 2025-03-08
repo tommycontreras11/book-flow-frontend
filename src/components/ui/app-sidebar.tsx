@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -7,10 +5,9 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
-import { IMeUser } from "@/interfaces/auth.interface";
 import { IAppSidebarProps } from "@/interfaces/sidebar.interface";
-import { me } from "@/lib/auth.lib";
 import {
   Book,
   BookA,
@@ -22,19 +19,17 @@ import {
   Earth,
   Home,
   Languages,
-  SquareTerminal,
   UserCog,
 } from "lucide-react";
 import * as React from "react";
 import { NavMain } from "./nav-main";
-import { NavProjects } from "./nav-projects";
+import { NavSecondary } from "./nav-secondary";
 import { NavUser } from "./nav-user";
 import { TeamSwitcher } from "./team-switcher";
-import { useAuth } from "@/contexts/auth-context";
 
 // This is sample data.
 const data: IAppSidebarProps = {
-  projects: [
+  navMain: [
     {
       name: "Home",
       url: "/",
@@ -126,31 +121,35 @@ const data: IAppSidebarProps = {
       },
     },
   ],
-  navMain: [
+  navSecondary: [
     {
-      title: "Playground",
+      title: "Requests",
       url: "#",
-      icon: SquareTerminal,
-      isActive: true,
+      icon: ClipboardList,
+      visibleProps: {
+        bothRoles: true,
+      },
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "Manage",
+          url: "/requests",
+          visibleProps: {
+            userRole: UserRoleEnum.EMPLOYEE,
+          },
         },
         {
-          title: "Starred",
+          title: "My requests",
           url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
+          visibleProps: {
+            bothRoles: true,
+          },
         },
       ],
     },
   ],
 };
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -158,15 +157,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavProjects
-          projects={data.projects.filter((project) =>
+        <NavMain
+          items={data.navMain.filter((nav) =>
             !user?.uuid
-              ? project.visibleProps?.default
-              : project.visibleProps?.userRole == user.role ||
-                project.visibleProps?.bothRoles
+              ? nav.visibleProps?.default
+              : nav.visibleProps?.userRole == user.role ||
+                nav.visibleProps?.bothRoles
           )}
         />
-        <NavMain items={data.navMain} />
+        {isLoggedIn && (
+          <NavSecondary
+            items={data.navSecondary.filter((nav) =>
+              !user?.uuid
+                ? nav.visibleProps?.default
+                : nav.visibleProps?.userRole == user.role ||
+                  nav.visibleProps?.bothRoles
+            )}
+          />
+        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

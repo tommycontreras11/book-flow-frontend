@@ -4,10 +4,10 @@ import { ForwardRefExoticComponent, RefAttributes } from "react";
 
 export interface IAppSidebarProps {
   navMain: IAppSidebarNavMainItemProps[];
-  projects: IAppSidebarProjectItemProps[];
+  navSecondary: IAppSidebarNavSecondaryItemProps[];
 }
 
-export interface IAppSidebarNavMainItemProps extends IAppSidebarItemProps {
+export interface IAppSidebarNavSecondaryItemProps extends IAppSidebarItemProps {
   icon: ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
   >;
@@ -19,10 +19,11 @@ export interface IAppSidebarNavMainItemProps extends IAppSidebarItemProps {
 export interface IAppSidebarItemProps {
   title: string;
   url: string;
+  visibleProps?: IAppSidebarVisibleProps;
 }
 
-export interface IAppSidebarProjectItemProps
-  extends Partial<Omit<IAppSidebarNavMainItemProps, "items">> {
+export interface IAppSidebarNavMainItemProps
+  extends Partial<Omit<IAppSidebarNavSecondaryItemProps, "items">> {
   icon: ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
   >;

@@ -30,9 +30,7 @@ export function NavUser() {
 
   const { user, isLoggedIn } = useAuth();
 
-  
   const fullNameInitials = user?.name?.split(" ").map((name) => name[0]).join("");
-  console.log("klk ", user);
 
   return (
     <SidebarMenu>
