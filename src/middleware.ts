@@ -12,6 +12,7 @@ const protectedRoutes = [
   "/countries",
   "/employees",
   "/users",
+  "/requests",
   "/loans-management",
   "/books",
 ];
@@ -32,6 +33,11 @@ export async function middleware(request: NextRequest) {
 
   if (isProtectedRoute(currentPath) && user?.message) {
     return NextResponse.redirect(new URL("auth/signIn", request.url));
+  }
+
+  if(currentPath === "/requests" && user?.data?.role === UserRoleEnum.USER) {
+    const requestIndex = protectedRoutes.findIndex((route) => route === "/requests");
+    requestIndex !== -1 && protectedRoutes.splice(requestIndex, 1);
   }
 
   if(user?.data?.role === UserRoleEnum.USER && isProtectedRoute(currentPath)) {
