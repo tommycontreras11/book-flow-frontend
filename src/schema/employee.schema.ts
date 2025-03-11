@@ -17,12 +17,9 @@ export const employeeFormSchema = z
       .string()
       .min(11, "Identification must be at least 11 characters")
       .max(100, "Identification must be less than 100 characters"),
-    work_shift: z.enum(
-      [WorkShiftEnum.MORNING, WorkShiftEnum.AFTERNOON, WorkShiftEnum.NIGHT],
-      {
-        required_error: "Person type is required",
-      }
-    ),
+    work_shift: z.enum(Object.values(WorkShiftEnum) as [string, ...string[]], {
+      required_error: "Person type is required",
+    }),
     commission_percentage: z.number().min(0).max(100),
     entry_date: z
       .date()

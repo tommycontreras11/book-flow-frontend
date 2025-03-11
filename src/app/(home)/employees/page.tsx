@@ -66,26 +66,18 @@ export default function Employee() {
   };
 
   useEffect(() => {
+    const workShiftOptions = Object.values(WorkShiftEnum).map((value) => ({
+      label: value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
+      value,
+    }))
+
     setEmployeeFields((prevFields) => [
       ...prevFields,
       {
         name: "work_shift",
         label: "Work Shift",
         type: "select",
-        options: [
-          {
-            label: "Morning",
-            value: WorkShiftEnum.MORNING,
-          },
-          {
-            label: "Afternoon",
-            value: WorkShiftEnum.AFTERNOON,
-          },
-          {
-            label: "Night",
-            value: WorkShiftEnum.NIGHT,
-          },
-        ],
+        options: workShiftOptions
       },
     ]);
 
