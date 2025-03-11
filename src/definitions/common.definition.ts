@@ -1,5 +1,6 @@
 import { IStatusTableDefinitions } from "@/interfaces/table.interface";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
+import { BookmarkCheck, BookOpenCheck, CircleDashed, X } from "lucide-react";
 
 export const commonStatusTableDefinitions: IStatusTableDefinitions[] = [
   {
@@ -11,5 +12,33 @@ export const commonStatusTableDefinitions: IStatusTableDefinitions[] = [
     value: "INACTIVE",
     label: "Inactive",
     icon: CrossCircledIcon,
+  },
+];
+
+export const requestStatusTableDefinitions: IStatusTableDefinitions[] = [
+  {
+    value: "COMPLETED",
+    label: "Completed",
+    icon: CheckCircledIcon,
+  },
+  {
+    value: "BORROWED",
+    label: "Borrowed",
+    icon: BookmarkCheck,
+  },
+  {
+    value: "APPROVAL",
+    label: "Approval",
+    icon: BookOpenCheck,
+  },
+  {
+    value: "DENIED",
+    label: "Denied",
+    icon: X,
+  },
+  {
+    value: "PENDING",
+    label: "Pending",
+    icon: CircleDashed,
   },
 ];

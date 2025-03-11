@@ -14,7 +14,10 @@ export interface ICreateRequest extends Partial<Omit<IRequest, "uuid" | "book" |
   bookUUID: string;
 }
 
-export interface IUpdateRequest extends Partial<ICreateRequest> { }
+export interface IUpdateRequest {
+  status?: StatusRequestEnum;
+  bookUUID?: string;
+ }
 
 export interface IUpdateRequestEmployeeStatus {
   requestUUID: string;

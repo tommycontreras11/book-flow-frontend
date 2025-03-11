@@ -22,11 +22,19 @@ export default function Request() {
   const { user } = useAuth();
 
   const fetchRequests = async (isUserEmployee: boolean | null) => {
-    if(!user) return;
+    if (!user) return;
 
-    getAllRequest(isUserEmployee ? [StatusRequestEnum.PENDING] : [StatusRequestEnum.PENDING])
+    getAllRequest(
+      isUserEmployee
+        ? [StatusRequestEnum.PENDING]
+        : [
+            StatusRequestEnum.PENDING,
+            StatusRequestEnum.APPROVAL,
+            StatusRequestEnum.BORROWED,
+          ]
+    )
       .then((request) => {
-        setRequests(request.data)
+        setRequests(request.data);
         console.log(request.data);
       })
       .catch((err) => console.log(err));
@@ -56,42 +64,57 @@ export default function Request() {
   };
 
   return (
-    <div className="mx-auto w-full overflow-x-auto">
-      {!requests || !requests?.find((request) => request.status === StatusRequestEnum.PENDING) && <h1>No pending requests</h1>}
-      {requests &&
-        requests.map((request) => (
-          <Card className="w-[350px]" key={request.uuid}>
-            <CardHeader>
-              <CardTitle>{request.book.name}</CardTitle>
-            </CardHeader>
-            <CardContent>{request.status}</CardContent>
-            {isEmployee && request.status === StatusRequestEnum.PENDING && (
-              <CardFooter className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    modifyRequestEmployeeStatus(
-                      request.uuid,
-                      StatusRequestEnum.DENIED
-                    )
-                  }
-                >
-                  Deny
-                </Button>
-                <Button
-                  onClick={() =>
-                    modifyRequestEmployeeStatus(
-                      request.uuid,
-                      StatusRequestEnum.APPROVAL
-                    )
-                  }
-                >
-                  Approve
-                </Button>
-              </CardFooter>
-            )}
-          </Card>
-        ))}
-    </div>
+    <>
+      {user ? (
+        <div className="mx-auto w-full overflow-x-auto">
+          {user.role === UserRoleEnum.EMPLOYEE &&
+          requests.some(
+            (request) => request.status === StatusRequestEnum.PENDING
+          ) ? (
+            <h2 className="text-2xl text-center font-medium">
+              Pending Requests
+            </h2>
+          ) : (
+            <h2 className="text-2xl text-center font-medium">
+              Please request a book to be borrowed
+            </h2>
+          )}
+          {requests &&
+            requests.map((request) => (
+              <Card className="w-[350px]" key={request.uuid}>
+                <CardHeader>
+                  <CardTitle>{request.book.name}</CardTitle>
+                </CardHeader>
+                <CardContent>{request.status}</CardContent>
+                {isEmployee && request.status === StatusRequestEnum.PENDING && (
+                  <CardFooter className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        modifyRequestEmployeeStatus(
+                          request.uuid,
+                          StatusRequestEnum.DENIED
+                        )
+                      }
+                    >
+                      Deny
+                    </Button>
+                    <Button
+                      onClick={() =>
+                        modifyRequestEmployeeStatus(
+                          request.uuid,
+                          StatusRequestEnum.APPROVAL
+                        )
+                      }
+                    >
+                      Approve
+                    </Button>
+                  </CardFooter>
+                )}
+              </Card>
+            ))}
+        </div>
+      ) : null}
+    </>
   );
 }
