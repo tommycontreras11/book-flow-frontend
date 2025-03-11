@@ -13,7 +13,7 @@ export interface ILoanManagement {
   status: LoanManagementEnum;
 }
 
-export interface ICreateLoanManagement extends Partial<Omit<ILoanManagement, "uuid" | "loan_number" | "quantity_day" | "amount_day" | "request" | "status">> { 
+export interface ICreateLoanManagement extends Partial<Omit<ILoanManagement, "uuid" | "loan_number" | "date_loan" | "quantity_day" | "amount_day" | "request" | "status">> { 
   requestUUID: string;
 }
 

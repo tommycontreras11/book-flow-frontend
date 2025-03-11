@@ -61,15 +61,17 @@ export const getOneLoanManagement = async (uuid: string) => {
 };
 
 export const createLoanManagement = async (
-  loanManagement: ICreateLoanManagement
+  { requestUUID, ...loanManagement }: ICreateLoanManagement
 ) => {
   try {
+    console.log(loanManagement);
     const response = await api.post(
-      `${config.apiURL}/loan-managements/${loanManagement.requestUUID}`
+      `${config.apiURL}/loan-managements/${requestUUID}`,
+      loanManagement
     );
     return response.data;
   } catch (error) {
-    console.log(error);
+    return error;
   }
 };
 
