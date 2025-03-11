@@ -38,6 +38,8 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<IMeUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -46,10 +48,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cookie) {
         me()
         .then(({ data }: { data: IMeUser }) => {
+          console.log(data);
             setUser(data);
             setIsLoggedIn(true);
           })
-          .catch((err) => console.log(err));
+          .catch((err) => console.log(err))
+          .finally(() => setLoading(false));;
+      }else {
+        setLoading(false);
       }
     };
 
@@ -84,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, setUser, user, login, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }

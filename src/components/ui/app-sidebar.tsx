@@ -109,15 +109,7 @@ const data: IAppSidebarProps = {
       url: "/loans-management",
       icon: BookOpenCheck,
       visibleProps: {
-        userRole: UserRoleEnum.EMPLOYEE,
-      },
-    },
-    {
-      name: "Requests",
-      url: "/requests",
-      icon: ClipboardList,
-      visibleProps: {
-        bothRoles: true,
+        userRole: UserRoleEnum.USER,
       },
     },
   ],
@@ -132,14 +124,14 @@ const data: IAppSidebarProps = {
       items: [
         {
           title: "Manage",
-          url: "/requests",
+          url: "/requests/manage",
           visibleProps: {
             userRole: UserRoleEnum.EMPLOYEE,
           },
         },
         {
-          title: "My requests",
-          url: "#",
+          title: "Requests",
+          url: "/requests",
           visibleProps: {
             bothRoles: true,
           },

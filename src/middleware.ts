@@ -35,9 +35,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("auth/signIn", request.url));
   }
 
-  if(currentPath === "/requests" && user?.data?.role === UserRoleEnum.USER) {
+  if(currentPath === "/requests" || currentPath === "/loans-management" && user?.data?.role === UserRoleEnum.USER) {
     const requestIndex = protectedRoutes.findIndex((route) => route === "/requests");
+    const loanManagementIndex = protectedRoutes.findIndex((route) => route === "/loans-management");
     requestIndex !== -1 && protectedRoutes.splice(requestIndex, 1);
+    loanManagementIndex !== -1 && protectedRoutes.splice(loanManagementIndex, 1);
   }
 
   if(user?.data?.role === UserRoleEnum.USER && isProtectedRoute(currentPath)) {
