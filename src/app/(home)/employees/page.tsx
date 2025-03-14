@@ -16,8 +16,6 @@ import { IMessage } from "@/interfaces/message.interface";
 import {
   createEmployee,
   deleteEmployee,
-  getAllEmployee,
-  getOneEmployee,
   updateEmployee,
 } from "@/lib/employee.lib";
 import { fillFormInput } from "@/lib/utils";
@@ -27,9 +25,9 @@ import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { columns } from "./table/column";
+import { useGetAllEmployee, useGetOneEmployee } from "@/hooks/api/employee.hook";
 
 export default function Employee() {
-  const [employees, setEmployees] = useState<IEmployee[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState<null | string>(null);
@@ -55,15 +53,8 @@ export default function Employee() {
     },
   });
 
-  const fetchEmployees = async () => {
-    getAllEmployee()
-      .then((employees) => {
-        console.log(employees);
-        setEmployees(employees.data);
-        setIsModalOpen(false);
-      })
-      .catch((err) => console.log(err));
-  };
+  const { data: employees, error, isLoading, refetch } = useGetAllEmployee()
+  const { data: employee } = useGetOneEmployee(uuid || '')
 
   useEffect(() => {
     const workShiftOptions = Object.values(WorkShiftEnum).map((value) => ({
@@ -81,54 +72,61 @@ export default function Employee() {
       },
     ]);
 
-    fetchEmployees();
-  }, []);
+  }, [employees, isLoading]);
+
+  useEffect(() => {
+    if(!employee) return
+
+    if(isModalOpen && isEditable) {
+      fillFormInput(form, [
+        { property: "name", value: employee.name },
+        {
+          property: "email",
+          value: employee.email,
+        },
+        {
+          property: "password",
+          value: employee.password,
+        },
+        {
+          property: "identification",
+          value: employee.identification,
+        },
+        {
+          property: "work_shift",
+          value: employee.work_shift,
+        },
+        {
+          property: "commission_percentage",
+          value: employee.commission_percentage,
+        },
+        {
+          property: "entry_date",
+          value: employee.entry_date,
+        },
+      ]);
+
+      return;
+    }
+
+    form.reset()
+    setIsEditable(false)
+
+  }, [employee, isEditable, isModalOpen])
 
   const handleDelete = (uuid: string) => {
     deleteEmployee(uuid)
       .then((data: IMessage) => {
-        fetchEmployees();
+        refetch();
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
   const handleUpdate = (uuid: string) => {
-    getOneEmployee(uuid)
-      .then((employee) => {
-        fillFormInput(form, [
-          { property: "name", value: employee.data.name },
-          {
-            property: "email",
-            value: employee.data.email,
-          },
-          {
-            property: "password",
-            value: employee.data.password,
-          },
-          {
-            property: "identification",
-            value: employee.data.identification,
-          },
-          {
-            property: "work_shift",
-            value: employee.data.work_shift,
-          },
-          {
-            property: "commission_percentage",
-            value: employee.data.commission_percentage,
-          },
-          {
-            property: "entry_date",
-            value: employee.data.entry_date,
-          },
-        ]);
-
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyEmployee = (employee: IUpdateEmployee) => {
@@ -158,12 +156,11 @@ export default function Employee() {
   const handleSubmit = async (formData: ICreateEmployee | IUpdateEmployee) => {
     if (uuid) {
       modifyEmployee(formData);
-      fetchEmployees();
-      return;
+    }else {
+      saveEmployee(formData as ICreateEmployee);
     }
 
-    saveEmployee(formData as ICreateEmployee);
-    fetchEmployees();
+    refetch();
   };
 
   return (
@@ -175,7 +172,7 @@ export default function Employee() {
         Create
       </button>
       <DataTable
-        data={employees}
+        data={employees || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
