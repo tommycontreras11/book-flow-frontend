@@ -5,36 +5,28 @@ import { QuickStatsCard } from "@/components/common/card/quick-stats";
 import { RecentActivitiesCard } from "@/components/common/card/recent-activities";
 import { TopBorrowedBooksCard } from "@/components/common/card/top-borrowed-books";
 import { useAuth } from "@/contexts/auth-context";
+import { useGetAllBook } from "@/hooks/api/book.hook";
 import { IBook } from "@/interfaces/book.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import { ICreateRequest } from "@/interfaces/request.interface";
-import { getAllBook } from "@/lib/book.lib";
 import { createRequest } from "@/lib/request.lib";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [books, setBooks] = useState<IBook[]>([]);
-
   const { user } = useAuth();
 
-  const fetchData = async () => {
-    try {
-      const booksRes = await getAllBook();
-      setBooks(booksRes.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const {
+    data: books,
+    error: bookError,
+    isLoading: isLoadingBook,
+    refetch
+  } = useGetAllBook();
 
   const saveRequest = (request: ICreateRequest) => {
     createRequest(request)
       .then((data: IMessage) => {
-        fetchData();
         console.log(data.message);
+        refetch()
       })
       .catch((err) => console.log(err));
   };
@@ -116,7 +108,7 @@ export default function Home() {
       </div>
       <div className="min-h-[100vh] flex-1 rounded-xl md:min-h-min">
         <div className="w-full max-w-6xl mx-auto flex flex-wrap gap-4 items-start justify-start">
-          {books.map((book) => (
+          {books?.map((book) => (
             <BookCard
               key={book.uuid}
               book={book}

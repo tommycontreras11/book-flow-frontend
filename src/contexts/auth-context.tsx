@@ -44,6 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const validateUser = async () => {
+      const storedUser = localStorage.getItem("user")
+
+      if(storedUser) {
+        setUser(JSON.parse(storedUser))
+        setIsLoggedIn(true);
+        setLoading(false);
+        return;
+      }
+
       const cookie = await getCookie();
       if (cookie) {
         me()
@@ -70,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .then(({ data }: { data: IMeUser }) => {
           setUser(data);
             setIsLoggedIn(true);
+            localStorage.setItem("user", JSON.stringify(data));
             router.push("/");
           })
           .catch((err) => console.log(err));
@@ -83,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(() => {
           setUser(null);
           setIsLoggedIn(false);
+          localStorage.removeItem("user");
         window.location.replace("/");
       })
       .catch((err) => console.log(err));
