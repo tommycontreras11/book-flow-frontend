@@ -7,25 +7,23 @@ import {
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { useGetAllAuthor } from "@/hooks/api/author.hook";
+import { UseGetAllBibliographyType } from "@/hooks/api/bibliography-type.hook";
+import { useGetAllBook, useGetOneBook } from "@/hooks/api/book.hook";
+import { useGetAllLanguage } from "@/hooks/api/language.hook";
+import { UseGetAllPublisher } from "@/hooks/api/publisher.hook";
+import { useGetAllScience } from "@/hooks/api/science.hook";
 import { IAuthor } from "@/interfaces/author.interface";
-import { IBibliographyType } from "@/interfaces/bibliography-type.interface";
-import { IBook, ICreateBook, IUpdateBook } from "@/interfaces/book.interface";
+import { ICreateBook, IUpdateBook } from "@/interfaces/book.interface";
 import { ILanguage } from "@/interfaces/language.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import { IPublisher } from "@/interfaces/publisher.interface";
 import { IScience } from "@/interfaces/science.interface";
-import { getAllAuthor } from "@/lib/author.lib";
-import { getAllBibliographyType } from "@/lib/bibliography-type.lib";
 import {
   createBook,
   deleteBook,
-  getAllBook,
-  getOneBook,
   updateBook,
 } from "@/lib/book.lib";
-import { getAllLanguage } from "@/lib/language.lib";
-import { getAllPublisher } from "@/lib/publisher.lib";
-import { getAllScience } from "@/lib/science.lib";
 import { fillFormInput } from "@/lib/utils";
 import { bookFormSchema } from "@/schema/book.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,7 +32,6 @@ import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
 
 export default function Book() {
-  const [books, setBooks] = useState<IBook[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
@@ -65,174 +62,207 @@ export default function Book() {
     },
   });
 
-  const fetchBooks = async () => {
-    getAllBook()
-      .then((books) => {
-        setBooks(books.data);
-        setIsModalOpen(false);
-      })
-      .catch((err) => console.log(err));
-  };
+  const {
+    data: books,
+    error: bookError,
+    isLoading: isLoadingBook,
+    refetch
+  } = useGetAllBook();
+  const {
+    data: book,
+  } = useGetOneBook(uuid || "");
+  const { data: bibliographyTypes, isLoading: isLoadingBibliographyType } =
+    UseGetAllBibliographyType();
+  const { data: languages, isLoading: isLoadingLanguage } = useGetAllLanguage();
+  const { data: authors, isLoading: isLoadingAuthor } = useGetAllAuthor();
+  const { data: publishers, isLoading: isLoadingPublisher } =
+    UseGetAllPublisher();
+  const { data: sciences, isLoading: isLoadingScience } = useGetAllScience();
 
   useEffect(() => {
-    let bibliographyTypeOptions: IOptionsFormField[] = [];
-    let languageOptions: IOptionsFormField[] = [];
-    let scienceOptions: IOptionsFormField[] = [];
-    let authorOptions: IOptionsFormField[] = [];
-    let publisherOptions: IOptionsFormField[] = [];
+    let bibliographyTypeOptions: IOptionsFormField[] | undefined = [];
+    let languageOptions: IOptionsFormField[] | undefined = [];
+    let scienceOptions: IOptionsFormField[] | undefined = [];
+    let authorOptions: IOptionsFormField[] | undefined = [];
+    let publisherOptions: IOptionsFormField[] | undefined = [];
 
-    fetchBooks();
+    if (!isLoadingBibliographyType && bibliographyTypes) {
 
-    getAllBibliographyType()
-      .then((bibliographyTypes) => {
-        bibliographyTypeOptions = bibliographyTypes.data.map(
-          (bibliographyType: IBibliographyType) => ({
-            label: bibliographyType.name,
-            value: bibliographyType.uuid,
-          })
-        );
+      bibliographyTypeOptions = bibliographyTypes?.map((bibliographyType) => ({
+        label: bibliographyType.name,
+        value: bibliographyType.uuid,
+      }));
 
-        setBookFields((prevFields) => [
-          ...prevFields,
-          {
-            name: "bibliographyTypeUUID",
-            label: "Bibliography Type",
-            type: "select",
-            options: bibliographyTypeOptions,
-          },
-        ]);
-      })
-      .catch((err) => console.log(err));
+      setBookFields((prevFields) => {
+        if (
+          !prevFields.some((field) => field.name === "bibliographyTypeUUID")
+        ) {
+          return [
+            ...prevFields,
+            {
+              name: "bibliographyTypeUUID",
+              label: "Bibliography Type",
+              type: "select",
+              options: bibliographyTypeOptions,
+            },
+          ];
+        }
+        return prevFields;
+      });
+    }
 
-    getAllScience()
-      .then((sciences) => {
-        scienceOptions = sciences.data.map((science: IScience) => ({
-          label: science.name,
-          value: science.uuid,
-        }));
+    if (!isLoadingScience && sciences) {
+      scienceOptions = sciences?.map((science: IScience) => ({
+        label: science.name,
+        value: science.uuid,
+      }));
 
-        setBookFields((prevFields) => [
-          ...prevFields,
-          {
-            name: "scienceUUID",
-            label: "Science",
-            type: "select",
-            options: scienceOptions,
-          },
-        ]);
-      })
-      .catch((err) => console.log(err));
+      setBookFields((prevFields) => {
+        if (!prevFields.some((field) => field.name === "scienceUUID")) {
+          return [
+            ...prevFields,
+            {
+              name: "scienceUUID",
+              label: "Science",
+              type: "select",
+              options: scienceOptions,
+            },
+          ];
+        }
+        return prevFields;
+      });
+    }
 
-    getAllAuthor()
-      .then((authors) => {
-        authorOptions = authors.data.map((author: IAuthor) => ({
-          label: author.name,
-          value: author.uuid,
-        }));
+    if (!isLoadingAuthor && authors) {
+      authorOptions = authors?.map((author: IAuthor) => ({
+        label: author.name,
+        value: author.uuid,
+      }));
 
-        setBookFields((prevFields) => [
-          ...prevFields,
-          {
-            name: "authorUUIDs",
-            label: "Authors",
-            type: "multi-select",
-            options: authorOptions,
-          },
-        ]);
-      })
-      .catch((err) => console.log(err));
+      setBookFields((prevFields) => {
+        if (!prevFields.some((field) => field.name === "authorUUIDs")) {
+          return [
+            ...prevFields,
+            {
+              name: "authorUUIDs",
+              label: "Authors",
+              type: "multi-select",
+              options: authorOptions,
+            },
+          ];
+        }
+        return prevFields;
+      });
+    }
 
-    getAllLanguage()
-      .then((languages) => {
-        languageOptions = languages.data.map((language: ILanguage) => ({
-          label: language.name,
-          value: language.uuid,
-        }));
+    if (!isLoadingLanguage && languages) {
+      languageOptions = languages?.map((language: ILanguage) => ({
+        label: language.name,
+        value: language.uuid,
+      }));
 
-        setBookFields((prevFields) => [
-          ...prevFields,
-          {
-            name: "languageUUID",
-            label: "Language",
-            type: "select",
-            options: languageOptions,
-          },
-        ]);
-      })
-      .catch((err) => console.log(err));
+      setBookFields((prevFields) => {
+        if (!prevFields.some((field) => field.name === "languageUUID")) {
+          return [
+            ...prevFields,
+            {
+              name: "languageUUID",
+              label: "Language",
+              type: "select",
+              options: languageOptions,
+            },
+          ];
+        }
+        return prevFields;
+      });
+    }
 
-    getAllPublisher()
-      .then((publishers) => {
-        publisherOptions = publishers.data.map((publisher: IPublisher) => ({
-          label: publisher.name,
-          value: publisher.uuid,
-        }));
+    if (!isLoadingPublisher && publishers) {
+      publisherOptions = publishers?.map((publisher: IPublisher) => ({
+        label: publisher.name,
+        value: publisher.uuid,
+      }));
 
-        setBookFields((prevFields) => [
-          ...prevFields,
-          {
-            name: "publisherUUID",
-            label: "Publisher",
-            type: "select",
-            options: publisherOptions,
-          },
-        ]);
-      })
-      .catch((err) => console.log(err));
-  }, []);
+      setBookFields((prevFields) => {
+        if (!prevFields.some((field) => field.name === "publisherUUID")) {
+          return [
+            ...prevFields,
+            {
+              name: "publisherUUID",
+              label: "Publisher",
+              type: "select",
+              options: publisherOptions,
+            },
+          ];
+        }
+        return prevFields;
+      });
+    }
+  }, [
+    books,
+    isLoadingBook,
+  ]);
+
+  useEffect(() => {
+    if(!book) return
+
+    if(isModalOpen && isEditable) {
+      fillFormInput(form, [
+        { property: "name", value: book.name },
+        {
+          property: "topographicalSignature",
+          value: book.topographicalSignature,
+        },
+        {
+          property: "isbn",
+          value: book.isbn,
+        },
+        {
+          property: "publicationYear",
+          value: book.publicationYear,
+        },
+        {
+          property: "bibliographyTypeUUID",
+          value: book.bibliographyType.uuid,
+        },
+        {
+          property: "publisherUUID",
+          value: book.publisher.uuid,
+        },
+        {
+          property: "languageUUID",
+          value: book.language.uuid,
+        },
+        {
+          property: "scienceUUID",
+          value: book.science.uuid,
+        },
+        {
+          property: "authorUUIDs",
+          value: book.authors.map((author) => author.uuid),
+        },
+      ]);
+      
+      return;
+    }
+
+    form.reset();
+    setIsEditable(false);
+  })
 
   const handleDelete = (uuid: string) => {
     deleteBook(uuid)
       .then((data: IMessage) => {
-        fetchBooks();
         console.log(data.message);
+        refetch()
       })
       .catch((err) => console.log(err));
   };
 
-  const handleUpdate = (uuid: string) => {
-    getOneBook(uuid)
-      .then((book) => {
-        fillFormInput(form, [
-          { property: "name", value: book.data.name },
-          {
-            property: "topographicalSignature",
-            value: book.data.topographicalSignature,
-          },
-          {
-            property: "isbn",
-            value: book.data.isbn,
-          },
-          {
-            property: "publicationYear",
-            value: book.data.publicationYear,
-          },
-          {
-            property: "bibliographyTypeUUID",
-            value: book.data.bibliographyTypeUUID,
-          },
-          {
-            property: "publisherUUID",
-            value: book.data.publisherUUID,
-          },
-          {
-            property: "languageUUID",
-            value: book.data.languageUUID,
-          },
-          {
-            property: "scienceUUID",
-            value: book.data.scienceUUID,
-          },
-          {
-            property: "authorUUIDs",
-            value: book.data.authorUUIDs,
-          },
-        ]);
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+  const handleUpdate = (uuid: string) => { 
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyBook = (book: FormData) => {
@@ -252,11 +282,12 @@ export default function Book() {
         form.reset();
         setIsModalOpen(false);
         console.log(data);
+        refetch()
       })
       .catch((err) => console.log(err));
   };
 
-  const handleSubmit = async (book: ICreateBook | IUpdateBook) => {
+  const handleSubmit = (book: ICreateBook | IUpdateBook) => {
     const formData = new FormData();
 
     bookFields
@@ -279,13 +310,15 @@ export default function Book() {
 
     if (uuid) {
       modifyBook(formData);
-      fetchBooks();
-      return;
+    } else {
+      saveBook(formData);
     }
 
-    saveBook(formData);
-    fetchBooks();
+    refetch();
   };
+
+  if (bookError) return <div>Request Failed</div>;
+  if (isLoadingBook) return <div>Loading...</div>;
 
   return (
     <div className="mx-auto w-full overflow-x-auto">
@@ -296,7 +329,7 @@ export default function Book() {
         Create
       </button>
       <DataTable
-        data={books}
+        data={books || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
