@@ -6,16 +6,12 @@ import {
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { useGetAllScience } from "@/hooks/api/science.hook";
 import { IMessage } from "@/interfaces/message.interface";
-import {
-  ICreateScience,
-  IScience,
-  IUpdateScience,
-} from "@/interfaces/science.interface";
+import { ICreateScience, IUpdateScience } from "@/interfaces/science.interface";
 import {
   createScience,
   deleteScience,
-  getAllScience,
   getOneScience,
   updateScience,
 } from "@/lib/science.lib";
@@ -27,7 +23,6 @@ import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
 
 export default function Science() {
-  const [sciences, setSciences] = useState<IScience[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
@@ -42,23 +37,14 @@ export default function Science() {
     },
   });
 
-  const fetchSciences = async () => {
-    getAllScience()
-      .then((sciences) => {
-        setSciences(sciences.data);
-        setIsModalOpen(false);
-      })
-      .catch((err) => console.log(err));
-  };
+  const { data: sciences, isLoading, error, refetch } = useGetAllScience();
 
-  useEffect(() => {
-    fetchSciences();
-  }, []);
+  useEffect(() => {}, [sciences, isLoading]);
 
   const handleDelete = (uuid: string) => {
     deleteScience(uuid)
       .then((data: IMessage) => {
-        fetchSciences();
+        refetch();
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -99,12 +85,11 @@ export default function Science() {
   const handleSubmit = async (formData: ICreateScience | IUpdateScience) => {
     if (uuid) {
       modifyScience(formData);
-      fetchSciences();
-      return;
+    } else {
+      saveScience(formData);
     }
 
-    saveScience(formData);
-    fetchSciences();
+    refetch();
   };
 
   return (
@@ -116,7 +101,7 @@ export default function Science() {
         Create
       </button>
       <DataTable
-        data={sciences}
+        data={sciences || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
