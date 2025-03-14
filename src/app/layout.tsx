@@ -2,6 +2,8 @@
 
 import { AuthProvider } from "@/contexts/auth-context";
 import { Geist, Geist_Mono } from "next/font/google";
+import { QueryClient, QueryClientProvider } from "react-query";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,6 +16,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 60 * 24,
+    },
+  },
+})
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,9 +34,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <main>{children}</main>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <main>{children}</main>
+          </AuthProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );

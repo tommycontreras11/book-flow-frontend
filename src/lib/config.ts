@@ -1,5 +1,3 @@
-const apiURL = process.env.BOOK_FLOW_API_URL
-
 export const config = {
-    apiURL
+    apiURL: process.env.BOOK_FLOW_API_URL || "http://localhost:3000/api"
 }
