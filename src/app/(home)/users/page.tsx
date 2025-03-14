@@ -2,20 +2,15 @@
 
 import {
   CreateUpdateForm,
-  IFormField
+  IFormField,
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { PersonTypeEnum } from "@/enums/common.enum";
+import { useGetAllUser, useGetOneUser } from "@/hooks/api/user.hook";
 import { IMessage } from "@/interfaces/message.interface";
-import { ICreateUser, IUpdateUser, IUser } from "@/interfaces/user.interface";
-import {
-  createUser,
-  deleteUser,
-  getAllUser,
-  getOneUser,
-  updateUser,
-} from "@/lib/user.lib";
+import { ICreateUser, IUpdateUser } from "@/interfaces/user.interface";
+import { createUser, deleteUser, updateUser } from "@/lib/user.lib";
 import { fillFormInput } from "@/lib/utils";
 import { userFormSchema } from "@/schema/user.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +20,6 @@ import { z } from "zod";
 import { columns } from "./table/column";
 
 export default function User() {
-  const [users, setUsers] = useState<IUser[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState<null | string>(null);
@@ -34,6 +28,21 @@ export default function User() {
     { name: "email", label: "Email", type: "text" },
     { name: "password", label: "Password", type: "text" },
     { name: "identification", label: "Identification", type: "text" },
+    {
+      name: "person_type",
+      label: "Person Type",
+      type: "select",
+      options: [
+        {
+          label: "Legal",
+          value: PersonTypeEnum.LEGAL,
+        },
+        {
+          label: "Natural",
+          value: PersonTypeEnum.NATURAL,
+        },
+      ],
+    }
   ]);
 
   const form = useForm<z.infer<typeof userFormSchema>>({
@@ -47,75 +56,58 @@ export default function User() {
     },
   });
 
-  const fetchUsers = async () => {
-    getAllUser()
-      .then((users) => {
-        setUsers(users.data);
-        setIsModalOpen(false);
-      })
-      .catch((err) => console.log(err));
-  };
+  const { data: users, error, isLoading, refetch } = useGetAllUser();
+  const { data: user } = useGetOneUser(uuid || "");
 
   useEffect(() => {
-    setUserFields((prevFields) => [
-      ...prevFields,
-      {
-        name: "person_type",
-        label: "Person Type",
-        type: "select",
-        options: [
-          {
-            label: "Legal",
-            value: PersonTypeEnum.LEGAL,
-          },
-          {
-            label: "Natural",
-            value: PersonTypeEnum.NATURAL,
-          },
-        ],
-      },
-    ]);
 
-    fetchUsers();
-  }, []);
+  }, [users, isLoading]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    if(isModalOpen && isEditable) {
+      fillFormInput(form, [
+        { property: "name", value: user.name },
+        {
+          property: "email",
+          value: user.email,
+        },
+        {
+          property: "password",
+          value: user.password,
+        },
+        {
+          property: "identification",
+          value: user.identification,
+        },
+        {
+          property: "person_type",
+          value: user.person_type,
+        },
+      ]);
+
+      return;
+    } 
+
+    form.reset();
+    setIsEditable(false);
+
+  }, [user, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteUser(uuid)
       .then((data: IMessage) => {
-        fetchUsers();
+        refetch();
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
   const handleUpdate = (uuid: string) => {
-    getOneUser(uuid)
-      .then((user) => {
-        fillFormInput(form, [
-          { property: "name", value: user.data.name },
-          {
-            property: "email",
-            value: user.data.email,
-          },
-          {
-            property: "password",
-            value: user.data.password,
-          },
-          {
-            property: "identification",
-            value: user.data.identification,
-          },
-          {
-            property: "person_type",
-            value: user.data.person_type,
-          },
-        ]);
-
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyUser = (user: IUpdateUser) => {
@@ -145,12 +137,11 @@ export default function User() {
   const handleSubmit = async (formData: ICreateUser | IUpdateUser) => {
     if (uuid) {
       modifyUser(formData);
-      fetchUsers();
-      return;
+    } else {
+      saveUser(formData as ICreateUser);
     }
 
-    saveUser(formData as ICreateUser);
-    fetchUsers();
+    refetch();
   };
 
   return (
@@ -162,7 +153,7 @@ export default function User() {
         Create
       </button>
       <DataTable
-        data={users}
+        data={users || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
