@@ -25,8 +25,6 @@ function isProtectedRoute(path: string): boolean {
 export async function middleware(request: NextRequest) {
   const user = await me();
 
-  console.log("Middleware executed for:", request.nextUrl.pathname);
-
   const currentPath = request.nextUrl.pathname;
 
   if (currentPath === "/auth/signIn") {

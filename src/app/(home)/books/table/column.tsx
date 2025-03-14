@@ -3,11 +3,11 @@
 import { ColumnDef } from "@tanstack/react-table";
 import clsx from "clsx";
 
-import { StatusEnum } from "@/enums/common.enum";
-import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { DataTableColumnHeader } from "@/components/common/table/data-table-column-header";
 import { DataTableRowActions } from "@/components/common/table/data-table-row-actions";
-import { ILanguage } from "@/interfaces/language.interface";
+import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { StatusEnum } from "@/enums/common.enum";
+import { IBook } from "@/providers/http/books/interface";
 
 // Pass `handleUpdate` and `handleDelete` as props to columns
 export const columns = ({
@@ -16,7 +16,7 @@ export const columns = ({
 }: {
   handleUpdate: (uuid: string) => void;
   handleDelete: (uuid: string) => void;
-}): ColumnDef<ILanguage>[] => [
+}): ColumnDef<IBook>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -45,25 +45,25 @@ export const columns = ({
     ),
   },
   {
-    accessorKey: "bibliographyTypeName",
+    accessorKey: "bibliographyType.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={"Bibliography Type"} />
     ),
   },
   {
-    accessorKey: "publisherName",
+    accessorKey: "publisher.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={"Publisher"} />
     ),
   },
   {
-    accessorKey: "languageName",
+    accessorKey: "language.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={"Language"} />
     ),
   },
   {
-    accessorKey: "scienceDescription",
+    accessorKey: "science.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={"Science"} />
     ),
