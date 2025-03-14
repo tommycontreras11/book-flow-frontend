@@ -25,6 +25,8 @@ function isProtectedRoute(path: string): boolean {
 export async function middleware(request: NextRequest) {
   const user = await me();
 
+  console.log("Middleware executed for:", request.nextUrl.pathname);
+
   const currentPath = request.nextUrl.pathname;
 
   if (currentPath === "/auth/signIn") {
@@ -35,14 +37,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("auth/signIn", request.url));
   }
 
-  if(currentPath === "/requests" || currentPath === "/loans-management" && user?.data?.role === UserRoleEnum.USER) {
-    const requestIndex = protectedRoutes.findIndex((route) => route === "/requests");
-    const loanManagementIndex = protectedRoutes.findIndex((route) => route === "/loans-management");
-    requestIndex !== -1 && protectedRoutes.splice(requestIndex, 1);
-    loanManagementIndex !== -1 && protectedRoutes.splice(loanManagementIndex, 1);
+  let allowedRoutes = [...protectedRoutes];
+
+  if (
+    (currentPath === "/requests" || currentPath === "/loans-management") &&
+    user?.data?.role === UserRoleEnum.USER
+  ) {
+    allowedRoutes = allowedRoutes.filter(
+      (route) => route !== "/requests" && route !== "/loans-management"
+    );
   }
 
-  if(user?.data?.role === UserRoleEnum.USER && isProtectedRoute(currentPath)) {
+  if (
+    user?.data?.role === UserRoleEnum.USER &&
+    isProtectedRoute(currentPath) &&
+    !["/requests", "/loans-management"].includes(currentPath)
+  ) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -59,6 +69,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    //"/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
