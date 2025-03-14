@@ -4,16 +4,18 @@ import api from "./api";
 
 import {
     ICreateLanguage,
+    ILanguage,
     IUpdateLanguage,
 } from "@/interfaces/language.interface";
 import { config } from "./config";
 
-export const getAllLanguage = async () => {
+export const getAllLanguage = async (): Promise<ResponseI<ILanguage[]>> => {
   try {
     const response = await api.get(config.apiURL + "/languages");
     return response.data;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 

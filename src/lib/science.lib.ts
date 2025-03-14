@@ -2,24 +2,15 @@
 
 import api from "./api";
 
-import { config } from "./config";
 import { ICreateScience, IUpdateScience } from "@/interfaces/science.interface";
-
-export const getAllScience = async () => {
-  try {
-    const response = await api.get(config.apiURL + "/sciences");
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
+import { config } from "./config";
 
 export const getOneScience = async (uuid: string) => {
   try {
     const response = await api.get(config.apiURL + "/sciences/" + uuid);
     return response.data;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 };
 
@@ -28,7 +19,7 @@ export const createScience = async (science: ICreateScience) => {
     const response = await api.post(config.apiURL + "/sciences", science);
     return response.data;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 };
 
@@ -40,7 +31,7 @@ export const updateScience = async (uuid: string, science: IUpdateScience) => {
     );
     return response.data;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 };
 
@@ -49,6 +40,6 @@ export const deleteScience = async (uuid: string) => {
     const response = await api.delete(config.apiURL + "/sciences/" + uuid);
     return response.data;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 };

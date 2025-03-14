@@ -5,15 +5,17 @@ import api from "./api";
 import { config } from "./config";
 import {
   ICreatePublisher,
+  IPublisher,
   IUpdatePublisher,
 } from "@/interfaces/publisher.interface";
 
-export const getAllPublisher = async () => {
+export const getAllPublisher = async (): Promise<ResponseI<IPublisher[]>> => {
   try {
     const response = await api.get(config.apiURL + "/publishers");
     return response.data;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 

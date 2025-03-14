@@ -4,6 +4,7 @@ import { ILanguage } from "./language.interface";
 import { IPublisher } from "./publisher.interface";
 import { IScience } from "./science.interface";
 import { IRequest } from "./request.interface";
+import { IAuthor } from "./author.interface";
 
 export interface IBook {
   uuid: string;
@@ -12,14 +13,11 @@ export interface IBook {
   isbn: string;
   publicationYear: number;
   publisher: IPublisher;
-  publisherName: string,
   language: ILanguage;
-  languageName: string,
   science: IScience;
-  scienceDescription: string,
   bibliographyType: IBibliographyType;
-  bibliographyTypeName: string,
   requests: IRequest[];
+  authors: IAuthor[]
   status: StatusEnum;
   url: string;
   file: File

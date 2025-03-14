@@ -5,15 +5,6 @@ import api from "./api";
 import { config } from "./config";
 import { ICreateUser, IUpdateUser } from "@/interfaces/user.interface";
 
-export const getAllUser = async () => {
-  try {
-    const response = await api.get(config.apiURL + "/users");
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 export const getOneUser = async (uuid: string) => {
   try {
     const response = await api.get(config.apiURL + "/users/" + uuid);

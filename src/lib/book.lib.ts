@@ -1,17 +1,11 @@
 "use server";
 
+import { IBook } from "@/interfaces/book.interface";
 import api from "./api";
 
 import { config } from "./config";
+import { getCookie } from "./auth.lib";
 
-export const getAllBook = async () => {
-  try {
-    const response = await api.get(config.apiURL + "/books");
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 export const getOneBook = async (uuid: string) => {
   try {
@@ -26,12 +20,14 @@ export const createBook = async (book: FormData) => {
   try {
     const response = await api.post(config.apiURL + "/books", book, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "multipart/form-data"
       }
     });
     return response.data;
   } catch (error) {
     console.log(error);
+    throw error;
+    
   }
 };
 

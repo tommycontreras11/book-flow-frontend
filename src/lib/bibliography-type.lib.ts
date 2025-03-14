@@ -4,16 +4,18 @@ import api from "./api";
 
 import { config } from "./config";
 import {
+  IBibliographyType,
   ICreateBibliographyType,
   IUpdateBibliographyType,
 } from "@/interfaces/bibliography-type.interface";
 
-export const getAllBibliographyType = async () => {
+export const getAllBibliographyType = async (): Promise<ResponseI<IBibliographyType[]>> => {
   try {
     const response = await api.get(config.apiURL + "/bibliography-types");
     return response.data;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
