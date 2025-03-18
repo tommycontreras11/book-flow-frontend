@@ -15,8 +15,6 @@ import { IMessage } from "@/interfaces/message.interface";
 import {
   createCountry,
   deleteCountry,
-  getAllCountries,
-  getOneCountry,
   updateCountry,
 } from "@/lib/country.lib";
 import { fillFormInput } from "@/lib/utils";
@@ -25,9 +23,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
+import { useGetAllCountry, useGetOneCountry } from "@/hooks/api/country.hook";
 
 export default function Country() {
-  const [countries, setCountries] = useState<ICountry[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
@@ -42,36 +40,35 @@ export default function Country() {
     },
   });
 
-  const fetchCountries = async () => {
-    getAllCountries()
-      .then((countries) => {
-        setCountries(countries.data);
-      })
-      .catch((err) => console.log(err));
-  };
+  const { data: countries, error, isLoading: isCountriesLoading, refetch } = useGetAllCountry()
+  const { data: country } = useGetOneCountry(uuid || "")
 
   useEffect(() => {
-    fetchCountries();
-  }, []);
+    if(!country)  return
+
+    if(isModalOpen && isEditable) {
+      fillFormInput(form, [{ property: "name", value: country.name }]);
+      return;
+    }
+
+    form.reset();
+    setIsEditable(false);
+
+  }, [country, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteCountry(uuid)
       .then((data: IMessage) => {
-        fetchCountries();
+        refetch();
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
   const handleUpdate = (uuid: string) => {
-    getOneCountry(uuid)
-      .then((country) => {
-        fillFormInput(form, [{ property: "name", value: country.data.name }]);
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyCountry = (country: IUpdateCountry) => {
@@ -98,12 +95,11 @@ export default function Country() {
   const handleSubmit = async (formData: ICreateCountry | IUpdateCountry) => {
     if (uuid) {
       modifyCountry(formData);
-      fetchCountries();
-      return;
+    } else {
+      saveCountry(formData as ICreateCountry);
     }
 
-    saveCountry(formData as ICreateCountry);
-    fetchCountries();
+    refetch();
   };
 
   return (
@@ -115,7 +111,7 @@ export default function Country() {
         Create
       </button>
       <DataTable
-        data={countries}
+        data={countries || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
