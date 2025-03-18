@@ -1,4 +1,4 @@
-import countryProvider from "@/providers/http/country";
+import countryProvider from "@/providers/http/countries";
 import { useQuery } from "react-query";
 
 export function useGetAllCountry() {
