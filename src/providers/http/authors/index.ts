@@ -10,6 +10,10 @@ class AuthorsProvider extends Base {
     public getAll(): Promise<IResponse<IAuthor[]>> {
         return this.get('/')
     }
+
+    public getOne(uuid: string): Promise<IResponse<IAuthor>> {
+        return this.get(`/${uuid}`)
+    }
 }
 
 const authorsProvider = new AuthorsProvider()

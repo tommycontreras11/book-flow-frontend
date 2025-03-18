@@ -2,37 +2,31 @@
 
 import {
   CreateUpdateForm,
-  IFormField,
-  IOptionsFormField,
+  IFormField
 } from "@/components/common/modal/create-update";
+import DataTable from "@/components/common/table/data-table";
+import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { useGetAllAuthor, useGetOneAuthor } from "@/hooks/api/author.hook";
+import { useGetAllCountry } from "@/hooks/api/country.hook";
+import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import {
-  IAuthor,
   ICreateAuthor,
-  IUpdateAuthor,
+  IUpdateAuthor
 } from "@/interfaces/author.interface";
-import { ICountry } from "@/interfaces/country.interface";
-import { ILanguage } from "@/interfaces/language.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import {
   createAuthor,
   deleteAuthor,
-  getAllAuthor,
-  getOneAuthor,
   updateAuthor,
 } from "@/lib/author.lib";
-import { getAllCountries } from "@/lib/country.lib";
-import { getAllLanguage } from "@/lib/language.lib";
+import { fillFormInput } from "@/lib/utils";
 import { authorFormSchema } from "@/schema/author.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
-import { fillFormInput } from "@/lib/utils";
-import DataTable from "@/components/common/table/data-table";
-import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 
 export default function Author() {
-  const [authors, setAuthors] = useState<IAuthor[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState("");
@@ -49,87 +43,87 @@ export default function Author() {
     },
   });
 
-  const fetchAuthors = async () => {
-    getAllAuthor()
-      .then((authors) => {
-        setAuthors(authors.data);
-        setIsModalOpen(false);
-      })
-      .catch((err) => console.log(err));
-  };
+  const { data: authors, error, isLoading: isAuthorsLoading, refetch } = useGetAllAuthor()
+  const { data: author } = useGetOneAuthor(uuid || "")
+  const { data: countries, isLoading: isCountriesLoading } = useGetAllCountry()
+  const { data: languages, isLoading: isLanguagesLoading } = useGetAllLanguage()
 
   useEffect(() => {
-    let countryOptions: IOptionsFormField[] = [];
-    let languageOptions: IOptionsFormField[] = [];
-    fetchAuthors();
-    getAllCountries()
-      .then((countries) => {
-        countryOptions = countries.data.map((country: ICountry) => ({
-          label: country.name,
-          value: country.uuid,
-        }));
-
-        setAuthorFields((prevFields) => [
+    if(isCountriesLoading || isLanguagesLoading) return
+    
+    setAuthorFields((prevFields) => {
+      if(!prevFields.find((field) => field.name === "birthCountryUUID")) {
+        return [
           ...prevFields,
           {
             name: "birthCountryUUID",
             label: "Birth Country",
             type: "select",
-            options: countryOptions,
+            options: countries?.map((country) => ({
+              label: country.name,
+              value: country.uuid,
+            })),
           },
-        ]);
-      })
-      .catch((err) => console.log(err));
+        ]
+      }
+      return prevFields;
+    });
 
-    getAllLanguage()
-      .then((languages) => {
-        languageOptions = languages.data.map((language: ILanguage) => ({
-          label: language.name,
-          value: language.uuid,
-        }));
+      setAuthorFields((prevFields) => {
+        if(!prevFields.find((field) => field.name === "nativeLanguageUUID")) {
+          return [
+            ...prevFields,
+            {
+              name: "nativeLanguageUUID",
+              label: "Native Language",
+              type: "select",
+              options: languages?.map((language) => ({
+                label: language.name,
+                value: language.uuid,
+              })),
+            },
+          ]
+        }
+        return prevFields
+      });
+  }, [countries, isCountriesLoading, languages, isLanguagesLoading]);
 
-        setAuthorFields((prevFields) => [
-          ...prevFields,
-          {
-            name: "nativeLanguageUUID",
-            label: "Native Language",
-            type: "select",
-            options: languageOptions,
-          },
-        ]);
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  useEffect(() => {
+    if(!author) return
+
+    if(isModalOpen && isEditable) {
+      fillFormInput(form, [
+        { property: "name", value: author.name },
+        {
+          property: "birthCountryUUID",
+          value: author.birthCountry.uuid,
+        },
+        {
+          property: "nativeLanguageUUID",
+          value: author.nativeLanguage.uuid,
+        },
+      ]);
+      return;
+    }
+
+    form.reset();
+    setIsEditable(false)
+
+  }, [author, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteAuthor(uuid)
       .then((data: IMessage) => {
-        fetchAuthors();
+        refetch();
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
   const handleUpdate = (uuid: string) => {
-    getOneAuthor(uuid)
-      .then((author) => {
-        fillFormInput(form, [
-          { property: "name", value: author.data.name },
-          {
-            property: "birthCountryUUID",
-            value: author.data.birthCountry.uuid,
-          },
-          {
-            property: "nativeLanguageUUID",
-            value: author.data.nativeLanguage.uuid,
-          },
-        ]);
-
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyAuthor = (author: IUpdateAuthor) => {
@@ -156,12 +150,11 @@ export default function Author() {
   const handleSubmit = async (formData: ICreateAuthor | IUpdateAuthor) => {
     if (uuid) {
       modifyAuthor(formData);
-      fetchAuthors();
-      return;
+    }else {
+      saveAuthor(formData as ICreateAuthor);
     }
 
-    saveAuthor(formData as ICreateAuthor);
-    fetchAuthors();
+    refetch();
   };
 
   return (
@@ -173,7 +166,7 @@ export default function Author() {
         Create
       </button>
       <DataTable
-        data={authors}
+        data={authors || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
