@@ -1,17 +1,18 @@
 "use client";
 
 import { formSchema } from "@/app/(auth)/auth/signIn/page";
+import { useMe } from "@/hooks/api/auth.hook";
 import { IMeUser } from "@/interfaces/auth.interface";
-import { getCookie, me, signIn, signOut } from "@/lib/auth.lib";
+import { me, signIn, signOut } from "@/lib/auth.lib";
 import { useRouter } from "next/navigation";
 import {
   createContext,
-  useContext,
-  useState,
-  ReactNode,
   Dispatch,
+  ReactNode,
   SetStateAction,
+  useContext,
   useEffect,
+  useState,
 } from "react";
 import { z } from "zod";
 
@@ -39,47 +40,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<IMeUser | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const { data, isLoading } = useMe();
   const router = useRouter();
 
   useEffect(() => {
     const validateUser = async () => {
-      const storedUser = localStorage.getItem("user")
-
-      if(storedUser) {
-        setUser(JSON.parse(storedUser))
+      if (data) {
+        setUser(data);
         setIsLoggedIn(true);
-        setLoading(false);
-        return;
-      }
-
-      const cookie = await getCookie();
-      if (cookie) {
-        me()
-        .then(({ data }: { data: IMeUser }) => {
-          console.log(data);
-            setUser(data);
-            setIsLoggedIn(true);
-          })
-          .catch((err) => console.log(err))
-          .finally(() => setLoading(false));;
-      }else {
+      } else {
         setLoading(false);
       }
     };
 
     validateUser();
-  }, [])
+  }, [data, isLoading]);
 
   const login = (values: z.infer<typeof formSchema>) => {
     console.log("Logging in...");
     signIn(values)
       .then(() => {
         me()
-        .then(({ data }: { data: IMeUser }) => {
-          setUser(data);
+          .then(({ data }: { data: IMeUser }) => {
+            setUser(data);
             setIsLoggedIn(true);
-            localStorage.setItem("user", JSON.stringify(data));
             router.push("/");
           })
           .catch((err) => console.log(err));
@@ -91,9 +75,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log("Logging out...");
     signOut()
       .then(() => {
-          setUser(null);
-          setIsLoggedIn(false);
-          localStorage.removeItem("user");
+        setUser(null);
+        setIsLoggedIn(false);
         window.location.replace("/");
       })
       .catch((err) => console.log(err));
