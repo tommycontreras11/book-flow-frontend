@@ -8,8 +8,11 @@ import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { WorkShiftEnum } from "@/enums/common.enum";
 import {
+  useGetAllEmployee,
+  useGetOneEmployee,
+} from "@/hooks/api/employee.hook";
+import {
   ICreateEmployee,
-  IEmployee,
   IUpdateEmployee,
 } from "@/interfaces/employee.interface";
 import { IMessage } from "@/interfaces/message.interface";
@@ -25,7 +28,7 @@ import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { columns } from "./table/column";
-import { useGetAllEmployee, useGetOneEmployee } from "@/hooks/api/employee.hook";
+import { format } from "date-fns";
 
 export default function Employee() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,7 +39,11 @@ export default function Employee() {
     { name: "email", label: "Email", type: "text" },
     { name: "password", label: "Password", type: "text" },
     { name: "identification", label: "Identification", type: "text" },
-    { name: "commission_percentage", label: "Commission Percentage", type: "number" },
+    {
+      name: "commission_percentage",
+      label: "Commission Percentage",
+      type: "number",
+    },
     { name: "entry_date", label: "Entry Date", type: "date" },
   ]);
 
@@ -53,31 +60,38 @@ export default function Employee() {
     },
   });
 
-  const { data: employees, error, isLoading, refetch } = useGetAllEmployee()
-  const { data: employee } = useGetOneEmployee(uuid || '')
+  const { data: employees, error, isLoading, refetch } = useGetAllEmployee();
+  const { data: employee } = useGetOneEmployee(uuid || "");
 
   useEffect(() => {
+    if(!isLoading) return; 
+
     const workShiftOptions = Object.values(WorkShiftEnum).map((value) => ({
       label: value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
       value,
-    }))
+    }));
 
-    setEmployeeFields((prevFields) => [
-      ...prevFields,
-      {
-        name: "work_shift",
-        label: "Work Shift",
-        type: "select",
-        options: workShiftOptions
-      },
-    ]);
-
+    setEmployeeFields((prevFields) => {
+      if (!prevFields.find((field) => field.name === "work_shift")) {
+        return [
+          ...prevFields,
+          {
+            name: "work_shift",
+            label: "Work Shift",
+            type: "select",
+            options: workShiftOptions,
+          },
+        ];
+      }
+      return prevFields;
+    });
   }, [employees, isLoading]);
 
   useEffect(() => {
-    if(!employee) return
+    if (!employee) return;
 
-    if(isModalOpen && isEditable) {
+    if (isModalOpen && isEditable) {
+      console.log(employee.entry_date)
       fillFormInput(form, [
         { property: "name", value: employee.name },
         {
@@ -102,17 +116,17 @@ export default function Employee() {
         },
         {
           property: "entry_date",
-          value: employee.entry_date,
+          value: new Date(employee.entry_date).toISOString().split("T")[0],
         },
       ]);
 
       return;
     }
 
-    form.reset()
-    setIsEditable(false)
-
-  }, [employee, isEditable, isModalOpen])
+    form.reset();
+    setIsEditable(false);
+    setUUID(null);
+  }, [employee, isEditable, isModalOpen, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteEmployee(uuid)
@@ -156,7 +170,7 @@ export default function Employee() {
   const handleSubmit = async (formData: ICreateEmployee | IUpdateEmployee) => {
     if (uuid) {
       modifyEmployee(formData);
-    }else {
+    } else {
       saveEmployee(formData as ICreateEmployee);
     }
 
