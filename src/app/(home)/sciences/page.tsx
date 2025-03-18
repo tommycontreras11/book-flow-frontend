@@ -6,14 +6,13 @@ import {
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
-import { useGetAllScience } from "@/hooks/api/science.hook";
+import { useGetAllScience, useGetOneScience } from "@/hooks/api/science.hook";
 import { IMessage } from "@/interfaces/message.interface";
 import { ICreateScience, IUpdateScience } from "@/interfaces/science.interface";
 import {
   createScience,
   deleteScience,
-  getOneScience,
-  updateScience,
+  updateScience
 } from "@/lib/science.lib";
 import { fillFormInput } from "@/lib/utils";
 import { scienceFormSchema } from "@/schema/science.schema";
@@ -25,7 +24,7 @@ import { columns } from "./table/column";
 export default function Science() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [uuid, setUUID] = useState("");
+  const [uuid, setUUID] = useState<string | null>("");
   const scienceFields: IFormField[] = [
     { name: "name", label: "Name", type: "text" },
   ];
@@ -37,9 +36,21 @@ export default function Science() {
     },
   });
 
-  const { data: sciences, isLoading, error, refetch } = useGetAllScience();
+  const { data: sciences, isLoading: isLoadingScience, error, refetch } = useGetAllScience();
+  const { data: science } = useGetOneScience(uuid || "");
 
-  useEffect(() => {}, [sciences, isLoading]);
+  useEffect(() => {
+    if(!science) return
+
+    if(isModalOpen && isEditable) {
+      fillFormInput(form, [{ property: "name", value: science.name }]);
+      return;
+    }
+
+    form.reset()
+    setIsEditable(false);
+    setUUID(null);
+  }, [science, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteScience(uuid)
@@ -51,17 +62,14 @@ export default function Science() {
   };
 
   const handleUpdate = (uuid: string) => {
-    getOneScience(uuid)
-      .then((science) => {
-        fillFormInput(form, [{ property: "name", value: science.data.name }]);
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyScience = (science: IUpdateScience) => {
+    if(!uuid) return
+
     updateScience(uuid, science)
       .then((data: IMessage) => {
         form.reset();
@@ -79,7 +87,7 @@ export default function Science() {
         setIsModalOpen(false);
         console.log(data.message);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => alert(err.message));
   };
 
   const handleSubmit = async (formData: ICreateScience | IUpdateScience) => {

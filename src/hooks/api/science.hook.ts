@@ -16,7 +16,7 @@ export function useGetAllScience() {
 
 export function useGetOneScience(uuid: string) {
     const queryClient =  useQuery({
-        queryKey: ['science'],
+        queryKey: ['science', uuid],
         retry: 1,
         queryFn: () => sciencesProvider.getOne(uuid)
     })

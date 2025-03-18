@@ -5,21 +5,12 @@ import api from "./api";
 import { ICreateScience, IUpdateScience } from "@/interfaces/science.interface";
 import { config } from "./config";
 
-export const getOneScience = async (uuid: string) => {
+export const createScience = async ({ ...payload }: ICreateScience) => {
   try {
-    const response = await api.get(config.apiURL + "/sciences/" + uuid);
+    const response = await api.post(config.apiURL + "/sciences", payload);
     return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const createScience = async (science: ICreateScience) => {
-  try {
-    const response = await api.post(config.apiURL + "/sciences", science);
-    return response.data;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new Error(error.response.data.error.message);
   }
 };
 
