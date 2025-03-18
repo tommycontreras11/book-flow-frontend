@@ -2,7 +2,7 @@
 
 import {
   CreateUpdateForm,
-  IFormField
+  IFormField,
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
@@ -12,12 +12,8 @@ import { useGetAllBook, useGetOneBook } from "@/hooks/api/book.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import { UseGetAllPublisher } from "@/hooks/api/publisher.hook";
 import { useGetAllScience } from "@/hooks/api/science.hook";
-import { IAuthor } from "@/interfaces/author.interface";
 import { ICreateBook, IUpdateBook } from "@/interfaces/book.interface";
-import { ILanguage } from "@/interfaces/language.interface";
 import { IMessage } from "@/interfaces/message.interface";
-import { IPublisher } from "@/interfaces/publisher.interface";
-import { IScience } from "@/interfaces/science.interface";
 import { createBook, deleteBook, updateBook } from "@/lib/book.lib";
 import { fillFormInput } from "@/lib/utils";
 import { bookFormSchema } from "@/schema/book.schema";
@@ -73,70 +69,67 @@ export default function Book() {
   const { data: sciences, isLoading: isLoadingScience } = useGetAllScience();
 
   useEffect(() => {
-    setBookFields((prevFields) => [
-      ...prevFields,
-      {
-        name: "bibliographyTypeUUID",
-        label: "Bibliography Type",
-        type: "select",
-        options: bibliographyTypes?.map((bibliographyType) => ({
-          label: bibliographyType.name,
-          value: bibliographyType.uuid,
-        })),
-      },
-    ]);
+    if (
+      isLoadingAuthor ||
+      isLoadingBibliographyType ||
+      isLoadingLanguage ||
+      isLoadingPublisher ||
+      isLoadingScience
+    )
+      return;
 
-    setBookFields((prevFields) => [
-      ...prevFields,
-      {
-        name: "scienceUUID",
-        label: "Science",
-        type: "select",
-        options: sciences?.map((science: IScience) => ({
-          label: science.name,
-          value: science.uuid,
-        })),
-      },
-    ]);
+    setBookFields((prevFields) => {
+      const fields = [...prevFields];
 
-    setBookFields((prevFields) => [
-      ...prevFields,
-      {
-        name: "authorUUIDs",
-        label: "Authors",
-        type: "multi-select",
-        options: authors?.map((author: IAuthor) => ({
-          label: author.name,
-          value: author.uuid,
-        })),
-      },
-    ]);
+      const addFieldIsMissing = (formFields: IFormField[]) => {
+        formFields.find((formField) => {
+          if (!fields.find((field) => field.name === formField.name)) {
+            fields.push(formField);
+          }
+        });
+      };
 
-    setBookFields((prevFields) => [
-      ...prevFields,
-      {
-        name: "languageUUID",
-        label: "Language",
-        type: "select",
-        options: languages?.map((language: ILanguage) => ({
-          label: language.name,
-          value: language.uuid,
-        })),
-      },
-    ]);
+      addFieldIsMissing([
+        {
+          name: "authorUUIDs",
+          label: "Author",
+          type: "multi-select",
+          options: authors?.map((author) => ({
+            label: author.name,
+            value: author.uuid,
+          })),
+        },
+        {
+          name: "publisherUUID",
+          label: "Publisher",
+          type: "select",
+          options: publishers?.map((publisher) => ({
+            label: publisher.name,
+            value: publisher.uuid,
+          })),
+        },
+        {
+          name: "languageUUID",
+          label: "Language",
+          type: "select",
+          options: languages?.map((language) => ({
+            label: language.name,
+            value: language.uuid,
+          })),
+        },
+        {
+          name: "bibliographyTypeUUID",
+          label: "Bibliography Type",
+          type: "select",
+          options: bibliographyTypes?.map((bibliographyType) => ({
+            label: bibliographyType.name,
+            value: bibliographyType.uuid,
+          })),
+        },
+      ]);
 
-    setBookFields((prevFields) => [
-      ...prevFields,
-      {
-        name: "publisherUUID",
-        label: "Publisher",
-        type: "select",
-        options: publishers?.map((publisher: IPublisher) => ({
-          label: publisher.name,
-          value: publisher.uuid,
-        })),
-      },
-    ]);
+      return fields;
+    });
   }, [
     authors,
     isLoadingAuthor,
@@ -193,9 +186,8 @@ export default function Book() {
       return;
     }
 
-    form.reset();
     setIsEditable(false);
-  }, []);
+  }, [book, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteBook(uuid)
@@ -236,6 +228,8 @@ export default function Book() {
 
   const handleSubmit = (book: ICreateBook | IUpdateBook) => {
     const formData = new FormData();
+
+    console.log(book);
 
     bookFields
       .filter((x) => x.name !== "authorUUIDs")

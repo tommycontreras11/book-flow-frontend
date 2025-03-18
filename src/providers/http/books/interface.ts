@@ -23,7 +23,7 @@ export interface IBook {
   file: File
 }
 
-export interface ICreateBook extends Partial<Omit<IBook, "uuid" | "language" | "languageName" | "science" | "scienceDescription" | "bibliographyType" | "bibliographyTypeName" | "publisher" | "publisherName" | "status" | "requests">> { 
+export interface ICreateBook extends Partial<Omit<IBook, "uuid" | "language" | "science" | "bibliographyType" | "publisher" | "status" | "requests">> { 
   bibliographyTypeUUID: string;
   publisherUUID: string;
   languageUUID: string;
