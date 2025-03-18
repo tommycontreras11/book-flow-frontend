@@ -2,33 +2,11 @@
 
 import api from "./api";
 
-import { config } from "./config";
 import {
-  IBibliographyType,
   ICreateBibliographyType,
-  IUpdateBibliographyType,
+  IUpdateBibliographyType
 } from "@/interfaces/bibliography-type.interface";
-
-export const getAllBibliographyType = async (): Promise<ResponseI<IBibliographyType[]>> => {
-  try {
-    const response = await api.get(config.apiURL + "/bibliography-types");
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const getOneBibliographyType = async (uuid: string) => {
-  try {
-    const response = await api.get(
-      config.apiURL + "/bibliography-types/" + uuid
-    );
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
+import { config } from "./config";
 
 export const createBibliographyType = async (
   bibliographyType: ICreateBibliographyType

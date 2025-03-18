@@ -7,16 +7,17 @@ import {
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import {
-  IBibliographyType,
+  UseGetAllBibliographyType,
+  UseGetOneBibliographyType,
+} from "@/hooks/api/bibliography-type.hook";
+import {
   ICreateBibliographyType,
-  IUpdateBibliographyType,
+  IUpdateBibliographyType
 } from "@/interfaces/bibliography-type.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import {
   createBibliographyType,
   deleteBibliographyType,
-  getAllBibliographyType,
-  getOneBibliographyType,
   updateBibliographyType,
 } from "@/lib/bibliography-type.lib";
 import { fillFormInput } from "@/lib/utils";
@@ -27,12 +28,9 @@ import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
 
 export default function BibliographyType() {
-  const [bibliographyTypes, setBibliographyTypes] = useState<
-    IBibliographyType[]
-  >([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [uuid, setUUID] = useState("");
+  const [uuid, setUUID] = useState<string | null>("");
 
   const bibliographyTypeFields: IFormField[] = [
     { name: "name", label: "Name", type: "text" },
@@ -45,44 +43,48 @@ export default function BibliographyType() {
     },
   });
 
-  const fetchBibliographyTypes = async () => {
-    getAllBibliographyType()
-      .then((bibliographyTypes) => {
-        setBibliographyTypes(bibliographyTypes.data);
-        setIsModalOpen(false);
-      })
-      .catch((err) => console.log(err));
-  };
+  const {
+    data: bibliographyTypes,
+    error,
+    isLoading: isLoadingBibliographyType,
+    refetch,
+  } = UseGetAllBibliographyType();
+
+  const { data: bibliographyType } = UseGetOneBibliographyType(uuid || "");
 
   useEffect(() => {
-    fetchBibliographyTypes();
-  }, []);
+    if (!bibliographyType) return;
+
+    if (isModalOpen && isEditable) {
+      fillFormInput(form, [{ property: "name", value: bibliographyType.name }]);
+      return;
+    }
+
+    form.reset();
+    setIsEditable(false);
+    setUUID(null);
+  }, [bibliographyType, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteBibliographyType(uuid)
       .then((data: IMessage) => {
-        fetchBibliographyTypes();
+        refetch();
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
   const handleUpdate = (uuid: string) => {
-    getOneBibliographyType(uuid)
-      .then((bibliographyType) => {
-        fillFormInput(form, [
-          { property: "name", value: bibliographyType.data.name },
-        ]);
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyBibliographyType = (
     bibliographyType: IUpdateBibliographyType
   ) => {
+    if(!uuid) return
+
     updateBibliographyType(uuid, bibliographyType)
       .then((data: IMessage) => {
         form.reset();
@@ -108,12 +110,11 @@ export default function BibliographyType() {
   ) => {
     if (uuid) {
       modifyBibliographyType(formData);
-      fetchBibliographyTypes();
-      return;
+    } else {
+      saveBibliographyType(formData);
     }
 
-    saveBibliographyType(formData);
-    fetchBibliographyTypes();
+    refetch();
   };
 
   return (
@@ -125,7 +126,7 @@ export default function BibliographyType() {
         Create
       </button>
       <DataTable
-        data={bibliographyTypes}
+        data={bibliographyTypes || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />

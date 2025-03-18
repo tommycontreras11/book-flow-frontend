@@ -13,3 +13,16 @@ export function UseGetAllBibliographyType() {
         data: queryClient.data?.data
     }
 }
+
+export function UseGetOneBibliographyType(uuid: string) {
+    const queryClient = useQuery({
+        queryKey: ['bibliography-type', uuid],
+        retry: 1,
+        queryFn: () => bibliographyTypesProvider.getOne(uuid)
+    })
+
+    return {
+        ...queryClient,
+        data: queryClient.data?.data
+    }
+}

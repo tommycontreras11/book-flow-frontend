@@ -10,6 +10,10 @@ class BibliographyTypesProvider extends Base {
     public getAll(): Promise<IResponse<IBibliographyType[]>> {
         return this.get('/');
     }
+
+    public getOne(uuid: string): Promise<IResponse<IBibliographyType>> {
+        return this.get(`/${uuid}`);
+    }
 }
 
 const bibliographyTypesProvider = new BibliographyTypesProvider()
