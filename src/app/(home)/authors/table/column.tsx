@@ -3,11 +3,11 @@
 import { ColumnDef } from "@tanstack/react-table";
 import clsx from "clsx";
 
-import { IAuthor } from "@/interfaces/author.interface";
 import { StatusEnum } from "@/enums/common.enum";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { DataTableColumnHeader } from "@/components/common/table/data-table-column-header";
 import { DataTableRowActions } from "@/components/common/table/data-table-row-actions";
+import { IAuthor } from "@/providers/http/authors/interface";
 
 // Pass `handleUpdate` and `handleDelete` as props to columns
 export const columns = ({
@@ -27,13 +27,13 @@ export const columns = ({
     },
   },
   {
-    accessorKey: "birthCountryName",
+    accessorKey: "birthCountry.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={"Birth Country"} />
     ),
   },
   {
-    accessorKey: "nativeLanguageDescription",
+    accessorKey: "nativeLanguage.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={"Native Language"} />
     ),
