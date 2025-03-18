@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { StatusRequestEnum } from "@/enums/request.enum";
-import { IBook } from "@/interfaces/book.interface";
+import { IBook } from "@/providers/http/books/interface";
 
 export default function BookCard({
   book,

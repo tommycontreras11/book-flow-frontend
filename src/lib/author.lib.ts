@@ -5,15 +5,6 @@ import api from "./api";
 import { ICreateAuthor, IUpdateAuthor } from "@/interfaces/author.interface";
 import { config } from "./config";
 
-export const getOneAuthor = async (uuid: string) => {
-  try {
-    const response = await api.get(config.apiURL + "/authors/" + uuid);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 export const createAuthor = async (author: ICreateAuthor) => {
   try {
     const response = await api.post(config.apiURL + "/authors", author);

@@ -6,11 +6,9 @@ import { RecentActivitiesCard } from "@/components/common/card/recent-activities
 import { TopBorrowedBooksCard } from "@/components/common/card/top-borrowed-books";
 import { useAuth } from "@/contexts/auth-context";
 import { useGetAllBook } from "@/hooks/api/book.hook";
-import { IBook } from "@/interfaces/book.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import { ICreateRequest } from "@/interfaces/request.interface";
 import { createRequest } from "@/lib/request.lib";
-import { useEffect, useState } from "react";
 
 export default function Home() {
   const { user } = useAuth();
@@ -108,7 +106,7 @@ export default function Home() {
       </div>
       <div className="min-h-[100vh] flex-1 rounded-xl md:min-h-min">
         <div className="w-full max-w-6xl mx-auto flex flex-wrap gap-4 items-start justify-start">
-          {books?.map((book) => (
+          {!isLoadingBook && books?.map((book) => (
             <BookCard
               key={book.uuid}
               book={book}
