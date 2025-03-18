@@ -10,6 +10,10 @@ class LanguagesProvider extends Base {
     public getAll(): Promise<IResponse<ILanguage[]>> {
         return this.get('/');
     }
+
+    public getOne(uuid: string): Promise<IResponse<ILanguage>> {
+        return this.get(`/${uuid}`);
+    }
 }
 
 const languagesProvider = new LanguagesProvider();

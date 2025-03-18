@@ -6,17 +6,15 @@ import {
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { useGetAllLanguage, useGetOneLanguage } from "@/hooks/api/language.hook";
 import {
   ICreateLanguage,
-  ILanguage,
-  IUpdateLanguage,
+  IUpdateLanguage
 } from "@/interfaces/language.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import {
   createLanguage,
   deleteLanguage,
-  getAllLanguage,
-  getOneLanguage,
   updateLanguage,
 } from "@/lib/language.lib";
 import { fillFormInput } from "@/lib/utils";
@@ -27,10 +25,9 @@ import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
 
 export default function Language() {
-  const [languages, setLanguages] = useState<ILanguage[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [uuid, setUUID] = useState("");
+  const [uuid, setUUID] = useState<string | null>("");
   const languageFields: IFormField[] = [
     { name: "name", label: "Name", type: "text" },
   ];
@@ -42,45 +39,46 @@ export default function Language() {
     },
   });
 
-  const fetchLanguages = async () => {
-    getAllLanguage()
-      .then((languages) => {
-        setLanguages(languages.data);
-        setIsModalOpen(false);
-      })
-      .catch((err) => console.log(err));
-  };
+  const { data: languages, error, isLoading: isLoadingLanguage, refetch } = useGetAllLanguage()
+  const { data: language } = useGetOneLanguage(uuid || "")
 
   useEffect(() => {
-    fetchLanguages();
-  }, []);
+    if(!language) return
+    
+    if(isModalOpen && isEditable) {
+      fillFormInput(form, [{ property: "name", value: language.name }]);
+      return;
+    }
+
+    form.reset()
+    setIsEditable(false);
+    setUUID(null);
+  }, [language, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteLanguage(uuid)
       .then((data: IMessage) => {
-        fetchLanguages();
+        refetch();
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
   const handleUpdate = (uuid: string) => {
-    getOneLanguage(uuid)
-      .then((language) => {
-        fillFormInput(form, [{ property: "name", value: language.data.name }]);
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyLanguage = (language: IUpdateLanguage) => {
+    if(!uuid) return
+
     updateLanguage(uuid, language)
       .then((data: IMessage) => {
         form.reset();
         setIsEditable(false);
         setIsModalOpen(false);
+        setUUID(null);
         console.log(data.message);
       })
       .catch((err) => console.log(err));
@@ -99,12 +97,11 @@ export default function Language() {
   const handleSubmit = async (formData: ICreateLanguage | IUpdateLanguage) => {
     if (uuid) {
       modifyLanguage(formData);
-      fetchLanguages();
-      return;
+    } else {
+      saveLanguage(formData);
     }
 
-    saveLanguage(formData);
-    fetchLanguages();
+    refetch();
   };
 
   return (
@@ -116,7 +113,7 @@ export default function Language() {
         Create
       </button>
       <DataTable
-        data={languages}
+        data={languages || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />

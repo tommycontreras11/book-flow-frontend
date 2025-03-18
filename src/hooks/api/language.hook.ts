@@ -13,3 +13,16 @@ export function useGetAllLanguage() {
         data: queryClient.data?.data
     }
 }
+
+export function useGetOneLanguage(uuid: string) {
+    const queryClient = useQuery({
+        queryKey: ['language', uuid],
+        retry: 1,
+        queryFn: () => languagesProvider.getOne(uuid)
+    })
+
+    return {
+        ...queryClient,
+        data: queryClient.data?.data
+    }
+}
