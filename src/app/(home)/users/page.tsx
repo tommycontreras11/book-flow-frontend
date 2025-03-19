@@ -32,17 +32,13 @@ export default function User() {
       name: "person_type",
       label: "Person Type",
       type: "select",
-      options: [
-        {
-          label: "Legal",
-          value: PersonTypeEnum.LEGAL,
-        },
-        {
-          label: "Natural",
-          value: PersonTypeEnum.NATURAL,
-        },
-      ],
-    }
+      options: Object.values(PersonTypeEnum).map((personType) => ({
+        label:
+          personType.charAt(0).toUpperCase() +
+          personType.slice(1).toLocaleLowerCase(),
+        value: personType,
+      })),
+    },
   ]);
 
   const form = useForm<z.infer<typeof userFormSchema>>({
@@ -59,14 +55,13 @@ export default function User() {
   const { data: users, error, isLoading, refetch } = useGetAllUser();
   const { data: user } = useGetOneUser(uuid || "");
 
-  useEffect(() => {
-
-  }, [users, isLoading]);
+  useEffect(() => {}, [users, isLoading]);
 
   useEffect(() => {
     if (!user) return;
 
-    if(isModalOpen && isEditable) {
+    if (isModalOpen && isEditable) {
+      console.log(user)
       fillFormInput(form, [
         { property: "name", value: user.name },
         {
@@ -88,11 +83,10 @@ export default function User() {
       ]);
 
       return;
-    } 
+    }
 
     form.reset();
     setIsEditable(false);
-
   }, [user, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
