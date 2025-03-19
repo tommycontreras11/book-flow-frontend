@@ -7,7 +7,7 @@ import { DataTableColumnHeader } from "@/components/common/table/data-table-colu
 import { DataTableRowActions } from "@/components/common/table/data-table-row-actions";
 import { requestStatusTableDefinitions } from "@/definitions/common.definition";
 import { StatusRequestEnum } from "@/enums/request.enum";
-import { IRequest } from "@/interfaces/request.interface";
+import { IRequest } from "@/providers/http/requests/interface";
 
 // Pass `handleUpdate` and `handleDelete` as props to columns
 export const columns = ({

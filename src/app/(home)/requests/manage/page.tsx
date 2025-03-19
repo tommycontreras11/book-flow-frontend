@@ -2,23 +2,19 @@
 
 import {
   CreateUpdateForm,
-  IFormField,
-  IOptionsFormField,
+  IFormField
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { requestStatusTableDefinitions } from "@/definitions/common.definition";
 import { StatusRequestEnum } from "@/enums/request.enum";
-import { IBook } from "@/interfaces/book.interface";
+import { useGetAllBook } from "@/hooks/api/book.hook";
+import { useGetAllRequest } from "@/hooks/api/request.hook";
 import { IMessage } from "@/interfaces/message.interface";
 import {
-  IRequest,
   IUpdateRequest
 } from "@/interfaces/request.interface";
-import { getAllBook } from "@/lib/book.lib";
 import {
   deleteRequest,
-  getAllRequest,
-  getOneRequest,
   updateRequest
 } from "@/lib/request.lib";
 import { requestUpdateFormSchema } from "@/schema/request.schema";
@@ -29,7 +25,6 @@ import { z } from "zod";
 import { columns } from "./table/column";
 
 export default function Manage() {
-  const [requests, setRequests] = useState<IRequest[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState<null | string>(null);
@@ -43,69 +38,50 @@ export default function Manage() {
     },
   });
 
-  const fetchRequests = async () => {
-    getAllRequest()
-      .then((requests) => {
-        setRequests(requests.data);
-      })
-      .catch((err) => console.log(err));
-  };
+  const { data: requests, error, isLoading: isLoadingRequests, refetch } = useGetAllRequest()
+  const { data: books, isLoading: isLoadingBooks } = useGetAllBook()
 
   useEffect(() => {
-    fetchRequests();
-  
-    let bookOptions: IOptionsFormField[] = [];
-  
-    getAllBook()
-      .then((books) => {
-        bookOptions = books.data.map((book: IBook) => ({
+    if(!isLoadingBooks) return
+    
+    setRequestFields([
+      {
+        name: "bookUUID",
+        label: "Book",
+        type: "select",
+        options: books?.map((book) => ({
           label: book.name,
           value: book.uuid,
-        }));
-  
-        console.log(bookOptions);
-  
-        setRequestFields([
-          {
-            name: "bookUUID",
-            label: "Book",
-            type: "select",
-            options: bookOptions,
-          },
-          {
-            name: "status",
-            label: "Status",
-            type: "select",
-            options: Object.values(StatusRequestEnum).map((value) => ({
-              label:
-                value.charAt(0).toUpperCase() +
-                value.slice(1).toLocaleLowerCase(),
-              value,
-            })),
-          },
-        ]);
-      })
-      .catch((err) => console.log(err));
-  }, []);
+        })),
+      },
+      {
+        name: "status",
+        label: "Status",
+        type: "select",
+        options: Object.values(StatusRequestEnum).map((value) => ({
+          label:
+            value.charAt(0).toUpperCase() +
+            value.slice(1).toLocaleLowerCase(),
+          value,
+        })),
+      },
+    ]);  
+  }, [books, isLoadingBooks]);
   
 
   const handleDelete = (uuid: string) => {
     deleteRequest(uuid)
       .then((data: IMessage) => {
-        fetchRequests();
+        refetch();
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
   const handleUpdate = (uuid: string) => {
-    getOneRequest(uuid)
-      .then((request) => {
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyRequest = (request: IUpdateRequest) => {
@@ -125,7 +101,7 @@ export default function Manage() {
   const handleSubmit = async (formData: IUpdateRequest) => {
     if (uuid) {
       modifyRequest(formData);
-      fetchRequests();
+      refetch();
       return;
     }
   };
@@ -133,7 +109,7 @@ export default function Manage() {
   return (
     <div className="mx-auto w-full overflow-x-auto">
       <DataTable
-        data={requests}
+        data={requests || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={requestStatusTableDefinitions}
       />
