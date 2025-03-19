@@ -2,31 +2,11 @@
 
 import api from "./api";
 
-import { config } from "./config";
 import {
   ICreatePublisher,
-  IPublisher,
-  IUpdatePublisher,
+  IUpdatePublisher
 } from "@/interfaces/publisher.interface";
-
-export const getAllPublisher = async (): Promise<ResponseI<IPublisher[]>> => {
-  try {
-    const response = await api.get(config.apiURL + "/publishers");
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
-export const getOnePublisher = async (uuid: string) => {
-  try {
-    const response = await api.get(config.apiURL + "/publishers/" + uuid);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
+import { config } from "./config";
 
 export const createPublisher = async (publisher: ICreatePublisher) => {
   try {

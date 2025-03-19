@@ -10,6 +10,10 @@ class PublishersProvider extends Base {
     public getAll(): Promise<IResponse<IPublisher[]>> {
         return this.get('/');
     }
+
+    public getOne(uuid: string): Promise<IResponse<IPublisher>> {
+        return this.get(`/${uuid}`);
+    }
 }
 
 const publishersProvider = new PublishersProvider()

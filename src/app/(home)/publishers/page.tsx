@@ -6,18 +6,16 @@ import {
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { useGetAllPublisher, useGetOnePublisher } from "@/hooks/api/publisher.hook";
 import { IMessage } from "@/interfaces/message.interface";
 import {
   ICreatePublisher,
-  IPublisher,
-  IUpdatePublisher,
+  IUpdatePublisher
 } from "@/interfaces/publisher.interface";
 import {
   createPublisher,
   deletePublisher,
-  getAllPublisher,
-  getOnePublisher,
-  updatePublisher,
+  updatePublisher
 } from "@/lib/publisher.lib";
 import { fillFormInput } from "@/lib/utils";
 import { publisherFormSchema } from "@/schema/publisher.schema";
@@ -27,10 +25,9 @@ import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
 
 export default function Publisher() {
-  const [publishers, setPublishers] = useState<IPublisher[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [uuid, setUUID] = useState("");
+  const [uuid, setUUID] = useState<string | null>("");
   const publisherFields: IFormField[] = [
     { name: "name", label: "Name", type: "text" },
   ];
@@ -42,40 +39,41 @@ export default function Publisher() {
     },
   });
 
-  const fetchPublishers = async () => {
-    getAllPublisher()
-      .then((publishers) => {
-        setPublishers(publishers.data);
-        setIsModalOpen(false);
-      })
-      .catch((err) => console.log(err));
-  };
+  const { data: publishers, error, isLoading: isLoadingPublishers, refetch } = useGetAllPublisher()
+  const { data: publisher } = useGetOnePublisher(uuid || "")
 
   useEffect(() => {
-    fetchPublishers();
-  }, []);
+    if(!publisher) return
+
+    form.reset();
+
+    if(isModalOpen && isEditable) {
+      fillFormInput(form, [{ property: "name", value: publisher.name }]);
+      return;
+    }
+
+    setIsEditable(false);
+    setUUID(null);
+  }, [publisher, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deletePublisher(uuid)
       .then((data: IMessage) => {
-        fetchPublishers();
+        refetch();
         console.log(data.message);
       })
       .catch((err) => console.log(err));
   };
 
   const handleUpdate = (uuid: string) => {
-    getOnePublisher(uuid)
-      .then((publisher) => {
-        fillFormInput(form, [{ property: "name", value: publisher.data.name }]);
-        setIsEditable(true);
-        setIsModalOpen(true);
-        setUUID(uuid);
-      })
-      .catch((err) => console.log(err));
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
   const modifyPublisher = (publisher: IUpdatePublisher) => {
+    if (!uuid) return;
+
     updatePublisher(uuid, publisher)
       .then((data: IMessage) => {
         form.reset();
@@ -101,12 +99,11 @@ export default function Publisher() {
   ) => {
     if (uuid) {
       modifyPublisher(formData);
-      fetchPublishers();
-      return;
+    } else { 
+      savePublisher(formData);
     }
 
-    savePublisher(formData);
-    fetchPublishers();
+    refetch();
   };
 
   return (
@@ -118,7 +115,7 @@ export default function Publisher() {
         Create
       </button>
       <DataTable
-        data={publishers}
+        data={publishers || []}
         columns={columns({ handleUpdate, handleDelete })}
         definitions={commonStatusTableDefinitions}
       />
