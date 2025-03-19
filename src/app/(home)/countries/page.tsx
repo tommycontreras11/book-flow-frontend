@@ -6,10 +6,10 @@ import {
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { useGetAllCountry, useGetOneCountry } from "@/hooks/api/country.hook";
 import {
-  ICountry,
   ICreateCountry,
-  IUpdateCountry,
+  IUpdateCountry
 } from "@/interfaces/country.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import {
@@ -23,12 +23,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
-import { useGetAllCountry, useGetOneCountry } from "@/hooks/api/country.hook";
 
 export default function Country() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [uuid, setUUID] = useState("");
+  const [uuid, setUUID] = useState<string | null>("");
   const [countryFields, setCountryFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
   ]);
@@ -44,7 +43,7 @@ export default function Country() {
   const { data: country } = useGetOneCountry(uuid || "")
 
   useEffect(() => {
-    if(!country)  return
+    if(!country) return
 
     if(isModalOpen && isEditable) {
       fillFormInput(form, [{ property: "name", value: country.name }]);
@@ -53,7 +52,7 @@ export default function Country() {
 
     form.reset();
     setIsEditable(false);
-
+    setUUID(null);
   }, [country, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
@@ -72,6 +71,8 @@ export default function Country() {
   };
 
   const modifyCountry = (country: IUpdateCountry) => {
+    if(!uuid) return
+
     updateCountry(uuid, country)
       .then((data: IMessage) => {
         form.reset();

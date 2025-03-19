@@ -16,7 +16,7 @@ export function useGetAllCountry() {
 
 export function useGetOneCountry(uuid: string) {
     const queryClient = useQuery({
-        queryKey: ['country'],
+        queryKey: ['country', uuid],
         retry: 1,
         queryFn: () => countryProvider.getOne(uuid)
     })
