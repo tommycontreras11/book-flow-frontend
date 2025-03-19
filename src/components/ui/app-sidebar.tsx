@@ -57,6 +57,14 @@ const data: IAppSidebarProps = {
       },
     },
     {
+      name: "Publishers",
+      url: "/publishers",
+      icon: BookUser,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
       name: "Bibliography Types",
       url: "/bibliography-types",
       icon: BookType,
