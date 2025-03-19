@@ -29,7 +29,7 @@ import { columns } from "./table/column";
 export default function Author() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [uuid, setUUID] = useState("");
+  const [uuid, setUUID] = useState<string | null>("");
   const [authorFields, setAuthorFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
   ]);
@@ -91,6 +91,8 @@ export default function Author() {
   useEffect(() => {
     if(!author) return
 
+    form.reset();
+
     if(isModalOpen && isEditable) {
       fillFormInput(form, [
         { property: "name", value: author.name },
@@ -106,9 +108,8 @@ export default function Author() {
       return;
     }
 
-    form.reset();
     setIsEditable(false)
-
+    setUUID(null);
   }, [author, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
@@ -127,6 +128,8 @@ export default function Author() {
   };
 
   const modifyAuthor = (author: IUpdateAuthor) => {
+    if(!uuid) return
+
     updateAuthor(uuid, author)
       .then((data: IMessage) => {
         form.reset();
