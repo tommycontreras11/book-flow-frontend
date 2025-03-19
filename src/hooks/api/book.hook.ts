@@ -14,6 +14,19 @@ export function useGetAllBook() {
     }
 }
 
+export function useGetAllBookStat() {
+    const queryClient = useQuery({
+        queryKey: ['books-stats'],
+        retry: 1,
+        queryFn: () => booksProvider.getStats()
+    })
+
+    return {
+        ...queryClient,
+        data: queryClient.data?.data
+    }
+}
+
 export function useGetOneBook(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['book', uuid],

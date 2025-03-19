@@ -23,6 +23,29 @@ export interface IBook {
   file: File
 }
 
+export interface IBookStats {
+  quickStats: IQuickStats;
+  recentActivities: IRecentActivity;
+  topBorrowedBooks: ITopBorrowedBooks[]
+}
+
+export interface IQuickStats {
+  total: number;
+  available: number;
+  borrowed: number;
+}
+
+export interface IRecentActivity {
+  bookBorrowed: string;
+  bookReturned: string;
+  userRegister: string;
+}
+
+export interface ITopBorrowedBooks {
+  name: string;
+  count: number;
+}
+
 export interface ICreateBook extends Partial<Omit<IBook, "uuid" | "language" | "science" | "bibliographyType" | "publisher" | "status" | "requests">> { 
   bibliographyTypeUUID: string;
   publisherUUID: string;
