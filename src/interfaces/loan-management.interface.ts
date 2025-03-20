@@ -4,8 +4,8 @@ import { IRequest } from "./request.interface";
 export interface ILoanManagement {
   uuid: string;
   loan_number: string;
-  date_loan: string;
-  date_return: string;
+  date_loan: Date;
+  date_return: Date;
   amount_day: number;
   quantity_day: number;
   comment: string | null;

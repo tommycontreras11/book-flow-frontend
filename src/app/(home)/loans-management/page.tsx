@@ -15,18 +15,17 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { StatusRequestEnum } from "@/enums/request.enum";
+import { useGetAllRequest } from "@/hooks/api/request.hook";
 import { ICreateLoanManagement } from "@/interfaces/loan-management.interface";
 import { IMessage } from "@/interfaces/message.interface";
-import { IRequest } from "@/interfaces/request.interface";
 import { createLoanManagement } from "@/lib/loan-management.lib";
-import { getAllRequest } from "@/lib/request.lib";
 import { loanManagementFormSchema } from "@/schema/loan-management";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function loanManagement() {
-  const [requests, setRequests] = useState<IRequest[]>([]);
+  const [isUser, setIsUser] = useState<boolean | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestUUID, setRequestUUID] = useState<string | null>(null);
   const [loanManagementFields, setLoanManagementFields] = useState<
@@ -46,20 +45,22 @@ export default function loanManagement() {
 
   const { user } = useAuth();
 
-  const fetchRequests = async () => {
-    getAllRequest(
-      user?.role === UserRoleEnum.USER
-        ? [StatusRequestEnum.APPROVAL, StatusRequestEnum.BORROWED]
-        : undefined
-    )
-      .then((request) => setRequests(request.data))
-      .catch((err) => console.log(err));
-  };
+  const {
+    data: requests,
+    isLoading,
+    error,
+    refetch,
+  } = useGetAllRequest(
+    isUser
+      ? [StatusRequestEnum.APPROVAL, StatusRequestEnum.BORROWED]
+      : undefined
+  );
 
   useEffect(() => {
-    fetchRequests();
-    setIsModalOpen(false);
-  }, []);
+    if (!user) return;
+
+    setIsUser(user?.role === UserRoleEnum.USER);
+  }, [requests, isLoading, user, isUser]);
 
   const saveLoanManagement = (loanManagement: ICreateLoanManagement) => {
     createLoanManagement(loanManagement)
@@ -68,7 +69,7 @@ export default function loanManagement() {
         form.reset();
         console.log(data.message);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err.message));
   };
 
   const handleLoanManagement = (
@@ -83,7 +84,7 @@ export default function loanManagement() {
   const handleSubmit = async (formData: Partial<ICreateLoanManagement>) => {
     if (!requestUUID) return;
     saveLoanManagement({ ...formData, requestUUID } as ICreateLoanManagement);
-    fetchRequests();
+    refetch();
   };
   return (
     <div className="mx-auto w-full overflow-x-auto">

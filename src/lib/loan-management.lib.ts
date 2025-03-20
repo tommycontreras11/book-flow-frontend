@@ -64,14 +64,14 @@ export const createLoanManagement = async (
   { requestUUID, ...loanManagement }: ICreateLoanManagement
 ) => {
   try {
-    console.log(loanManagement);
+    console.log(requestUUID);
     const response = await api.post(
       `${config.apiURL}/loan-managements/${requestUUID}`,
       loanManagement
     );
     return response.data;
-  } catch (error) {
-    return error;
+  } catch (error: any) {
+    throw new Error(error.response.data.error.message);
   }
 };
 
