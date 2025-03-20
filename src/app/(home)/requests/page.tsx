@@ -11,39 +11,32 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { StatusRequestEnum } from "@/enums/request.enum";
+import { useGetAllRequest } from "@/hooks/api/request.hook";
 import { IMessage } from "@/interfaces/message.interface";
-import { IRequest } from "@/interfaces/request.interface";
-import { getAllRequest, updateRequestEmployeeStatus } from "@/lib/request.lib";
+import { updateRequestEmployeeStatus } from "@/lib/request.lib";
 import { useEffect, useState } from "react";
 
 export default function Request() {
   const [isEmployee, setIsEmployee] = useState<boolean | null>(null);
-  const [requests, setRequests] = useState<IRequest[]>([]);
   const { user } = useAuth();
 
-  const fetchRequests = async (isUserEmployee: boolean | null) => {
-    if (!user) return;
+  const { data: requests, isLoading, error, refetch } = useGetAllRequest(isEmployee
+    ? [StatusRequestEnum.PENDING]
+    : [
+        StatusRequestEnum.PENDING,
+        StatusRequestEnum.APPROVAL,
+        StatusRequestEnum.BORROWED,
+      ])
 
-    getAllRequest(
-      isUserEmployee
-        ? [StatusRequestEnum.PENDING]
-        : [
-            StatusRequestEnum.PENDING,
-            StatusRequestEnum.APPROVAL,
-            StatusRequestEnum.BORROWED,
-          ]
-    )
-      .then((request) => {
-        setRequests(request.data);
-        console.log(request.data);
-      })
-      .catch((err) => console.log(err));
-  };
+  const isRequestPending = requests?.some(
+    (request) => request.status === StatusRequestEnum.PENDING
+  );
 
   useEffect(() => {
+    if(!user) return;
+
     setIsEmployee(user?.role === UserRoleEnum.EMPLOYEE);
-    fetchRequests(isEmployee);
-  }, []);
+  }, [isEmployee, user, requests, isLoading, isRequestPending]);
 
   const modifyRequestEmployeeStatus = (
     uuid: string,
@@ -58,7 +51,7 @@ export default function Request() {
     })
       .then((data: IMessage) => {
         console.log(data.message);
-        fetchRequests(isEmployee);
+        refetch();
       })
       .catch((err) => console.log(err));
   };
@@ -68,15 +61,13 @@ export default function Request() {
       {user ? (
         <div className="mx-auto w-full overflow-x-auto">
           {user.role === UserRoleEnum.EMPLOYEE &&
-          requests.some(
-            (request) => request.status === StatusRequestEnum.PENDING
-          ) ? (
+          isRequestPending ? (
             <h2 className="text-2xl text-center font-medium">
               Pending Requests
             </h2>
           ) : (
             <h2 className="text-2xl text-center font-medium">
-              Please request a book to be borrowed
+              No Pending Requests to approve
             </h2>
           )}
           {requests &&
