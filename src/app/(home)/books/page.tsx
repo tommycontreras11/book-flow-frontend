@@ -10,7 +10,7 @@ import { useGetAllAuthor } from "@/hooks/api/author.hook";
 import { UseGetAllBibliographyType } from "@/hooks/api/bibliography-type.hook";
 import { useGetAllBook, useGetOneBook } from "@/hooks/api/book.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
-import { UseGetAllPublisher } from "@/hooks/api/publisher.hook";
+import { useGetAllPublisher } from "@/hooks/api/publisher.hook";
 import { useGetAllScience } from "@/hooks/api/science.hook";
 import { ICreateBook, IUpdateBook } from "@/interfaces/book.interface";
 import { IMessage } from "@/interfaces/message.interface";
@@ -65,7 +65,7 @@ export default function Book() {
   const { data: languages, isLoading: isLoadingLanguage } = useGetAllLanguage();
   const { data: authors, isLoading: isLoadingAuthor } = useGetAllAuthor();
   const { data: publishers, isLoading: isLoadingPublisher } =
-    UseGetAllPublisher();
+    useGetAllPublisher();
   const { data: sciences, isLoading: isLoadingScience } = useGetAllScience();
 
   useEffect(() => {

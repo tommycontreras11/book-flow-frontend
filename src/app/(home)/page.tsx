@@ -5,10 +5,11 @@ import { QuickStatsCard } from "@/components/common/card/quick-stats";
 import { RecentActivitiesCard } from "@/components/common/card/recent-activities";
 import { TopBorrowedBooksCard } from "@/components/common/card/top-borrowed-books";
 import { useAuth } from "@/contexts/auth-context";
-import { useGetAllBook } from "@/hooks/api/book.hook";
+import { useGetAllBook, useGetAllBookStat } from "@/hooks/api/book.hook";
 import { IMessage } from "@/interfaces/message.interface";
 import { ICreateRequest } from "@/interfaces/request.interface";
 import { createRequest } from "@/lib/request.lib";
+import { useEffect } from "react";
 
 export default function Home() {
   const { user } = useAuth();
@@ -19,6 +20,15 @@ export default function Home() {
     isLoading: isLoadingBook,
     refetch
   } = useGetAllBook();
+
+  const {
+    data: booksStats,
+    error: bookStatError,
+    isLoading: isLoadingBookStat,
+  } = useGetAllBookStat();
+
+  useEffect(() => {
+  }, [booksStats, isLoadingBookStat])
 
   const saveRequest = (request: ICreateRequest) => {
     createRequest(request)
