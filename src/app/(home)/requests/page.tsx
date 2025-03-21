@@ -14,13 +14,14 @@ import { StatusRequestEnum } from "@/enums/request.enum";
 import { useGetAllRequest } from "@/hooks/api/request.hook";
 import { IMessage } from "@/interfaces/message.interface";
 import { updateRequestEmployeeStatus } from "@/lib/request.lib";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 export default function Request() {
-  const [isEmployee, setIsEmployee] = useState<boolean | null>(null);
   const { user } = useAuth();
 
-  const { data: requests, isLoading, error, refetch } = useGetAllRequest(isEmployee
+  const isEmployee = useMemo(() => user?.role === UserRoleEnum.EMPLOYEE, [user]);
+
+  const { data: requests, isLoading, error, refetch } = useGetAllRequest(isEmployee, isEmployee
     ? [StatusRequestEnum.PENDING]
     : [
         StatusRequestEnum.PENDING,
@@ -32,21 +33,15 @@ export default function Request() {
     (request) => request.status === StatusRequestEnum.PENDING
   );
 
-  useEffect(() => {
-    if(!user) return;
-
-    setIsEmployee(user?.role === UserRoleEnum.EMPLOYEE);
-  }, [isEmployee, user, requests, isLoading, isRequestPending]);
-
   const modifyRequestEmployeeStatus = (
     uuid: string,
     status: StatusRequestEnum
   ) => {
-    if (user?.role !== UserRoleEnum.EMPLOYEE) return;
+    if (!isEmployee) return;
 
     updateRequestEmployeeStatus({
       requestUUID: uuid,
-      employeeUUID: user.uuid,
+      employeeUUID: user!.uuid,
       status,
     })
       .then((data: IMessage) => {
@@ -60,7 +55,7 @@ export default function Request() {
     <>
       {user ? (
         <div className="mx-auto w-full overflow-x-auto">
-          {user.role === UserRoleEnum.EMPLOYEE &&
+          {isEmployee &&
           isRequestPending ? (
             <h2 className="text-2xl text-center font-medium">
               Pending Requests

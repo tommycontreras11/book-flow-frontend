@@ -2,11 +2,12 @@ import { StatusRequestEnum } from "@/enums/request.enum";
 import requestsProvider from "@/providers/http/requests";
 import { useQuery } from "react-query";
 
-export function useGetAllRequest(status?: StatusRequestEnum[]) {
+export function useGetAllRequest(enabled: boolean, status?: StatusRequestEnum[]) {
     const queryClient = useQuery({
         queryKey: ['requests', status],
         retry: 1,
-        queryFn: () => requestsProvider.getAll(status)
+        queryFn: () => requestsProvider.getAll(status),
+        enabled
     })
 
     return {
