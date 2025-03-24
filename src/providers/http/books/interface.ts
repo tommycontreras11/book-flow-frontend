@@ -5,6 +5,7 @@ import { IPublisher } from "@/interfaces/publisher.interface";
 import { IRequest } from "@/interfaces/request.interface";
 import { IScience } from "@/interfaces/science.interface";
 import { IAuthor } from "../authors/interface";
+import { BookQuickStatsEnum, BookRecentActivitiesEnum } from "@/enums/book.enum";
 
 export interface IBook {
   uuid: string;
@@ -24,25 +25,25 @@ export interface IBook {
 }
 
 export interface IBookStats {
-  quickStats: IQuickStats;
-  recentActivities: IRecentActivity;
+  quickStats: IQuickStats[];
+  recentActivities: IRecentActivity[];
   topBorrowedBooks: ITopBorrowedBooks[]
 }
 
 export interface IQuickStats {
-  total: number;
-  available: number;
-  borrowed: number;
+  title?: string;
+  value?: number;
+  type: BookQuickStatsEnum;
 }
 
 export interface IRecentActivity {
-  bookBorrowed: string;
-  bookReturned: string;
-  userRegister: string;
+  title?: string;
+  date: string;
+  type: BookRecentActivitiesEnum;
 }
 
 export interface ITopBorrowedBooks {
-  name: string;
+  title: string;
   count: number;
 }
 

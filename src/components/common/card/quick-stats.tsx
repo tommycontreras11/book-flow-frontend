@@ -1,27 +1,22 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-type QuickStats = {
-  id: string;
-  title: string;
-  type: "borrowed" | "available" | "total";
-  value: number;
-};
+import { BookQuickStatsEnum } from "@/enums/book.enum";
+import { IQuickStats } from "@/providers/http/books/interface";
 
 interface QuickStatsCardProps {
-  quickStats: QuickStats[];
+  quickStats: IQuickStats[];
 }
 
 export function QuickStatsCard({ quickStats }: QuickStatsCardProps) {
   // Function to determine the indicator color based on quickStat type
-  const getIndicatorColor = (type: QuickStats["type"]) => {
+  const getIndicatorColor = (type: IQuickStats["type"]) => {
     switch (type) {
-      case "total":
+      case BookQuickStatsEnum.TOTAL:
         return "text-blue-700";
-        case "available":
+        case BookQuickStatsEnum.AVAILABLE:
           return "text-green-700";
-        case "borrowed":
+        case BookQuickStatsEnum.BORROWED:
           return "text-red-700";
       default:
         return "bg-gray-500";
@@ -34,8 +29,8 @@ export function QuickStatsCard({ quickStats }: QuickStatsCardProps) {
         <CardTitle className="text-xl font-bold">Quick Stats</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {quickStats.map((quickStat) => (
-          <div key={quickStat.id} className="flex flex-col space-x-4">
+        {quickStats.map((quickStat, index) => (
+          <div key={index} className="flex flex-col space-x-4">
             <div className="flex justify-between items-start">
               <p className="text-gray-700 dark:text-gray-300">{quickStat.title}</p>
               <p className={`text-lg font-medium ${getIndicatorColor(quickStat.type)}`}>{quickStat.value}</p>
