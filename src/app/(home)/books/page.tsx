@@ -12,7 +12,6 @@ import { useGetAllBook, useGetOneBook } from "@/hooks/api/book.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import { useGetAllPublisher } from "@/hooks/api/publisher.hook";
 import { useGetAllScience } from "@/hooks/api/science.hook";
-import { ICreateBook, IUpdateBook } from "@/interfaces/book.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import { createBook, deleteBook, updateBook } from "@/lib/book.lib";
 import { fillFormInput } from "@/lib/utils";
@@ -21,11 +20,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
+import { ICreateBook, IUpdateBook } from "@/providers/http/books/interface";
 
 export default function Book() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
-  const [uuid, setUUID] = useState("");
+  const [uuid, setUUID] = useState<string | null>("");
   const [bookFields, setBookFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
     {
@@ -79,7 +79,7 @@ export default function Book() {
       return;
 
     setBookFields((prevFields) => {
-      const fields = [...prevFields];
+      const fields = [...prevFields]
 
       const addFieldIsMissing = (formFields: IFormField[]) => {
         formFields.find((formField) => {
@@ -118,6 +118,15 @@ export default function Book() {
           })),
         },
         {
+          name: "scienceUUID",
+          label: "Science",
+          type: "select",
+          options: sciences?.map((science) => ({
+            label: science.name,
+            value: science.uuid,
+          })),
+        },
+        {
           name: "bibliographyTypeUUID",
           label: "Bibliography Type",
           type: "select",
@@ -129,7 +138,7 @@ export default function Book() {
       ]);
 
       return fields;
-    });
+    }); 
   }, [
     authors,
     isLoadingAuthor,
@@ -140,12 +149,12 @@ export default function Book() {
     publishers,
     isLoadingPublisher,
     sciences,
-    isLoadingScience,
+    isLoadingScience
   ]);
 
   useEffect(() => {
     if (!book) return;
-
+    
     if (isModalOpen && isEditable) {
       fillFormInput(form, [
         { property: "name", value: book.name },
@@ -186,6 +195,7 @@ export default function Book() {
       return;
     }
 
+    setUUID(null);
     setIsEditable(false);
   }, [book, isModalOpen, isEditable, uuid]);
 
@@ -205,6 +215,8 @@ export default function Book() {
   };
 
   const modifyBook = (book: FormData) => {
+    if (!uuid) return;
+
     updateBook(uuid, book)
       .then((data: IMessage) => {
         form.reset();
@@ -228,8 +240,6 @@ export default function Book() {
 
   const handleSubmit = (book: ICreateBook | IUpdateBook) => {
     const formData = new FormData();
-
-    console.log(book);
 
     bookFields
       .filter((x) => x.name !== "authorUUIDs")
