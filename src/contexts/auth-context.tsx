@@ -3,7 +3,8 @@
 import { formSchema } from "@/app/(auth)/auth/signIn/page";
 import { useMe } from "@/hooks/api/auth.hook";
 import { IMeUser } from "@/interfaces/auth.interface";
-import { me, signIn, signOut } from "@/lib/auth.lib";
+import { getCookie, me, signIn, signOut } from "@/lib/auth.lib";
+import { handleApiError } from "@/utils/error";
 import { useRouter } from "next/navigation";
 import {
   createContext,
@@ -44,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const validateUser = async () => {
+    const validateUser = async () => {      
       if (data) {
         setUser(data);
         setIsLoggedIn(true);
@@ -56,19 +57,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     validateUser();
   }, [data, isLoading]);
 
-  const login = (values: z.infer<typeof formSchema>) => {
-    console.log("Logging in...");
-    signIn(values)
-      .then(() => {
-        me()
-          .then(({ data }: { data: IMeUser }) => {
-            setUser(data);
-            setIsLoggedIn(true);
-            router.push("/");
-          })
-          .catch((err) => console.log(err));
-      })
-      .catch((err) => console.log(err));
+  const login = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await signIn(values);
+      const { data }: { data: IMeUser } = await me();
+      setUser(data);
+      setIsLoggedIn(true);
+      router.push("/");
+    } catch (err: any) {
+      throw new Error(handleApiError(err).message);
+    }
   };
 
   const logout = () => {

@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import "../globals.css";
 
 export default function AuthLayout({
@@ -5,5 +6,10 @@ export default function AuthLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <main>{children}</main>;
+  return (
+    <main>
+      {children}
+      <Toaster />
+    </main>
+  );
 }

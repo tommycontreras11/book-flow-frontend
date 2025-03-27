@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -34,6 +35,7 @@ export const formSchema = z.object({
 
 export default function SignIn() {
   const { login } = useAuth();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,8 +45,18 @@ export default function SignIn() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    login(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await login(values);
+    } catch (error: any) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: error.message ?? "Something went wrong",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   }
 
   return (
