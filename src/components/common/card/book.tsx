@@ -1,32 +1,24 @@
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
-import { StatusRequestEnum } from "@/enums/request.enum";
+import { IMeUser } from "@/interfaces/auth.interface";
 import { IBook } from "@/providers/http/books/interface";
 
 export default function BookCard({
   book,
-  userUUID,
+  user,
   handleSubmit,
 }: {
   book: IBook;
-  userUUID?: string | null;
+  user?: IMeUser | null;
   handleSubmit: () => void;
 }) {
-  const userBook = book?.requests?.find(
-    (request) => request?.user?.uuid === userUUID
-  );
-  const isOwnedByUser = userBook?.book?.uuid === book.uuid;
-
-  const { user } = useAuth();
-
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl dark:bg-gray-950">
       <img
         src={book.url}
         alt="Product Image"
-        width={300}
-        height={300}
+        width={200}
+        height={200}
         className="w-full h-64 object-cover"
         style={{ aspectRatio: "300/300", objectFit: "cover" }}
       />
@@ -38,13 +30,8 @@ export default function BookCard({
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold">{book.publicationYear}</span>
           {user?.role === UserRoleEnum.USER && (
-            <Button disabled={isOwnedByUser} onClick={handleSubmit}>
-              {isOwnedByUser
-                ? userBook?.status != StatusRequestEnum.DENIED &&
-                  userBook?.status != StatusRequestEnum.PENDING
-                  ? "Owned by you"
-                  : "Pending to approval"
-                : "Request book"}
+            <Button onClick={handleSubmit}>
+              Request book
             </Button>
           )}
         </div>

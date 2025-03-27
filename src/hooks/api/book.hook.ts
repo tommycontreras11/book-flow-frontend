@@ -14,11 +14,12 @@ export function useGetAllBook() {
     }
 }
 
-export function useGetAllBookStat() {
+export function useGetAllBookStat(enabled: boolean) {
     const queryClient = useQuery({
         queryKey: ['books-stats'],
         retry: 1,
-        queryFn: () => booksProvider.getStats()
+        queryFn: () => booksProvider.getStats(),
+        enabled
     })
 
     return {
