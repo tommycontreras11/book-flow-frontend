@@ -25,7 +25,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function loanManagement() {
-  const [isUser, setIsUser] = useState<boolean | null>(null);
+  const [isUser, setIsUser] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestUUID, setRequestUUID] = useState<string | null>(null);
   const [loanManagementFields, setLoanManagementFields] = useState<
@@ -51,6 +51,7 @@ export default function loanManagement() {
     error,
     refetch,
   } = useGetAllRequest(
+    isUser,
     isUser
       ? [StatusRequestEnum.APPROVAL, StatusRequestEnum.BORROWED]
       : undefined
@@ -90,7 +91,7 @@ export default function loanManagement() {
     <div className="mx-auto w-full overflow-x-auto">
       {!requests ||
         (!requests?.find(
-          (request) => request.status === StatusRequestEnum.APPROVAL
+          (request) => request.status === StatusRequestEnum.APPROVAL || request.status === StatusRequestEnum.BORROWED
         ) && <h3 className="text-center font-medium">No approval requests</h3>)}
       {requests &&
         requests.map((request) => (
