@@ -24,15 +24,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createUser } from "@/lib/user.lib";
+import { useAuth } from "@/contexts/auth-context";
+import { PersonTypeEnum } from "@/enums/common.enum";
+import { useToast } from "@/hooks/use-toast";
 import { userFormSchema } from "@/schema/user.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 export default function SignUp() {
-  const router = useRouter();
+  const { register } = useAuth()
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof userFormSchema>>({
     resolver: zodResolver(userFormSchema),
@@ -45,10 +47,22 @@ export default function SignUp() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof userFormSchema>) {
-    createUser(values)
-      .then(() => router.push("/auth/signIn"))
-      .catch((err) => console.log(err));
+  const personTypes = Object.values(PersonTypeEnum).map((type) => ({
+    value: type,
+    label: type.charAt(0).toUpperCase() + type.slice(1).toLowerCase(),
+  }));
+
+  async function onSubmit(values: z.infer<typeof userFormSchema>) {
+    try {
+      await register(values);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message ?? "Something went wrong",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   }
 
   return (
@@ -188,8 +202,11 @@ export default function SignUp() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="NATURAL">Natural</SelectItem>
-                              <SelectItem value="LEGAL">Legal</SelectItem>
+                              {personTypes.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />

@@ -3,7 +3,8 @@
 import { formSchema } from "@/app/(auth)/auth/signIn/page";
 import { useMe } from "@/hooks/api/auth.hook";
 import { IMeUser } from "@/interfaces/auth.interface";
-import { getCookie, me, signIn, signOut } from "@/lib/auth.lib";
+import { me, signIn, signOut } from "@/lib/auth.lib";
+import { createUser } from "@/lib/user.lib";
 import { handleApiError } from "@/utils/error";
 import { useRouter } from "next/navigation";
 import {
@@ -23,6 +24,7 @@ interface AuthContextType {
   user?: IMeUser | null;
   setUser: Dispatch<SetStateAction<IMeUser | null>>;
   login: (values: z.infer<typeof formSchema>) => void;
+  register: (values: z.infer<typeof formSchema>) => void;
   logout: () => void;
 }
 
@@ -45,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const validateUser = async () => {      
+    const validateUser = async () => {
       if (data) {
         setUser(data);
         setIsLoggedIn(true);
@@ -64,24 +66,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data);
       setIsLoggedIn(true);
       router.push("/");
-    } catch (err: any) {
+    } catch (err) {
       throw new Error(handleApiError(err).message);
     }
   };
 
-  const logout = () => {
-    console.log("Logging out...");
-    signOut()
-      .then(() => {
-        setUser(null);
-        setIsLoggedIn(false);
-        window.location.replace("/");
-      })
-      .catch((err) => console.log(err));
+  const register = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await createUser(values);
+      router.push("/auth/signIn");
+    } catch (err) {
+      throw new Error(handleApiError(err).message);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOut();
+      setUser(null);
+      setIsLoggedIn(false);
+      window.location.replace("/");
+    } catch (err) {
+      throw new Error(handleApiError(err).message);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setUser, user, login, logout }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, setUser, user, login, register, logout }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );

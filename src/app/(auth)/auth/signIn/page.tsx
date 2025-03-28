@@ -49,7 +49,6 @@ export default function SignIn() {
     try {
       await login(values);
     } catch (error: any) {
-      console.log(error);
       toast({
         title: "Error",
         description: error.message ?? "Something went wrong",
