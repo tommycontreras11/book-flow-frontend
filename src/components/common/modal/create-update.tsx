@@ -49,6 +49,7 @@ export interface IFormField {
     | "multi-select"
     | "file";
   defaultValue?: string | number;
+  blockDatesAfterToday?: boolean;
   options?: IOptionsFormField[];
 }
 
@@ -141,8 +142,14 @@ export function CreateUpdateForm<T extends FieldValues>({
                           <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
                               mode="single"
-                              selected={field.value}
+                              selected={field.value ?? new Date()}
                               onSelect={field.onChange}
+                              disabled={(date) => {
+                                if (fieldInput.blockDatesAfterToday) { 
+                                  return date > new Date()
+                                }
+                                return false;
+                              }}
                               initialFocus
                             />
                           </PopoverContent>
