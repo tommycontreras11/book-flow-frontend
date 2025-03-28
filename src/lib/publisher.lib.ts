@@ -7,13 +7,14 @@ import {
   IUpdatePublisher
 } from "@/interfaces/publisher.interface";
 import { config } from "./config";
+import { handleApiError } from "@/utils/error";
 
 export const createPublisher = async (publisher: ICreatePublisher) => {
   try {
     const response = await api.post(config.apiURL + "/publishers", publisher);
     return response.data;
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    throw new Error(handleApiError(err).message);
   }
 };
 
@@ -27,8 +28,8 @@ export const updatePublisher = async (
       publisher
     );
     return response.data;
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    throw new Error(handleApiError(err).message);
   }
 };
 
@@ -36,7 +37,7 @@ export const deletePublisher = async (uuid: string) => {
   try {
     const response = await api.delete(config.apiURL + "/publishers/" + uuid);
     return response.data;
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    throw new Error(handleApiError(err).message);
   }
 };

@@ -6,16 +6,19 @@ import {
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
-import { useGetAllPublisher, useGetOnePublisher } from "@/hooks/api/publisher.hook";
+import {
+  useGetAllPublisher,
+  useGetOnePublisher,
+} from "@/hooks/api/publisher.hook";
 import { IMessage } from "@/interfaces/message.interface";
 import {
   ICreatePublisher,
-  IUpdatePublisher
+  IUpdatePublisher,
 } from "@/interfaces/publisher.interface";
 import {
   createPublisher,
   deletePublisher,
-  updatePublisher
+  updatePublisher,
 } from "@/lib/publisher.lib";
 import { fillFormInput } from "@/lib/utils";
 import { publisherFormSchema } from "@/schema/publisher.schema";
@@ -23,6 +26,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
+import { clearForm } from "@/utils/form";
+import { toast } from "@/hooks/use-toast";
 
 export default function Publisher() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,30 +44,45 @@ export default function Publisher() {
     },
   });
 
-  const { data: publishers, error, isLoading: isLoadingPublishers, refetch } = useGetAllPublisher()
-  const { data: publisher } = useGetOnePublisher(uuid || "")
+  const {
+    data: publishers,
+    error,
+    isLoading: isLoadingPublishers,
+    refetch,
+  } = useGetAllPublisher();
+  const { data: publisher } = useGetOnePublisher(uuid || "");
 
   useEffect(() => {
-    if(!publisher) return
+    if (!publisher) return;
 
-    form.reset();
-
-    if(isModalOpen && isEditable) {
+    if (isModalOpen && isEditable) {
       fillFormInput(form, [{ property: "name", value: publisher.name }]);
       return;
     }
 
-    setIsEditable(false);
-    setUUID(null);
+    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
   }, [publisher, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deletePublisher(uuid)
       .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
         refetch();
-        console.log(data.message);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleUpdate = (uuid: string) => {
@@ -76,22 +96,43 @@ export default function Publisher() {
 
     updatePublisher(uuid, publisher)
       .then((data: IMessage) => {
-        form.reset();
-        setIsEditable(false);
-        setIsModalOpen(false);
-        console.log(data.message);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const savePublisher = (publisher: ICreatePublisher) => {
     createPublisher(publisher)
       .then((data: IMessage) => {
-        form.reset();
-        setIsModalOpen(false);
-        console.log(data.message);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleSubmit = async (
@@ -99,7 +140,7 @@ export default function Publisher() {
   ) => {
     if (uuid) {
       modifyPublisher(formData);
-    } else { 
+    } else {
       savePublisher(formData);
     }
 
