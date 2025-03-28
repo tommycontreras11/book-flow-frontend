@@ -20,7 +20,7 @@ export const employeeFormSchema = z
     work_shift: z.enum(Object.values(WorkShiftEnum) as [string, ...string[]], {
       required_error: "Person type is required",
     }),
-    commission_percentage: z.number().min(0).max(100),
+    commission_percentage: z.coerce.number().min(0).max(100),
     entry_date: z
       .date()
       .refine(

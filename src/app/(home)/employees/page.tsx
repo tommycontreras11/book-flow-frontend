@@ -11,10 +11,6 @@ import {
   useGetAllEmployee,
   useGetOneEmployee,
 } from "@/hooks/api/employee.hook";
-import {
-  ICreateEmployee,
-  IUpdateEmployee,
-} from "@/interfaces/employee.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import {
   createEmployee,
@@ -28,6 +24,9 @@ import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { columns } from "./table/column";
+import { clearForm } from "@/utils/form";
+import { toast } from "@/hooks/use-toast";
+import { ICreateEmployee, IUpdateEmployee } from "@/providers/http/employees/interface";
 
 export default function Employee() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,7 +42,7 @@ export default function Employee() {
       label: "Commission Percentage",
       type: "number",
     },
-    { name: "entry_date", label: "Entry Date", type: "date" },
+    { name: "entry_date", label: "Entry Date", type: "date", blockDatesAfterToday: true },
   ]);
 
   const form = useForm<z.infer<typeof employeeFormSchema>>({
@@ -63,7 +62,7 @@ export default function Employee() {
   const { data: employee } = useGetOneEmployee(uuid || "");
 
   useEffect(() => {
-    if(!isLoading) return; 
+    if (!isLoading) return;
 
     const workShiftOptions = Object.values(WorkShiftEnum).map((value) => ({
       label: value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
@@ -90,7 +89,6 @@ export default function Employee() {
     if (!employee) return;
 
     if (isModalOpen && isEditable) {
-      console.log(employee.entry_date)
       fillFormInput(form, [
         { property: "name", value: employee.name },
         {
@@ -118,22 +116,32 @@ export default function Employee() {
           value: new Date(employee.entry_date).toISOString().split("T")[0],
         },
       ]);
-
       return;
     }
 
-    form.reset();
-    setIsEditable(false);
-    setUUID(null);
+    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
   }, [employee, isEditable, isModalOpen, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteEmployee(uuid)
       .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
         refetch();
-        console.log(data.message);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleUpdate = (uuid: string) => {
@@ -147,23 +155,43 @@ export default function Employee() {
 
     updateEmployee(uuid, employee)
       .then((data: IMessage) => {
-        form.reset();
-        setIsEditable(false);
-        setIsModalOpen(false);
-        setUUID(null);
-        console.log(data.message);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const saveEmployee = (employee: ICreateEmployee) => {
     createEmployee(employee)
       .then((data: IMessage) => {
-        form.reset();
-        setIsModalOpen(false);
-        console.log(data);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleSubmit = async (formData: ICreateEmployee | IUpdateEmployee) => {

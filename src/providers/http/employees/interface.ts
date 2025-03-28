@@ -1,5 +1,4 @@
 import { StatusEnum } from "@/enums/common.enum";
-import { IUser } from "@/interfaces/user.interface";
 
 export interface IEmployee {
   uuid: string;
@@ -9,7 +8,7 @@ export interface IEmployee {
   identification: string;
   work_shift: string;
   commission_percentage: number;
-  entry_date: string;
+  entry_date: Date;
   status: StatusEnum;
 }
 
