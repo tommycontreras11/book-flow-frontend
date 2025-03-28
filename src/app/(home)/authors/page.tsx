@@ -25,8 +25,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Author() {
+  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState<string | null>("");
@@ -116,9 +118,21 @@ export default function Author() {
     deleteAuthor(uuid)
       .then((data: IMessage) => {
         refetch();
-        console.log(data.message);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000
+        });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message ?? "Something went wrong",
+          variant: "destructive",
+          duration: 3000
+        });
+      });
   };
 
   const handleUpdate = (uuid: string) => {
@@ -135,9 +149,21 @@ export default function Author() {
         form.reset();
         setIsEditable(false);
         setIsModalOpen(false);
-        console.log(data.message);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000
+        });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message ?? "Something went wrong",
+          variant: "destructive",
+          duration: 3000
+        });
+      });
   };
 
   const saveAuthor = (author: ICreateAuthor) => {
@@ -145,9 +171,21 @@ export default function Author() {
       .then((data: IMessage) => {
         form.reset();
         setIsModalOpen(false);
-        console.log(data);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000
+        });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message ?? "Something went wrong",
+          variant: "destructive",
+          duration: 3000
+        });
+      });
   };
 
   const handleSubmit = async (formData: ICreateAuthor | IUpdateAuthor) => {

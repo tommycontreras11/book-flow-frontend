@@ -6,6 +6,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function HomeLayout({
      children,
@@ -23,6 +24,7 @@ export default function HomeLayout({
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           {children}
+          <Toaster />
         </div>
       </SidebarInset>
     </SidebarProvider>
