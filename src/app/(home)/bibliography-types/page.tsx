@@ -63,20 +63,20 @@ export default function BibliographyType() {
       return;
     }
 
-    clearForm(form, setIsModalOpen, setIsEditable, setUUID);
+    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
   }, [bibliographyType, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteBibliographyType(uuid)
       .then((data: IMessage) => {
-        refetch();
         toast({
           title: "Success",
           description: data.message,
           variant: "default",
           duration: 3000
         });
-        clearForm(form, setIsModalOpen, setIsEditable, setUUID);
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+        refetch();
       })
       .catch((err) => {
         toast({
@@ -107,7 +107,7 @@ export default function BibliographyType() {
           variant: "default",
           duration: 3000
         });
-        clearForm(form, setIsModalOpen, setIsEditable, setUUID);
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
       .catch((err) => {
         toast({
@@ -128,7 +128,7 @@ export default function BibliographyType() {
           variant: "default",
           duration: 3000
         });
-        clearForm(form, setIsModalOpen, setIsEditable, setUUID);
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
       .catch((err) => {
         toast({

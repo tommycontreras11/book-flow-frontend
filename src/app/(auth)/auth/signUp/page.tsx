@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/contexts/auth-context";
 import { PersonTypeEnum } from "@/enums/common.enum";
-import { useToast } from "@/hooks/use-toast";
+import { toast, useToast } from "@/hooks/use-toast";
 import { userFormSchema } from "@/schema/user.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -34,7 +34,6 @@ import { z } from "zod";
 
 export default function SignUp() {
   const { register } = useAuth()
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof userFormSchema>>({
     resolver: zodResolver(userFormSchema),

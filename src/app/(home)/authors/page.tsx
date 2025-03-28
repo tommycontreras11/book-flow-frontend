@@ -9,6 +9,7 @@ import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { useGetAllAuthor, useGetOneAuthor } from "@/hooks/api/author.hook";
 import { useGetAllCountry } from "@/hooks/api/country.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
+import { toast } from "@/hooks/use-toast";
 import {
   ICreateAuthor,
   IUpdateAuthor
@@ -21,14 +22,13 @@ import {
 } from "@/lib/author.lib";
 import { fillFormInput } from "@/lib/utils";
 import { authorFormSchema } from "@/schema/author.schema";
+import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
-import { useToast } from "@/hooks/use-toast";
 
 export default function Author() {
-  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState<string | null>("");
@@ -93,8 +93,6 @@ export default function Author() {
   useEffect(() => {
     if(!author) return
 
-    form.reset();
-
     if(isModalOpen && isEditable) {
       fillFormInput(form, [
         { property: "name", value: author.name },
@@ -110,8 +108,7 @@ export default function Author() {
       return;
     }
 
-    setIsEditable(false)
-    setUUID(null);
+    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
   }, [author, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
@@ -124,6 +121,8 @@ export default function Author() {
           variant: "default",
           duration: 3000
         });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+        refetch();
       })
       .catch((err) => {
         toast({
@@ -146,15 +145,13 @@ export default function Author() {
 
     updateAuthor(uuid, author)
       .then((data: IMessage) => {
-        form.reset();
-        setIsEditable(false);
-        setIsModalOpen(false);
         toast({
           title: "Success",
           description: data.message,
           variant: "default",
           duration: 3000
         });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
       .catch((err) => {
         toast({
@@ -169,14 +166,13 @@ export default function Author() {
   const saveAuthor = (author: ICreateAuthor) => {
     createAuthor(author)
       .then((data: IMessage) => {
-        form.reset();
-        setIsModalOpen(false);
         toast({
           title: "Success",
           description: data.message,
           variant: "default",
           duration: 3000
         });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
       .catch((err) => {
         toast({
@@ -192,6 +188,7 @@ export default function Author() {
     if (uuid) {
       modifyAuthor(formData);
     }else {
+      setIsModalOpen(true);
       saveAuthor(formData as ICreateAuthor);
     }
 
