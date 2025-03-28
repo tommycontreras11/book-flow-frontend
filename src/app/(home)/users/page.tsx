@@ -18,6 +18,8 @@ import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { columns } from "./table/column";
+import { clearForm } from "@/utils/form";
+import { toast } from "@/hooks/use-toast";
 
 export default function User() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,7 +63,6 @@ export default function User() {
     if (!user) return;
 
     if (isModalOpen && isEditable) {
-      console.log(user)
       fillFormInput(form, [
         { property: "name", value: user.name },
         {
@@ -85,17 +86,29 @@ export default function User() {
       return;
     }
 
-    form.reset();
-    setIsEditable(false);
+    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
   }, [user, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteUser(uuid)
       .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
         refetch();
-        console.log(data.message);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleUpdate = (uuid: string) => {
@@ -109,23 +122,43 @@ export default function User() {
 
     updateUser(uuid, user)
       .then((data: IMessage) => {
-        form.reset();
-        setIsEditable(false);
-        setIsModalOpen(false);
-        setUUID(null);
-        console.log(data.message);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const saveUser = (user: ICreateUser) => {
     createUser(user)
       .then((data: IMessage) => {
-        form.reset();
-        setIsModalOpen(false);
-        console.log(data);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleSubmit = async (formData: ICreateUser | IUpdateUser) => {
