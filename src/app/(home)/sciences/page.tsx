@@ -9,17 +9,15 @@ import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { useGetAllScience, useGetOneScience } from "@/hooks/api/science.hook";
 import { IMessage } from "@/interfaces/message.interface";
 import { ICreateScience, IUpdateScience } from "@/interfaces/science.interface";
-import {
-  createScience,
-  deleteScience,
-  updateScience
-} from "@/lib/science.lib";
+import { createScience, deleteScience, updateScience } from "@/lib/science.lib";
 import { fillFormInput } from "@/lib/utils";
 import { scienceFormSchema } from "@/schema/science.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
+import { clearForm } from "@/utils/form";
+import { toast } from "@/hooks/use-toast";
 
 export default function Science() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,29 +34,45 @@ export default function Science() {
     },
   });
 
-  const { data: sciences, isLoading: isLoadingScience, error, refetch } = useGetAllScience();
+  const {
+    data: sciences,
+    isLoading: isLoadingScience,
+    error,
+    refetch,
+  } = useGetAllScience();
   const { data: science } = useGetOneScience(uuid || "");
 
   useEffect(() => {
-    if(!science) return
+    if (!science) return;
 
-    if(isModalOpen && isEditable) {
+    if (isModalOpen && isEditable) {
       fillFormInput(form, [{ property: "name", value: science.name }]);
       return;
     }
 
-    form.reset()
-    setIsEditable(false);
-    setUUID(null);
+    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
   }, [science, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteScience(uuid)
       .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
         refetch();
-        console.log(data.message);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleUpdate = (uuid: string) => {
@@ -68,26 +82,47 @@ export default function Science() {
   };
 
   const modifyScience = (science: IUpdateScience) => {
-    if(!uuid) return
+    if (!uuid) return;
 
     updateScience(uuid, science)
       .then((data: IMessage) => {
-        form.reset();
-        setIsEditable(false);
-        setIsModalOpen(false);
-        console.log(data.message);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const saveScience = (science: ICreateScience) => {
     createScience(science)
       .then((data: IMessage) => {
-        form.reset();
-        setIsModalOpen(false);
-        console.log(data.message);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
-      .catch((err) => alert(err.message));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleSubmit = async (formData: ICreateScience | IUpdateScience) => {
