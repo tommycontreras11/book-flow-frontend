@@ -128,7 +128,7 @@ export default function Author() {
       .catch((err) => {
         toast({
           title: "Error",
-          description: err.message ?? "Something went wrong",
+          description: err.message,
           variant: "destructive",
           duration: 3000
         });
@@ -159,7 +159,7 @@ export default function Author() {
       .catch((err) => {
         toast({
           title: "Error",
-          description: err.message ?? "Something went wrong",
+          description: err.message,
           variant: "destructive",
           duration: 3000
         });
@@ -181,7 +181,7 @@ export default function Author() {
       .catch((err) => {
         toast({
           title: "Error",
-          description: err.message ?? "Something went wrong",
+          description: err.message,
           variant: "destructive",
           duration: 3000
         });

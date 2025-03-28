@@ -7,6 +7,7 @@ import {
   IUpdateBibliographyType
 } from "@/interfaces/bibliography-type.interface";
 import { config } from "./config";
+import { handleApiError } from "@/utils/error";
 
 export const createBibliographyType = async (
   bibliographyType: ICreateBibliographyType
@@ -17,8 +18,8 @@ export const createBibliographyType = async (
       bibliographyType
     );
     return response.data;
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    throw new Error(handleApiError(err).message);
   }
 };
 
@@ -32,8 +33,8 @@ export const updateBibliographyType = async (
       bibliographyType
     );
     return response.data;
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    throw new Error(handleApiError(err).message);
   }
 };
 
@@ -43,7 +44,7 @@ export const deleteBibliographyType = async (uuid: string) => {
       config.apiURL + "/bibliography-types/" + uuid
     );
     return response.data;
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    throw new Error(handleApiError(err).message);
   }
 };
