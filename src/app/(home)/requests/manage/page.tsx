@@ -13,7 +13,6 @@ import { toast } from "@/hooks/use-toast";
 import { IMessage } from "@/interfaces/message.interface";
 import { IUpdateRequest } from "@/interfaces/request.interface";
 import { deleteRequest, updateRequest } from "@/lib/request.lib";
-import { fillFormInput } from "@/lib/utils";
 import { requestUpdateFormSchema } from "@/schema/request.schema";
 import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,58 +48,51 @@ export default function Manage() {
   const { data: books, isLoading: isLoadingBooks } = useGetAllBook();
 
   useEffect(() => {
-    if(isLoadingBooks) return
-    
-    setRequestFields((prevFields) => {
-      if(!prevFields.find((field) => field.name === "bookUUID")) {
-        return [
-          ...prevFields,
-          {
-            name: "bookUUID",
-            label: "Book",
-            type: "select",
-            options: books?.map((book) => ({
-              label: book.name,
-              value: book.uuid,
-            })),
-          }
-        ]
-      }
-      return prevFields;
-    });
-
-    setRequestFields((prevFields) => {
-      if(!prevFields.find((field) => field.name === "status")) {
-        return [
-          ...prevFields,
-          {
-            name: "status",
-            label: "Status",
-            type: "select",
-            options: Object.values(StatusRequestEnum).map((value) => ({
-              label:
-                value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
-              value,
-            })),
-          },
-        ]
-      }
-      return prevFields
-    });
-  }, [books, isLoadingBooks]);
-
-  useEffect(() => {
     if (!request) return;
-
+    
     if (isModalOpen && isEditable) {
-      fillFormInput(form, [
-        { property: "bookUUID", value: request.book.uuid },
-        { property: "status", value: request.book.status },
-      ]);
+      setRequestFields((prevFields) => {
+        if(!prevFields.find((field) => field.name === "bookUUID")) {
+          return [
+            ...prevFields,
+            {
+              name: "bookUUID",
+              label: "Book",
+              type: "select",
+              options: books?.map((book) => ({
+                label: book.name,
+                value: book.uuid,
+              })),
+              defaultValue: request?.book.uuid
+            }
+          ]
+        }
+        return prevFields;
+      });
+  
+      setRequestFields((prevFields) => {
+        if(!prevFields.find((field) => field.name === "status")) {
+          return [
+            ...prevFields,
+            {
+              name: "status",
+              label: "Status",
+              type: "select",
+              options: Object.values(StatusRequestEnum).map((value) => ({
+                label:
+                  value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
+                value,
+              })),
+              defaultValue: request?.status
+            },
+          ]
+        }
+        return prevFields
+      });
       return;
     }
 
-    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    clearForm(setRequestFields, false, setIsModalOpen, setIsEditable, setUUID);
   }, [request, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
@@ -112,7 +104,7 @@ export default function Manage() {
           variant: "default",
           duration: 3000,
         });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+        clearForm(setRequestFields, true, setIsModalOpen, setIsEditable, setUUID);
         refetch();
       })
       .catch((err) => {
@@ -142,7 +134,7 @@ export default function Manage() {
           variant: "default",
           duration: 3000,
         });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+        clearForm(setRequestFields, true, setIsModalOpen, setIsEditable, setUUID);
       })
       .catch((err) => {
         toast({
