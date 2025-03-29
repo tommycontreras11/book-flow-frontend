@@ -2,22 +2,20 @@
 
 import {
   CreateUpdateForm,
-  IFormField
+  IFormField,
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { requestStatusTableDefinitions } from "@/definitions/common.definition";
 import { StatusRequestEnum } from "@/enums/request.enum";
 import { useGetAllBook } from "@/hooks/api/book.hook";
-import { useGetAllRequest } from "@/hooks/api/request.hook";
+import { useGetAllRequest, useGetOneRequest } from "@/hooks/api/request.hook";
+import { toast } from "@/hooks/use-toast";
 import { IMessage } from "@/interfaces/message.interface";
-import {
-  IUpdateRequest
-} from "@/interfaces/request.interface";
-import {
-  deleteRequest,
-  updateRequest
-} from "@/lib/request.lib";
+import { IUpdateRequest } from "@/interfaces/request.interface";
+import { deleteRequest, updateRequest } from "@/lib/request.lib";
+import { fillFormInput } from "@/lib/utils";
 import { requestUpdateFormSchema } from "@/schema/request.schema";
+import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
@@ -38,44 +36,93 @@ export default function Manage() {
     },
   });
 
-  const { data: requests, error, isLoading: isLoadingRequests, refetch } = useGetAllRequest()
-  const { data: books, isLoading: isLoadingBooks } = useGetAllBook()
+  const {
+    data: requests,
+    error,
+    isLoading: isLoadingRequests,
+    refetch,
+  } = useGetAllRequest(true);
+  const {
+    data: request,
+    isLoading: isLoadingRequest
+  } = useGetOneRequest(uuid || "");
+  const { data: books, isLoading: isLoadingBooks } = useGetAllBook();
 
   useEffect(() => {
-    if(!isLoadingBooks) return
+    if(isLoadingBooks) return
     
-    setRequestFields([
-      {
-        name: "bookUUID",
-        label: "Book",
-        type: "select",
-        options: books?.map((book) => ({
-          label: book.name,
-          value: book.uuid,
-        })),
-      },
-      {
-        name: "status",
-        label: "Status",
-        type: "select",
-        options: Object.values(StatusRequestEnum).map((value) => ({
-          label:
-            value.charAt(0).toUpperCase() +
-            value.slice(1).toLocaleLowerCase(),
-          value,
-        })),
-      },
-    ]);  
+    setRequestFields((prevFields) => {
+      if(!prevFields.find((field) => field.name === "bookUUID")) {
+        return [
+          ...prevFields,
+          {
+            name: "bookUUID",
+            label: "Book",
+            type: "select",
+            options: books?.map((book) => ({
+              label: book.name,
+              value: book.uuid,
+            })),
+          }
+        ]
+      }
+      return prevFields;
+    });
+
+    setRequestFields((prevFields) => {
+      if(!prevFields.find((field) => field.name === "status")) {
+        return [
+          ...prevFields,
+          {
+            name: "status",
+            label: "Status",
+            type: "select",
+            options: Object.values(StatusRequestEnum).map((value) => ({
+              label:
+                value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
+              value,
+            })),
+          },
+        ]
+      }
+      return prevFields
+    });
   }, [books, isLoadingBooks]);
-  
+
+  useEffect(() => {
+    if (!request) return;
+
+    if (isModalOpen && isEditable) {
+      fillFormInput(form, [
+        { property: "bookUUID", value: request.book.uuid },
+        { property: "status", value: request.book.status },
+      ]);
+      return;
+    }
+
+    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+  }, [request, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
     deleteRequest(uuid)
       .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
         refetch();
-        console.log(data.message);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleUpdate = (uuid: string) => {
@@ -89,13 +136,22 @@ export default function Manage() {
 
     updateRequest(uuid, request)
       .then((data: IMessage) => {
-        form.reset();
-        setIsEditable(false);
-        setIsModalOpen(false);
-        setUUID(null);
-        console.log(data.message);
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleSubmit = async (formData: IUpdateRequest) => {
