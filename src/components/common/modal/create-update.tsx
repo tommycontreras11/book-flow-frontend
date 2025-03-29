@@ -199,7 +199,7 @@ export function CreateUpdateForm<T extends FieldValues>({
                       {fieldInput.type === "select" && (
                         <Select
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          defaultValue={field.value ?? fieldInput.defaultValue as string}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full">
