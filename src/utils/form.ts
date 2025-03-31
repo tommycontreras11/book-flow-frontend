@@ -1,9 +1,15 @@
-import { IFormField } from '@/components/common/modal/create-update';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from "react";
+import { FieldValues, UseFormReturn } from "react-hook-form";
 
-export const clearForm = (setFields: Dispatch<SetStateAction<IFormField[]>>, closeModal = false, setIsModalOpen: Dispatch<SetStateAction<boolean>>, setIsEditable: Dispatch<SetStateAction<boolean>>, setUUID: Dispatch<SetStateAction<string | null>>) => {
-    setFields([]);
-    closeModal && setIsModalOpen(false);
-    setIsEditable(false);
-    setUUID(null);
-  }
+export const clearForm = <T extends FieldValues>(
+  form: UseFormReturn<T>,
+  closeModal = false,
+  setIsModalOpen: Dispatch<SetStateAction<boolean>>,
+  setIsEditable: Dispatch<SetStateAction<boolean>>,
+  setUUID: Dispatch<SetStateAction<string | null>>
+) => {
+  form.reset();
+  closeModal && setIsModalOpen(false);
+  setIsEditable(false);
+  setUUID(null);
+};
