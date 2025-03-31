@@ -198,8 +198,9 @@ export function CreateUpdateForm<T extends FieldValues>({
 
                       {fieldInput.type === "select" && (
                         <Select
+                          key={form.watch(field.name)}
                           onValueChange={field.onChange}
-                          defaultValue={field.value ?? fieldInput.defaultValue as string}
+                          defaultValue={form.getValues(field.name as Path<T>)}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full">
@@ -224,6 +225,7 @@ export function CreateUpdateForm<T extends FieldValues>({
                       {fieldInput.type === "multi-select" &&
                         fieldInput.options && (
                           <MultiSelect
+                            key={form.watch(field.name)}
                             options={fieldInput.options}
                             onValueChange={field.onChange}
                             defaultValue={field.value}
