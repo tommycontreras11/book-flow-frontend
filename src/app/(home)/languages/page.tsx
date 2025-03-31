@@ -53,7 +53,7 @@ export default function Language() {
     }
 
     clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
-  }, [language, isModalOpen, isEditable, uuid]);
+  }, [language, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteLanguage(uuid)

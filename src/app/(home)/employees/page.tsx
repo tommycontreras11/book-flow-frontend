@@ -11,6 +11,7 @@ import {
   useGetAllEmployee,
   useGetOneEmployee,
 } from "@/hooks/api/employee.hook";
+import { toast } from "@/hooks/use-toast";
 import { IMessage } from "@/interfaces/message.interface";
 import {
   createEmployee,
@@ -18,20 +19,26 @@ import {
   updateEmployee,
 } from "@/lib/employee.lib";
 import { fillFormInput } from "@/lib/utils";
+import {
+  ICreateEmployee,
+  IUpdateEmployee,
+} from "@/providers/http/employees/interface";
 import { employeeFormSchema } from "@/schema/employee.schema";
+import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { columns } from "./table/column";
-import { clearForm } from "@/utils/form";
-import { toast } from "@/hooks/use-toast";
-import { ICreateEmployee, IUpdateEmployee } from "@/providers/http/employees/interface";
 
 export default function Employee() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState<null | string>(null);
+  const workShiftOptions = Object.values(WorkShiftEnum).map((value) => ({
+    label: value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
+    value,
+  }));
   const [employeeFields, setEmployeeFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
     { name: "email", label: "Email", type: "text" },
@@ -42,7 +49,18 @@ export default function Employee() {
       label: "Commission Percentage",
       type: "number",
     },
-    { name: "entry_date", label: "Entry Date", type: "date", blockDatesAfterToday: true },
+    {
+      name: "entry_date",
+      label: "Entry Date",
+      type: "date",
+      blockDatesAfterToday: true,
+    },
+    {
+      name: "work_shift",
+      label: "Work Shift",
+      type: "select",
+      options: workShiftOptions,
+    },
   ]);
 
   const form = useForm<z.infer<typeof employeeFormSchema>>({
@@ -62,65 +80,26 @@ export default function Employee() {
   const { data: employee } = useGetOneEmployee(uuid || "");
 
   useEffect(() => {
-    if (!isLoading) return;
-
-    const workShiftOptions = Object.values(WorkShiftEnum).map((value) => ({
-      label: value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
-      value,
-    }));
-
-    setEmployeeFields((prevFields) => {
-      if (!prevFields.find((field) => field.name === "work_shift")) {
-        return [
-          ...prevFields,
-          {
-            name: "work_shift",
-            label: "Work Shift",
-            type: "select",
-            options: workShiftOptions,
-          },
-        ];
-      }
-      return prevFields;
-    });
-  }, [employees, isLoading]);
-
-  useEffect(() => {
     if (!employee) return;
 
     if (isModalOpen && isEditable) {
       fillFormInput(form, [
         { property: "name", value: employee.name },
-        {
-          property: "email",
-          value: employee.email,
-        },
-        {
-          property: "password",
-          value: employee.password,
-        },
-        {
-          property: "identification",
-          value: employee.identification,
-        },
-        {
-          property: "work_shift",
-          value: employee.work_shift,
-        },
+        { property: "email", value: employee.email },
+        { property: "password", value: employee.password },
+        { property: "identification", value: employee.identification },
+        { property: "work_shift", value: employee.work_shift ?? "" },
         {
           property: "commission_percentage",
           value: employee.commission_percentage,
         },
-        {
-          property: "entry_date",
-          value: new Date(employee.entry_date).toISOString().split("T")[0],
-        },
+        { property: "entry_date", value: employee.entry_date },
       ]);
       return;
     }
-
-    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
-  }, [employee, isEditable, isModalOpen, uuid]);
+    
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  }, [employee, isEditable, isModalOpen]);
 
   const handleDelete = (uuid: string) => {
     deleteEmployee(uuid)
@@ -218,17 +197,19 @@ export default function Employee() {
         definitions={commonStatusTableDefinitions}
       />
 
-      <CreateUpdateForm<ICreateEmployee | IUpdateEmployee>
-        isEditable={isEditable}
-        entityName="Employee"
-        fields={employeeFields}
-        form={
-          form as unknown as UseFormReturn<ICreateEmployee | IUpdateEmployee>
-        }
-        onSubmit={handleSubmit}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {!isLoading && (
+        <CreateUpdateForm<ICreateEmployee | IUpdateEmployee>
+          isEditable={isEditable}
+          entityName="Employee"
+          fields={employeeFields}
+          form={
+            form as unknown as UseFormReturn<ICreateEmployee | IUpdateEmployee>
+          }
+          onSubmit={handleSubmit}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -35,9 +35,9 @@ export default function BibliographyType() {
   const [isEditable, setIsEditable] = useState(false);
   const [uuid, setUUID] = useState<string | null>("");
 
-  const bibliographyTypeFields: IFormField[] = [
+  const [bibliographyTypeFields, setBibliographyTypeFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
-  ];
+  ]);
 
   const form = useForm<ICreateBibliographyType | IUpdateBibliographyType>({
     resolver: zodResolver(bibliographyTypeFormSchema),

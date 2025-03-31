@@ -109,7 +109,7 @@ export default function Author() {
     }
 
     clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
-  }, [author, isModalOpen, isEditable, uuid]);
+  }, [author, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteAuthor(uuid)

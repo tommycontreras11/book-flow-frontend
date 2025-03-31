@@ -20,7 +20,8 @@ export function useGetOneRequest(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['request', uuid],
         retry: 1,
-        queryFn: () => requestsProvider.getOne(uuid)
+        queryFn: () => requestsProvider.getOne(uuid),
+        enabled: !!uuid
     })
 
     return {

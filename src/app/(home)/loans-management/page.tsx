@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { StatusRequestEnum } from "@/enums/request.enum";
 import { useGetAllRequest } from "@/hooks/api/request.hook";
+import { toast } from "@/hooks/use-toast";
 import { ICreateLoanManagement } from "@/interfaces/loan-management.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import { createLoanManagement } from "@/lib/loan-management.lib";
@@ -66,9 +67,14 @@ export default function loanManagement() {
   const saveLoanManagement = (loanManagement: ICreateLoanManagement) => {
     createLoanManagement(loanManagement)
       .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
         setIsModalOpen(false);
         form.reset();
-        console.log(data.message);
       })
       .catch((err) => console.log(err.message));
   };

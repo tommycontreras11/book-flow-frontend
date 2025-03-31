@@ -18,7 +18,8 @@ export function useGetOneAuthor(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['author', uuid],
         retry: 1,
-        queryFn: () => authorsProvider.getOne(uuid)
+        queryFn: () => authorsProvider.getOne(uuid),
+        enabled: !!uuid
     })
 
     return { 

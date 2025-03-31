@@ -18,7 +18,8 @@ export function useGetOneLanguage(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['language', uuid],
         retry: 1,
-        queryFn: () => languagesProvider.getOne(uuid)
+        queryFn: () => languagesProvider.getOne(uuid),
+        enabled: !!uuid
     })
 
     return {

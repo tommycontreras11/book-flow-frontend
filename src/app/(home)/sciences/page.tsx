@@ -51,7 +51,7 @@ export default function Science() {
     }
 
     clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
-  }, [science, isModalOpen, isEditable, uuid]);
+  }, [science, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteScience(uuid)

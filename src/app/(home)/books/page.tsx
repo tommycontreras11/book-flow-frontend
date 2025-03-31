@@ -52,6 +52,7 @@ export default function Book() {
       languageUUID: "",
       scienceUUID: "",
       file: undefined,
+      authorUUIDs: [],
     },
   });
 
@@ -151,7 +152,9 @@ export default function Book() {
     publishers,
     isLoadingPublisher,
     sciences,
-    isLoadingScience
+    isLoadingScience,
+    isEditable,
+    isModalOpen
   ]);
 
   useEffect(() => {
@@ -193,12 +196,11 @@ export default function Book() {
           value: book.authors.map((author) => author.uuid),
         },
       ]);
-
       return;
-    }
-
+    }    
+    
     clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
-  }, [book, isModalOpen, isEditable, uuid]);
+  }, [book, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteBook(uuid)

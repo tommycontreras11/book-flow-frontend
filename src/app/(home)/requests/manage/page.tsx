@@ -92,8 +92,8 @@ export default function Manage() {
       return;
     }
 
-    clearForm(setRequestFields, false, setIsModalOpen, setIsEditable, setUUID);
-  }, [request, isModalOpen, isEditable, uuid]);
+    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+  }, [request, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteRequest(uuid)
@@ -104,7 +104,7 @@ export default function Manage() {
           variant: "default",
           duration: 3000,
         });
-        clearForm(setRequestFields, true, setIsModalOpen, setIsEditable, setUUID);
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
         refetch();
       })
       .catch((err) => {
@@ -134,7 +134,7 @@ export default function Manage() {
           variant: "default",
           duration: 3000,
         });
-        clearForm(setRequestFields, true, setIsModalOpen, setIsEditable, setUUID);
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
       })
       .catch((err) => {
         toast({

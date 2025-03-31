@@ -53,7 +53,7 @@ export default function Country() {
     }
 
     clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
-  }, [country, isModalOpen, isEditable, uuid]);
+  }, [country, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteCountry(uuid)

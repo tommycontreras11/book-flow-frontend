@@ -18,7 +18,8 @@ export function useGetOnePublisher(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['publisher', uuid],
         retry: 1,
-        queryFn: () => publishersProvider.getOne(uuid)
+        queryFn: () => publishersProvider.getOne(uuid),
+        enabled: !!uuid
     })
 
     return {

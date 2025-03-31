@@ -18,7 +18,8 @@ export function UseGetOneBibliographyType(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['bibliography-type', uuid],
         retry: 1,
-        queryFn: () => bibliographyTypesProvider.getOne(uuid)
+        queryFn: () => bibliographyTypesProvider.getOne(uuid),
+        enabled: !!uuid
     })
 
     return {

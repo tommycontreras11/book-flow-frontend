@@ -18,7 +18,8 @@ export function useGetOneEmployee(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['employee', uuid],
         retry: 1,
-        queryFn: () => employeesProvider.getOne(uuid)
+        queryFn: () => employeesProvider.getOne(uuid),
+        enabled: !!uuid
     })
 
     return {

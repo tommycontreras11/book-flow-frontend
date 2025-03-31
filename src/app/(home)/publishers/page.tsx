@@ -61,7 +61,7 @@ export default function Publisher() {
     }
 
     clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
-  }, [publisher, isModalOpen, isEditable, uuid]);
+  }, [publisher, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deletePublisher(uuid)

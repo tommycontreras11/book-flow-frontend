@@ -32,7 +32,8 @@ export function useGetOneBook(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['book', uuid],
         retry: 1,
-        queryFn: () => booksProvider.getOne(uuid)
+        queryFn: () => booksProvider.getOne(uuid),
+        enabled: !!uuid
     })
 
     return {
