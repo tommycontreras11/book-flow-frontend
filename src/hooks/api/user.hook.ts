@@ -18,7 +18,8 @@ export function useGetOneUser(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['user', uuid],
         retry: 1,
-        queryFn: () => usersProvider.getOne(uuid)
+        queryFn: () => usersProvider.getOne(uuid),
+        enabled: !!uuid
     })
 
     return {

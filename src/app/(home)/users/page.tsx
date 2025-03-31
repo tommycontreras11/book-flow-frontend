@@ -82,7 +82,6 @@ export default function User() {
           value: user.person_type,
         },
       ]);
-
       return;
     }
 
