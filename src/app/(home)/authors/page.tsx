@@ -21,7 +21,7 @@ import {
   updateAuthor,
 } from "@/lib/author.lib";
 import { fillFormInput } from "@/lib/utils";
-import { authorFormSchema } from "@/schema/author.schema";
+import { authorCreateFormSchema, authorUpdateFormSchema } from "@/schema/author.schema";
 import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -37,7 +37,7 @@ export default function Author() {
   ]);
 
   const form = useForm<ICreateAuthor | IUpdateAuthor>({
-    resolver: zodResolver(authorFormSchema),
+    resolver: zodResolver(isEditable ? authorUpdateFormSchema : authorCreateFormSchema),
     defaultValues: {
       name: "",
       birthCountryUUID: "",
@@ -91,9 +91,7 @@ export default function Author() {
   }, [countries, isCountriesLoading, languages, isLanguagesLoading]);
 
   useEffect(() => {
-    if(!author) return
-
-    if(isModalOpen && isEditable) {
+    if(isEditable && isModalOpen && author) {
       fillFormInput(form, [
         { property: "name", value: author.name },
         {
@@ -105,10 +103,11 @@ export default function Author() {
           value: author.nativeLanguage.uuid,
         },
       ]);
-      return;
     }
 
-    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    if(!isModalOpen || !isEditable) {
+      clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    }
   }, [author, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
