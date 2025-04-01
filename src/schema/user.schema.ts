@@ -1,7 +1,7 @@
 import { PersonTypeEnum } from "@/enums/common.enum";
 import { z } from "zod";
 
-export const userFormSchema = z
+export const userCreateFormSchema = z
   .object({
     name: z
       .string()
@@ -19,4 +19,5 @@ export const userFormSchema = z
       required_error: "Person type is required",
     }),
   })
-  .required();
+
+export const userUpdateFormSchema = userCreateFormSchema.partial();

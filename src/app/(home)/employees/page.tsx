@@ -23,7 +23,10 @@ import {
   ICreateEmployee,
   IUpdateEmployee,
 } from "@/providers/http/employees/interface";
-import { employeeFormSchema } from "@/schema/employee.schema";
+import {
+  employeeCreateFormSchema,
+  employeeUpdateFormSchema,
+} from "@/schema/employee.schema";
 import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -63,8 +66,10 @@ export default function Employee() {
     },
   ]);
 
-  const form = useForm<z.infer<typeof employeeFormSchema>>({
-    resolver: zodResolver(employeeFormSchema),
+  const form = useForm<ICreateEmployee | IUpdateEmployee>({
+    resolver: zodResolver(
+      isEditable ? employeeUpdateFormSchema : employeeCreateFormSchema
+    ),
     defaultValues: {
       name: "",
       email: "",
@@ -80,9 +85,7 @@ export default function Employee() {
   const { data: employee } = useGetOneEmployee(uuid || "");
 
   useEffect(() => {
-    if (!employee) return;
-
-    if (isModalOpen && isEditable) {
+    if (employee && isEditable && isModalOpen) {
       fillFormInput(form, [
         { property: "name", value: employee.name },
         { property: "email", value: employee.email },
@@ -95,10 +98,11 @@ export default function Employee() {
         },
         { property: "entry_date", value: employee.entry_date },
       ]);
-      return;
     }
-    
-    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+
+    if (!isModalOpen || !isEditable) {
+      clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    }
   }, [employee, isEditable, isModalOpen]);
 
   const handleDelete = (uuid: string) => {

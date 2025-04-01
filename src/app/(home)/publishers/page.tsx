@@ -21,7 +21,10 @@ import {
   updatePublisher,
 } from "@/lib/publisher.lib";
 import { fillFormInput } from "@/lib/utils";
-import { publisherFormSchema } from "@/schema/publisher.schema";
+import {
+  publisherCreateFormSchema,
+  publisherUpdateFormSchema,
+} from "@/schema/publisher.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -38,7 +41,9 @@ export default function Publisher() {
   ];
 
   const form = useForm<ICreatePublisher | IUpdatePublisher>({
-    resolver: zodResolver(publisherFormSchema),
+    resolver: zodResolver(
+      isEditable ? publisherUpdateFormSchema : publisherCreateFormSchema
+    ),
     defaultValues: {
       name: "",
     },
@@ -53,14 +58,14 @@ export default function Publisher() {
   const { data: publisher } = useGetOnePublisher(uuid || "");
 
   useEffect(() => {
-    if (!publisher) return;
-
-    if (isModalOpen && isEditable) {
+    if (isEditable && isModalOpen && publisher) {
       fillFormInput(form, [{ property: "name", value: publisher.name }]);
       return;
     }
 
-    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    if (!isModalOpen || !isEditable) {
+      clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    }
   }, [publisher, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {

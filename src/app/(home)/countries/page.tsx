@@ -18,7 +18,7 @@ import {
   updateCountry,
 } from "@/lib/country.lib";
 import { fillFormInput } from "@/lib/utils";
-import { countryFormSchema } from "@/schema/country.schema";
+import { countryCreateFormSchema, countryUpdateFormSchema } from "@/schema/country.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -35,7 +35,7 @@ export default function Country() {
   ]);
 
   const form = useForm<ICreateCountry | IUpdateCountry>({
-    resolver: zodResolver(countryFormSchema),
+    resolver: zodResolver(isEditable ? countryUpdateFormSchema : countryCreateFormSchema),
     defaultValues: {
       name: "",
     },
@@ -47,12 +47,13 @@ export default function Country() {
   useEffect(() => {
     if(!country) return
 
-    if(isModalOpen && isEditable) {
+    if(isEditable && isModalOpen && country) {
       fillFormInput(form, [{ property: "name", value: country.name }]);
-      return;
     }
 
-    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    if(!isModalOpen || !isEditable) {
+      clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    }
   }, [country, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {

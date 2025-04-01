@@ -1,7 +1,7 @@
 import { WorkShiftEnum } from "@/enums/common.enum";
 import { z } from "zod";
 
-export const employeeFormSchema = z
+export const employeeCreateFormSchema = z
   .object({
     name: z
       .string()
@@ -28,4 +28,5 @@ export const employeeFormSchema = z
         "Entry date must be less than or equal to today's date"
       ),
   })
-  .required();
+
+export const employeeUpdateFormSchema = employeeCreateFormSchema.partial();

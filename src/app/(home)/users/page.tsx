@@ -12,7 +12,7 @@ import { IMessage } from "@/interfaces/message.interface";
 import { ICreateUser, IUpdateUser } from "@/interfaces/user.interface";
 import { createUser, deleteUser, updateUser } from "@/lib/user.lib";
 import { fillFormInput } from "@/lib/utils";
-import { userFormSchema } from "@/schema/user.schema";
+import { userCreateFormSchema, userUpdateFormSchema } from "@/schema/user.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
@@ -43,8 +43,8 @@ export default function User() {
     },
   ]);
 
-  const form = useForm<z.infer<typeof userFormSchema>>({
-    resolver: zodResolver(userFormSchema),
+  const form = useForm<ICreateUser | IUpdateUser>({
+    resolver: zodResolver(isEditable ? userUpdateFormSchema : userCreateFormSchema),
     defaultValues: {
       name: "",
       email: "",

@@ -6,10 +6,13 @@ import {
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
-import { useGetAllLanguage, useGetOneLanguage } from "@/hooks/api/language.hook";
+import {
+  useGetAllLanguage,
+  useGetOneLanguage,
+} from "@/hooks/api/language.hook";
 import {
   ICreateLanguage,
-  IUpdateLanguage
+  IUpdateLanguage,
 } from "@/interfaces/language.interface";
 import { IMessage } from "@/interfaces/message.interface";
 import {
@@ -18,7 +21,10 @@ import {
   updateLanguage,
 } from "@/lib/language.lib";
 import { fillFormInput } from "@/lib/utils";
-import { languageFormSchema } from "@/schema/language.schema";
+import {
+  languageCreateFormSchema,
+  languageUpdateFormSchema,
+} from "@/schema/language.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -35,46 +41,52 @@ export default function Language() {
   ];
 
   const form = useForm<ICreateLanguage | IUpdateLanguage>({
-    resolver: zodResolver(languageFormSchema),
+    resolver: zodResolver(
+      isEditable ? languageUpdateFormSchema : languageCreateFormSchema
+    ),
     defaultValues: {
       name: "",
     },
   });
 
-  const { data: languages, error, isLoading: isLoadingLanguage, refetch } = useGetAllLanguage()
-  const { data: language } = useGetOneLanguage(uuid || "")
+  const {
+    data: languages,
+    error,
+    isLoading: isLoadingLanguage,
+    refetch,
+  } = useGetAllLanguage();
+  const { data: language } = useGetOneLanguage(uuid || "");
 
   useEffect(() => {
-    if(!language) return
-    
-    if(isModalOpen && isEditable) {
+    if (isEditable && isModalOpen && language) {
       fillFormInput(form, [{ property: "name", value: language.name }]);
-      return;
     }
 
-    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    if (!isModalOpen || !isEditable) {
+      clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    }
   }, [language, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteLanguage(uuid)
-    .then((data: IMessage) => {
-      toast({
-        title: "Success",
-        description: data.message,
-        variant: "default",
-        duration: 3000,
+      .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+        refetch();
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
       });
-      clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      refetch();
-    })
-    .catch((err) => {
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-        duration: 3000,
-      });
-    });
   };
 
   const handleUpdate = (uuid: string) => {
@@ -84,47 +96,47 @@ export default function Language() {
   };
 
   const modifyLanguage = (language: IUpdateLanguage) => {
-    if(!uuid) return
+    if (!uuid) return;
 
     updateLanguage(uuid, language)
-    .then((data: IMessage) => {
-      toast({
-        title: "Success",
-        description: data.message,
-        variant: "default",
-        duration: 3000,
+      .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
       });
-      clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-    })
-    .catch((err) => {
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-        duration: 3000,
-      });
-    });
   };
 
   const saveLanguage = (language: ICreateLanguage) => {
     createLanguage(language)
-    .then((data: IMessage) => {
-      toast({
-        title: "Success",
-        description: data.message,
-        variant: "default",
-        duration: 3000,
+      .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
       });
-      clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-    })
-    .catch((err) => {
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-        duration: 3000,
-      });
-    });
   };
 
   const handleSubmit = async (formData: ICreateLanguage | IUpdateLanguage) => {

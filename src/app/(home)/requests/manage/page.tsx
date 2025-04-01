@@ -50,10 +50,10 @@ export default function Manage() {
   const { data: books, isLoading: isLoadingBooks } = useGetAllBook();
 
   useEffect(() => {
-    if(isLoadingBooks) return
+    if (isLoadingBooks) return;
 
     setRequestFields((prevFields) => {
-      if(!prevFields.find((field) => field.name === "bookUUID")) {
+      if (!prevFields.find((field) => field.name === "bookUUID")) {
         return [
           ...prevFields,
           {
@@ -64,14 +64,14 @@ export default function Manage() {
               label: book.name,
               value: book.uuid,
             })),
-          }
-        ]
+          },
+        ];
       }
       return prevFields;
     });
 
     setRequestFields((prevFields) => {
-      if(!prevFields.find((field) => field.name === "status")) {
+      if (!prevFields.find((field) => field.name === "status")) {
         return [
           ...prevFields,
           {
@@ -80,28 +80,28 @@ export default function Manage() {
             type: "select",
             options: Object.values(StatusRequestEnum).map((value) => ({
               label:
-                value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
+                value.charAt(0).toUpperCase() +
+                value.slice(1).toLocaleLowerCase(),
               value,
             })),
           },
-        ]
+        ];
       }
-      return prevFields
+      return prevFields;
     });
   }, [books, isLoadingBooks]);
 
   useEffect(() => {
-    if (!request) return;
-
-    if (isModalOpen && isEditable) {
+    if (isEditable && isModalOpen && request) {
       fillFormInput(form, [
         { property: "bookUUID", value: request.book.uuid },
         { property: "status", value: request.status },
-      ])
-      return;
+      ]);
     }
 
-    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    if (!isModalOpen || !isEditable) {
+      clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    }
   }, [request, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {

@@ -11,7 +11,10 @@ import { IMessage } from "@/interfaces/message.interface";
 import { ICreateScience, IUpdateScience } from "@/interfaces/science.interface";
 import { createScience, deleteScience, updateScience } from "@/lib/science.lib";
 import { fillFormInput } from "@/lib/utils";
-import { scienceFormSchema } from "@/schema/science.schema";
+import {
+  scienceCreateFormSchema,
+  scienceUpdateFormSchema,
+} from "@/schema/science.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,7 +31,9 @@ export default function Science() {
   ];
 
   const form = useForm<ICreateScience | IUpdateScience>({
-    resolver: zodResolver(scienceFormSchema),
+    resolver: zodResolver(
+      isEditable ? scienceUpdateFormSchema : scienceCreateFormSchema
+    ),
     defaultValues: {
       name: "",
     },
@@ -43,14 +48,13 @@ export default function Science() {
   const { data: science } = useGetOneScience(uuid || "");
 
   useEffect(() => {
-    if (!science) return;
-
-    if (isModalOpen && isEditable) {
+    if (isEditable && isModalOpen && science) {
       fillFormInput(form, [{ property: "name", value: science.name }]);
-      return;
     }
 
-    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    if (!isModalOpen || !isEditable) {
+      clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    }
   }, [science, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
