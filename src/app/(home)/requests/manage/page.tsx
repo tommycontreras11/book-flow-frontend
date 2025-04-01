@@ -13,6 +13,7 @@ import { toast } from "@/hooks/use-toast";
 import { IMessage } from "@/interfaces/message.interface";
 import { IUpdateRequest } from "@/interfaces/request.interface";
 import { deleteRequest, updateRequest } from "@/lib/request.lib";
+import { fillFormInput } from "@/lib/utils";
 import { requestUpdateFormSchema } from "@/schema/request.schema";
 import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,52 +44,60 @@ export default function Manage() {
   } = useGetAllRequest(true);
   const {
     data: request,
-    isLoading: isLoadingRequest
-  } = useGetOneRequest(uuid || "");
+    isLoading: isLoadingRequest,
+    refetch: refetchRequest,
+  } = useGetOneRequest(uuid ?? "");
   const { data: books, isLoading: isLoadingBooks } = useGetAllBook();
 
   useEffect(() => {
+    if(isLoadingBooks) return
+
+    setRequestFields((prevFields) => {
+      if(!prevFields.find((field) => field.name === "bookUUID")) {
+        return [
+          ...prevFields,
+          {
+            name: "bookUUID",
+            label: "Book",
+            type: "select",
+            options: books?.map((book) => ({
+              label: book.name,
+              value: book.uuid,
+            })),
+          }
+        ]
+      }
+      return prevFields;
+    });
+
+    setRequestFields((prevFields) => {
+      if(!prevFields.find((field) => field.name === "status")) {
+        return [
+          ...prevFields,
+          {
+            name: "status",
+            label: "Status",
+            type: "select",
+            options: Object.values(StatusRequestEnum).map((value) => ({
+              label:
+                value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
+              value,
+            })),
+          },
+        ]
+      }
+      return prevFields
+    });
+  }, [books, isLoadingBooks]);
+
+  useEffect(() => {
     if (!request) return;
-    
+
     if (isModalOpen && isEditable) {
-      setRequestFields((prevFields) => {
-        if(!prevFields.find((field) => field.name === "bookUUID")) {
-          return [
-            ...prevFields,
-            {
-              name: "bookUUID",
-              label: "Book",
-              type: "select",
-              options: books?.map((book) => ({
-                label: book.name,
-                value: book.uuid,
-              })),
-              defaultValue: request?.book.uuid
-            }
-          ]
-        }
-        return prevFields;
-      });
-  
-      setRequestFields((prevFields) => {
-        if(!prevFields.find((field) => field.name === "status")) {
-          return [
-            ...prevFields,
-            {
-              name: "status",
-              label: "Status",
-              type: "select",
-              options: Object.values(StatusRequestEnum).map((value) => ({
-                label:
-                  value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase(),
-                value,
-              })),
-              defaultValue: request?.status
-            },
-          ]
-        }
-        return prevFields
-      });
+      fillFormInput(form, [
+        { property: "bookUUID", value: request.book.uuid },
+        { property: "status", value: request.status },
+      ])
       return;
     }
 
@@ -135,6 +144,7 @@ export default function Manage() {
           duration: 3000,
         });
         clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+        refetchRequest();
       })
       .catch((err) => {
         toast({
