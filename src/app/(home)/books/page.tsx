@@ -15,7 +15,10 @@ import { useGetAllScience } from "@/hooks/api/science.hook";
 import { IMessage } from "@/interfaces/message.interface";
 import { createBook, deleteBook, updateBook } from "@/lib/book.lib";
 import { fillFormInput } from "@/lib/utils";
-import { bookFormSchema } from "@/schema/book.schema";
+import {
+  bookCreateFormSchema,
+  bookUpdateFormSchema,
+} from "@/schema/book.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -41,7 +44,9 @@ export default function Book() {
   ]);
 
   const form = useForm<ICreateBook | IUpdateBook>({
-    resolver: zodResolver(bookFormSchema),
+    resolver: zodResolver(
+      isEditable ? bookUpdateFormSchema : bookCreateFormSchema
+    ),
     defaultValues: {
       name: "",
       topographicalSignature: "",
@@ -82,7 +87,7 @@ export default function Book() {
       return;
 
     setBookFields((prevFields) => {
-      const fields = [...prevFields]
+      const fields = [...prevFields];
 
       const addFieldIsMissing = (formFields: IFormField[]) => {
         formFields.find((formField) => {
@@ -141,7 +146,7 @@ export default function Book() {
       ]);
 
       return fields;
-    }); 
+    });
   }, [
     authors,
     isLoadingAuthor,
@@ -153,14 +158,10 @@ export default function Book() {
     isLoadingPublisher,
     sciences,
     isLoadingScience,
-    isEditable,
-    isModalOpen
   ]);
 
   useEffect(() => {
-    if (!book) return;
-    
-    if (isModalOpen && isEditable) {
+    if(isEditable && isModalOpen && book) {
       fillFormInput(form, [
         { property: "name", value: book.name },
         {
@@ -195,33 +196,34 @@ export default function Book() {
           property: "authorUUIDs",
           value: book.authors.map((author) => author.uuid),
         },
-      ]);
-      return;
-    }    
-    
-    clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+      ]);  
+    }
+
+    if(!isModalOpen || !isEditable) {
+      clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    }
   }, [book, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteBook(uuid)
-    .then((data: IMessage) => {
-      toast({
-        title: "Success",
-        description: data.message,
-        variant: "default",
-        duration: 3000,
+      .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+        refetch();
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
       });
-      clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      refetch();
-    })
-    .catch((err) => {
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-        duration: 3000,
-      });
-    });
   };
 
   const handleUpdate = (uuid: string) => {
@@ -234,44 +236,44 @@ export default function Book() {
     if (!uuid) return;
 
     updateBook(uuid, book)
-    .then((data: IMessage) => {
-      toast({
-        title: "Success",
-        description: data.message,
-        variant: "default",
-        duration: 3000,
+      .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
       });
-      clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-    })
-    .catch((err) => {
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-        duration: 3000,
-      });
-    });
   };
 
   const saveBook = (book: FormData) => {
     createBook(book)
-    .then((data: IMessage) => {
-      toast({
-        title: "Success",
-        description: data.message,
-        variant: "default",
-        duration: 3000,
+      .then((data: IMessage) => {
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
+        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+      })
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
       });
-      clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-    })
-    .catch((err) => {
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-        duration: 3000,
-      });
-    });
   };
 
   const handleSubmit = (book: ICreateBook | IUpdateBook) => {
