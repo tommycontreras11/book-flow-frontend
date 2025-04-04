@@ -6,15 +6,14 @@ import { RecentActivitiesCard } from "@/components/common/card/recent-activities
 import { TopBorrowedBooksCard } from "@/components/common/card/top-borrowed-books";
 import { useAuth } from "@/contexts/auth-context";
 import { useGetAllBook, useGetAllBookStat } from "@/hooks/api/book.hook";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { IMessage } from "@/interfaces/message.interface";
 import { ICreateRequest } from "@/interfaces/request.interface";
 import { createRequest } from "@/lib/request.lib";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 export default function Home() {
   const { user } = useAuth();
-  const { toast } = useToast()
   const isEmployee = useMemo(() => user?.role === "EMPLOYEE", [user]);
 
   const {
@@ -29,25 +28,39 @@ export default function Home() {
     error: bookStatError,
     isLoading: isLoadingBookStat,
   } = useGetAllBookStat(user?.role === "EMPLOYEE");
-
-  useEffect(() => {
-  }, [books, isLoadingBook, isEmployee, user]);
-
+  
   const saveRequest = (request: ICreateRequest) => {
     createRequest(request)
       .then((data: IMessage) => {
-        console.log(data.message);
-        refetch();
+        toast({
+          title: "Success",
+          description: data.message,
+          variant: "default",
+          duration: 3000,
+        });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        toast({
+          title: "Error",
+          description: err.message,
+          variant: "destructive",
+          duration: 3000,
+        });
+      });
   };
 
   const handleRequestBook = async (bookUUID: string) => {
     if (!user || isEmployee) {
-      alert("You must login first");
+      toast({
+        title: "Error",
+        description: "You must login first",
+        variant: "destructive",
+        duration: 3000,
+      });
       return;
     }
     saveRequest({ bookUUID, userUUID: user.uuid });
+    refetch();
   };
 
   return (
@@ -70,7 +83,7 @@ export default function Home() {
               ?.filter(
                 (book) =>
                   !book.requests.length ||
-                  book?.requests.some(
+                  book?.requests.every(
                     (request) => request?.user?.uuid !== user?.uuid
                   )
               )
