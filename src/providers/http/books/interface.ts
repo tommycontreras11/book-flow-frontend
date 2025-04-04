@@ -2,10 +2,10 @@ import { StatusEnum } from "@/enums/common.enum";
 import { IBibliographyType } from "@/interfaces/bibliography-type.interface";
 import { ILanguage } from "@/interfaces/language.interface";
 import { IPublisher } from "@/interfaces/publisher.interface";
-import { IRequest } from "@/interfaces/request.interface";
 import { IScience } from "@/interfaces/science.interface";
 import { IAuthor } from "../authors/interface";
 import { BookQuickStatsEnum, BookRecentActivitiesEnum } from "@/enums/book.enum";
+import { IRequest } from "../requests/interface";
 
 export interface IBook {
   uuid: string;

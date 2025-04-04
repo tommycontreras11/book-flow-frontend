@@ -113,7 +113,6 @@ export default function Author() {
   const handleDelete = (uuid: string) => {
     deleteAuthor(uuid)
       .then((data: IMessage) => {
-        refetch();
         toast({
           title: "Success",
           description: data.message,
