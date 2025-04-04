@@ -13,28 +13,28 @@ export default function BookCard({
   handleSubmit: () => void;
 }) {
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl dark:bg-gray-950">
+    <div className="w-[300px] min-h-[320px] bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl dark:bg-gray-950">
       <img
         src={book.url}
         alt="Product Image"
         width={200}
         height={200}
-        className="w-full h-64 object-cover"
+        className="w-full h-56 object-cover"
         style={{ aspectRatio: "300/300", objectFit: "cover" }}
       />
-      <div className="p-4 space-y-2">
+      <div className="flex-1 p-4 space-y-2 flex flex-col justify-between">
         <h3 className="text-xl font-semibold">{book.name}</h3>
-        <p className="text-gray-500 dark:text-gray-400">
-          This is a description of the product.
-        </p>
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold">{book.publicationYear}</span>
-          {user?.role === UserRoleEnum.USER && (
-            <Button onClick={handleSubmit}>
-              Request book
-            </Button>
-          )}
+
+        <div className="mt-auto flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+          <span>{book.language.name}</span>
+          <span className="font-bold">{book.publicationYear}</span>
         </div>
+
+        {user?.role === UserRoleEnum.USER && (
+          <Button onClick={handleSubmit} className="w-full">
+            Request Book
+          </Button>
+        )}
       </div>
     </div>
   );
