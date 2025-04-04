@@ -17,7 +17,7 @@ export function RecentActivitiesCard({ activities }: RecentActivitiesCardProps) 
       case BookRecentActivitiesEnum.RETURNED:
         return "bg-green-500";
       case BookRecentActivitiesEnum.REGISTERED:
-        return "bg-blue-500";
+        return "bg-red-500";
       default:
         return "bg-gray-500";
     }
@@ -32,7 +32,7 @@ export function RecentActivitiesCard({ activities }: RecentActivitiesCardProps) 
         {activities.map((activity, index) => (
           <div key={index} className="flex items-start space-x-4">
             <div className={`w-1 h-full min-h-[40px] ${getIndicatorColor(activity.type)} rounded-full`} />
-            <div className="flex-1">
+            <div className="flex-1 mt-1">
               <p className="text-gray-700 dark:text-gray-300">{activity.type == BookRecentActivitiesEnum.BORROWED || activity.type == 
               BookRecentActivitiesEnum.RETURNED ? `Book ${activity.type.toLowerCase()}` : "New member registered"}: {activity.title ?? "Data not available"}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">{activity.date}</p>

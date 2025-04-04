@@ -23,7 +23,7 @@ export function TopBorrowedBooksCard({
             <div className="flex-1">
               <div className="flex justify-between items-center">
                 <p className="font-medium text-gray-800 dark:text-gray-200">
-                  {book?.title || "Data not available"}
+                  {book?.title ?? "Data not available"}
                 </p>
                 <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                   {book?.count} {book?.count === 1 ? "time" : "times"}
