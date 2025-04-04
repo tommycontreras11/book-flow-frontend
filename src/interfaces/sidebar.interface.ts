@@ -3,11 +3,11 @@ import { LucideProps } from "lucide-react";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 
 export interface IAppSidebarProps {
-  navMain: IAppSidebarNavMainItemProps[];
-  navSecondary: IAppSidebarNavSecondaryItemProps[];
+  mainNav: IAppSidebarMainNavItemProps[];
+  secondaryNav: IAppSidebarSecondaryNavItemProps[];
 }
 
-export interface IAppSidebarNavSecondaryItemProps extends IAppSidebarItemProps {
+export interface IAppSidebarSecondaryNavItemProps extends IAppSidebarItemProps {
   icon: ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
   >;
@@ -22,8 +22,8 @@ export interface IAppSidebarItemProps {
   visibleProps?: IAppSidebarVisibleProps;
 }
 
-export interface IAppSidebarNavMainItemProps
-  extends Partial<Omit<IAppSidebarNavSecondaryItemProps, "items">> {
+export interface IAppSidebarMainNavItemProps
+  extends Partial<Omit<IAppSidebarSecondaryNavItemProps, "items">> {
   icon: ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
   >;

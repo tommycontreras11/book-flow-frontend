@@ -22,14 +22,14 @@ import {
   UserCog,
 } from "lucide-react";
 import * as React from "react";
-import { NavMain } from "./nav-main";
-import { NavSecondary } from "./nav-secondary";
+import { MainNav } from "./nav-main";
+import { SecondaryNav } from "./nav-secondary";
 import { NavUser } from "./nav-user";
 import { TeamSwitcher } from "./team-switcher";
 
 // This is sample data.
 const data: IAppSidebarProps = {
-  navMain: [
+  mainNav: [
     {
       name: "Home",
       url: "/",
@@ -121,7 +121,7 @@ const data: IAppSidebarProps = {
       },
     },
   ],
-  navSecondary: [
+  secondaryNav: [
     {
       title: "Requests",
       url: "#",
@@ -157,8 +157,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain
-          items={data.navMain.filter((nav) =>
+        <MainNav
+          items={data.mainNav.filter((nav) =>
             !user?.uuid
               ? nav.visibleProps?.default
               : nav.visibleProps?.userRole == user.role ||
@@ -166,8 +166,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           )}
         />
         {isLoggedIn && (
-          <NavSecondary
-            items={data.navSecondary.filter((nav) =>
+          <SecondaryNav
+            items={data.secondaryNav.filter((nav) =>
               !user?.uuid
                 ? nav.visibleProps?.default
                 : nav.visibleProps?.userRole == user.role ||

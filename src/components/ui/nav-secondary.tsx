@@ -17,19 +17,19 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { IAppSidebarNavSecondaryItemProps } from "@/interfaces/sidebar.interface";
+import { IAppSidebarSecondaryNavItemProps } from "@/interfaces/sidebar.interface";
 import { useAuth } from "@/contexts/auth-context";
 
-export function NavSecondary({
+export function SecondaryNav({
   items,
 }: {
-  items: IAppSidebarNavSecondaryItemProps[];
+  items: IAppSidebarSecondaryNavItemProps[];
 }) {
   const { user } = useAuth();
 
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Nav Secondary</SidebarGroupLabel>
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroupLabel>Secondary Nav</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible

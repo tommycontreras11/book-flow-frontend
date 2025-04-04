@@ -8,18 +8,18 @@ import {
   SidebarMenuItem,
   useSidebar
 } from "@/components/ui/sidebar"
-import { IAppSidebarNavMainItemProps } from "@/interfaces/sidebar.interface"
+import { IAppSidebarMainNavItemProps } from "@/interfaces/sidebar.interface"
 
-export function NavMain({
+export function MainNav({
   items,
 }: {
-  items: IAppSidebarNavMainItemProps[]
+  items: IAppSidebarMainNavItemProps[]
 }) {
   const { isMobile } = useSidebar()
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Nav Main</SidebarGroupLabel>
+    <SidebarGroup>
+      <SidebarGroupLabel>Main Nav</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
