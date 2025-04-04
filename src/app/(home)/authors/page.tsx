@@ -2,26 +2,20 @@
 
 import {
   CreateUpdateForm,
-  IFormField
+  IFormField,
 } from "@/components/common/modal/create-update";
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { useGetAllAuthor, useGetOneAuthor } from "@/hooks/api/author.hook";
 import { useGetAllCountry } from "@/hooks/api/country.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
-import { toast } from "@/hooks/use-toast";
-import {
-  ICreateAuthor,
-  IUpdateAuthor
-} from "@/interfaces/author.interface";
-import { IMessage } from "@/interfaces/message.interface";
-import {
-  createAuthor,
-  deleteAuthor,
-  updateAuthor,
-} from "@/lib/author.lib";
+import { ICreateAuthor, IUpdateAuthor } from "@/interfaces/author.interface";
 import { fillFormInput } from "@/lib/utils";
-import { authorCreateFormSchema, authorUpdateFormSchema } from "@/schema/author.schema";
+import { useCreateAuthor, useDeleteAuthor, useUpdateAuthor } from "@/mutations/api/authors";
+import {
+  authorCreateFormSchema,
+  authorUpdateFormSchema,
+} from "@/schema/author.schema";
 import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -37,7 +31,9 @@ export default function Author() {
   ]);
 
   const form = useForm<ICreateAuthor | IUpdateAuthor>({
-    resolver: zodResolver(isEditable ? authorUpdateFormSchema : authorCreateFormSchema),
+    resolver: zodResolver(
+      isEditable ? authorUpdateFormSchema : authorCreateFormSchema
+    ),
     defaultValues: {
       name: "",
       birthCountryUUID: "",
@@ -45,16 +41,26 @@ export default function Author() {
     },
   });
 
-  const { data: authors, error, isLoading: isAuthorsLoading, refetch } = useGetAllAuthor()
-  const { data: author } = useGetOneAuthor(uuid || "")
-  const { data: countries, isLoading: isCountriesLoading } = useGetAllCountry()
-  const { data: languages, isLoading: isLanguagesLoading } = useGetAllLanguage()
+  const {
+    data: authors,
+    error,
+    isLoading: isAuthorsLoading,
+    refetch,
+  } = useGetAllAuthor();
+  const { data: author } = useGetOneAuthor(uuid || "");
+  const { data: countries, isLoading: isCountriesLoading } = useGetAllCountry();
+  const { data: languages, isLoading: isLanguagesLoading } =
+    useGetAllLanguage();
+
+  const { mutate: createAuthor, isSuccess: isCreateSuccess } = useCreateAuthor();
+  const { mutate: updateAuthor, isSuccess: isUpdateSuccess } = useUpdateAuthor();
+  const { mutate: deleteAuthor, isSuccess: isDeleteSuccess } = useDeleteAuthor();
 
   useEffect(() => {
-    if(isCountriesLoading || isLanguagesLoading) return
-    
+    if (isCountriesLoading || isLanguagesLoading) return;
+
     setAuthorFields((prevFields) => {
-      if(!prevFields.find((field) => field.name === "birthCountryUUID")) {
+      if (!prevFields.find((field) => field.name === "birthCountryUUID")) {
         return [
           ...prevFields,
           {
@@ -66,32 +72,32 @@ export default function Author() {
               value: country.uuid,
             })),
           },
-        ]
+        ];
       }
       return prevFields;
     });
 
-      setAuthorFields((prevFields) => {
-        if(!prevFields.find((field) => field.name === "nativeLanguageUUID")) {
-          return [
-            ...prevFields,
-            {
-              name: "nativeLanguageUUID",
-              label: "Native Language",
-              type: "select",
-              options: languages?.map((language) => ({
-                label: language.name,
-                value: language.uuid,
-              })),
-            },
-          ]
-        }
-        return prevFields
-      });
+    setAuthorFields((prevFields) => {
+      if (!prevFields.find((field) => field.name === "nativeLanguageUUID")) {
+        return [
+          ...prevFields,
+          {
+            name: "nativeLanguageUUID",
+            label: "Native Language",
+            type: "select",
+            options: languages?.map((language) => ({
+              label: language.name,
+              value: language.uuid,
+            })),
+          },
+        ];
+      }
+      return prevFields;
+    });
   }, [countries, isCountriesLoading, languages, isLanguagesLoading]);
 
   useEffect(() => {
-    if(isEditable && isModalOpen && author) {
+    if (isEditable && isModalOpen && author) {
       fillFormInput(form, [
         { property: "name", value: author.name },
         {
@@ -105,31 +111,14 @@ export default function Author() {
       ]);
     }
 
-    if(!isModalOpen || !isEditable) {
+    if (!isModalOpen || !isEditable) {
       clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
     }
   }, [author, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
     deleteAuthor(uuid)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-        refetch();
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000
-        });
-      });
+    if (isDeleteSuccess) clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
   };
 
   const handleUpdate = (uuid: string) => {
@@ -139,53 +128,23 @@ export default function Author() {
   };
 
   const modifyAuthor = (author: IUpdateAuthor) => {
-    if(!uuid) return
+    if (!uuid) return;
 
-    updateAuthor(uuid, author)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000
-        });
-      });
+    updateAuthor({uuid, data: author});
+    console.log(isUpdateSuccess, "isUpdateSuccess")
+
+    if (isUpdateSuccess) clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
   };
 
   const saveAuthor = (author: ICreateAuthor) => {
-    createAuthor(author)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000
-        });
-      });
+    createAuthor(author);
+    if (isCreateSuccess) clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
   };
 
   const handleSubmit = async (formData: ICreateAuthor | IUpdateAuthor) => {
     if (uuid) {
       modifyAuthor(formData);
-    }else {
+    } else {
       setIsModalOpen(true);
       saveAuthor(formData as ICreateAuthor);
     }

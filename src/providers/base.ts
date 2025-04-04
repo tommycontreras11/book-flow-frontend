@@ -134,29 +134,29 @@ class Base {
 		});
 	}
 
-	// protected delete<T extends unknown>(url: string, config: AxiosRequestConfig = {}, data: object = {}): Promise<any> {
+	protected delete<T extends unknown>(url: string, config: AxiosRequestConfig = {}, data: object = {}): Promise<any> {
 
-	//     const token = localStorage.getItem('token')
+	    const token = localStorage.getItem('token')
 
-	//     return new Promise((resolve, reject) => {
-	//         this.axios
-	//             .delete<T>(url, {
-	//                 ...config,
-	//                 withCredentials: true,
-	//                 data,
-	//                 headers: {
-	//                     ...config.headers,
-	//                     token,
-	//                 }
-	//             })
-	//             .then((res) => resolve(res.data))
-	//             .catch((error: AxiosError<any>) => {
-	//                 const message = this.getMessage(error)
-	//                 const { status } = error?.response || {}
-	//                 return reject({ message, status })
-	//             })
-	//     })
-	// }
+	    return new Promise((resolve, reject) => {
+	        this.axios
+	            .delete<T>(url, {
+	                ...config,
+	                withCredentials: true,
+	                data,
+	                headers: {
+	                    ...config.headers,
+	                    token,
+	                }
+	            })
+	            .then((res) => resolve(res.data))
+	            .catch((error: AxiosError<any>) => {
+	                const message = this.getMessage(error)
+	                const { status } = error?.response || {}
+	                return reject({ message, status })
+	            })
+	    })
+	}
 
 	protected cancelToken = axios.CancelToken.source();
 
