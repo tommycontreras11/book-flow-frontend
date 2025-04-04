@@ -13,7 +13,7 @@ export default function BookCard({
   handleSubmit: () => void;
 }) {
   return (
-    <div className="w-[300px] min-h-[320px] bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl dark:bg-gray-950">
+    <div className="w-[300px] min-h-[320px] bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl dark:bg-gray-950 cursor-pointer">
       <img
         src={book.url}
         alt="Product Image"
