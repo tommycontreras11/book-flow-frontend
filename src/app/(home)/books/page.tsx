@@ -12,20 +12,18 @@ import { useGetAllBook, useGetOneBook } from "@/hooks/api/book.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import { useGetAllPublisher } from "@/hooks/api/publisher.hook";
 import { useGetAllScience } from "@/hooks/api/science.hook";
-import { IMessage } from "@/interfaces/message.interface";
 import { fillFormInput } from "@/lib/utils";
+import { useCreateBook, useDeleteBook, useUpdateBook } from "@/mutations/api/books";
+import { ICreateBook, IUpdateBook } from "@/providers/http/books/interface";
 import {
   bookCreateFormSchema,
   bookUpdateFormSchema,
 } from "@/schema/book.schema";
+import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
-import { ICreateBook, IUpdateBook } from "@/providers/http/books/interface";
-import { toast } from "@/hooks/use-toast";
-import { clearForm } from "@/utils/form";
-import { useCreateBook, useDeleteBook, useUpdateBook } from "@/mutations/api/books";
 
 export default function Book() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,8 +62,7 @@ export default function Book() {
   const {
     data: books,
     error: bookError,
-    isLoading: isLoadingBook,
-    refetch,
+    isLoading: isLoadingBook
   } = useGetAllBook();
   const { data: book } = useGetOneBook(uuid || "");
   const { data: bibliographyTypes, isLoading: isLoadingBibliographyType } =
@@ -259,8 +256,6 @@ export default function Book() {
     } else {
       saveBook(formData);
     }
-
-    refetch();
   };
 
   if (bookError) return <div>Request Failed</div>;

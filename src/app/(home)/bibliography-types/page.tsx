@@ -53,7 +53,6 @@ export default function BibliographyType() {
   const {
     data: bibliographyTypes,
     error,
-    refetch,
   } = UseGetAllBibliographyType();
 
   const { data: bibliographyType } = UseGetOneBibliographyType(uuid || "");
@@ -107,7 +106,6 @@ export default function BibliographyType() {
     } else {
       saveBibliographyType(formData);
     }
-    refetch();
   };
 
   return (
