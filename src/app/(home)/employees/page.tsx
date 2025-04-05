@@ -11,14 +11,12 @@ import {
   useGetAllEmployee,
   useGetOneEmployee,
 } from "@/hooks/api/employee.hook";
-import { toast } from "@/hooks/use-toast";
-import { IMessage } from "@/interfaces/message.interface";
-import {
-  createEmployee,
-  deleteEmployee,
-  updateEmployee,
-} from "@/lib/employee.lib";
 import { fillFormInput } from "@/lib/utils";
+import {
+  useCreateEmployee,
+  useDeleteEmployee,
+  useUpdateEmployee,
+} from "@/mutations/api/employees";
 import {
   ICreateEmployee,
   IUpdateEmployee,
@@ -31,7 +29,6 @@ import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
 import { columns } from "./table/column";
 
 export default function Employee() {
@@ -81,8 +78,18 @@ export default function Employee() {
     },
   });
 
-  const { data: employees, error, isLoading, refetch } = useGetAllEmployee();
+  const { data: employees, error, isLoading } = useGetAllEmployee();
   const { data: employee } = useGetOneEmployee(uuid || "");
+
+  const { mutate: createEmployee } = useCreateEmployee(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: updateEmployee } = useUpdateEmployee(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: deleteEmployee } = useDeleteEmployee(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
 
   useEffect(() => {
     if (employee && isEditable && isModalOpen) {
@@ -96,7 +103,7 @@ export default function Employee() {
           property: "commission_percentage",
           value: employee.commission_percentage,
         },
-        { property: "entry_date", value: employee.entry_date },
+        { property: "entry_date", value: new Date(`${employee.entry_date}:00:00:00`) },
       ]);
     }
 
@@ -106,25 +113,7 @@ export default function Employee() {
   }, [employee, isEditable, isModalOpen]);
 
   const handleDelete = (uuid: string) => {
-    deleteEmployee(uuid)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-        refetch();
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    deleteEmployee(uuid);
   };
 
   const handleUpdate = (uuid: string) => {
@@ -135,46 +124,11 @@ export default function Employee() {
 
   const modifyEmployee = (employee: IUpdateEmployee) => {
     if (!uuid) return;
-
-    updateEmployee(uuid, employee)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    updateEmployee({ uuid, data: employee });
   };
 
   const saveEmployee = (employee: ICreateEmployee) => {
-    createEmployee(employee)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    createEmployee(employee);
   };
 
   const handleSubmit = async (formData: ICreateEmployee | IUpdateEmployee) => {
@@ -183,8 +137,6 @@ export default function Employee() {
     } else {
       saveEmployee(formData as ICreateEmployee);
     }
-
-    refetch();
   };
 
   return (
@@ -201,19 +153,17 @@ export default function Employee() {
         definitions={commonStatusTableDefinitions}
       />
 
-      {!isLoading && (
-        <CreateUpdateForm<ICreateEmployee | IUpdateEmployee>
-          isEditable={isEditable}
-          entityName="Employee"
-          fields={employeeFields}
-          form={
-            form as unknown as UseFormReturn<ICreateEmployee | IUpdateEmployee>
-          }
-          onSubmit={handleSubmit}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
+      <CreateUpdateForm<ICreateEmployee | IUpdateEmployee>
+        isEditable={isEditable}
+        entityName="Employee"
+        fields={employeeFields}
+        form={
+          form as unknown as UseFormReturn<ICreateEmployee | IUpdateEmployee>
+        }
+        onSubmit={handleSubmit}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
