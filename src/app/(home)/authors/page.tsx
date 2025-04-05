@@ -11,7 +11,11 @@ import { useGetAllCountry } from "@/hooks/api/country.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import { ICreateAuthor, IUpdateAuthor } from "@/interfaces/author.interface";
 import { fillFormInput } from "@/lib/utils";
-import { useCreateAuthor, useDeleteAuthor, useUpdateAuthor } from "@/mutations/api/authors";
+import {
+  useCreateAuthor,
+  useDeleteAuthor,
+  useUpdateAuthor,
+} from "@/mutations/api/authors";
 import {
   authorCreateFormSchema,
   authorUpdateFormSchema,
@@ -44,17 +48,22 @@ export default function Author() {
   const {
     data: authors,
     error,
-    isLoading: isAuthorsLoading,
-    refetch,
+    isLoading: isAuthorsLoading
   } = useGetAllAuthor();
   const { data: author } = useGetOneAuthor(uuid || "");
   const { data: countries, isLoading: isCountriesLoading } = useGetAllCountry();
   const { data: languages, isLoading: isLanguagesLoading } =
     useGetAllLanguage();
 
-  const { mutate: createAuthor, isSuccess: isCreateSuccess } = useCreateAuthor();
-  const { mutate: updateAuthor, isSuccess: isUpdateSuccess } = useUpdateAuthor();
-  const { mutate: deleteAuthor, isSuccess: isDeleteSuccess } = useDeleteAuthor();
+  const { mutate: createAuthor } = useCreateAuthor(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: updateAuthor } = useUpdateAuthor(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: deleteAuthor } = useDeleteAuthor(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
 
   useEffect(() => {
     if (isCountriesLoading || isLanguagesLoading) return;
@@ -117,8 +126,7 @@ export default function Author() {
   }, [author, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
-    deleteAuthor(uuid)
-    if (isDeleteSuccess) clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+    deleteAuthor(uuid);
   };
 
   const handleUpdate = (uuid: string) => {
@@ -127,18 +135,13 @@ export default function Author() {
     setUUID(uuid);
   };
 
-  const modifyAuthor = (author: IUpdateAuthor) => {
+  const modifyAuthor = async (author: IUpdateAuthor) => {
     if (!uuid) return;
-
-    updateAuthor({uuid, data: author});
-    console.log(isUpdateSuccess, "isUpdateSuccess")
-
-    if (isUpdateSuccess) clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+    updateAuthor({ uuid, data: author });
   };
 
   const saveAuthor = (author: ICreateAuthor) => {
     createAuthor(author);
-    if (isCreateSuccess) clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
   };
 
   const handleSubmit = async (formData: ICreateAuthor | IUpdateAuthor) => {
@@ -148,8 +151,6 @@ export default function Author() {
       setIsModalOpen(true);
       saveAuthor(formData as ICreateAuthor);
     }
-
-    refetch();
   };
 
   return (
