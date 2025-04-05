@@ -1,10 +1,11 @@
 "use client";
 
-import { formSchema } from "@/app/(auth)/auth/signIn/page";
 import { useMe } from "@/hooks/api/auth.hook";
 import { IMeUser } from "@/interfaces/auth.interface";
 import { me, signIn, signOut } from "@/lib/auth.lib";
 import { createUser } from "@/lib/user.lib";
+import { IAuth } from "@/providers/http/auth/interface";
+import { ICreateUser } from "@/providers/http/users/interface";
 import { handleApiError } from "@/utils/error";
 import { useRouter } from "next/navigation";
 import {
@@ -16,15 +17,14 @@ import {
   useEffect,
   useState,
 } from "react";
-import { z } from "zod";
 
 // Define a proper context type
 interface AuthContextType {
   isLoggedIn: boolean;
   user?: IMeUser | null;
   setUser: Dispatch<SetStateAction<IMeUser | null>>;
-  login: (values: z.infer<typeof formSchema>) => void;
-  register: (values: z.infer<typeof formSchema>) => void;
+  login: (values: IAuth) => void;
+  register: (values: ICreateUser) => void;
   logout: () => void;
 }
 
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     validateUser();
   }, [data, isLoading]);
 
-  const login = async (values: z.infer<typeof formSchema>) => {
+  const login = async (values: IAuth) => {
     try {
       await signIn(values);
       const { data }: { data: IMeUser } = await me();
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (values: z.infer<typeof formSchema>) => {
+  const register = async (values: ICreateUser) => {
     try {
       await createUser(values);
       router.push("/auth/signIn");

@@ -26,8 +26,9 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/contexts/auth-context";
 import { PersonTypeEnum } from "@/enums/common.enum";
-import { toast, useToast } from "@/hooks/use-toast";
-import { userFormSchema } from "@/schema/user.schema";
+import { toast } from "@/hooks/use-toast";
+import { ICreateUser } from "@/providers/http/users/interface";
+import { userCreateFormSchema } from "@/schema/user.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,8 +36,8 @@ import { z } from "zod";
 export default function SignUp() {
   const { register } = useAuth()
 
-  const form = useForm<z.infer<typeof userFormSchema>>({
-    resolver: zodResolver(userFormSchema),
+  const form = useForm<ICreateUser>({
+    resolver: zodResolver(userCreateFormSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -51,7 +52,7 @@ export default function SignUp() {
     label: type.charAt(0).toUpperCase() + type.slice(1).toLowerCase(),
   }));
 
-  async function onSubmit(values: z.infer<typeof userFormSchema>) {
+  async function onSubmit(values: ICreateUser) {
     try {
       await register(values);
     } catch (error: any) {
