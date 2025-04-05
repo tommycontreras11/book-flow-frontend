@@ -10,27 +10,25 @@ import {
   useGetAllPublisher,
   useGetOnePublisher,
 } from "@/hooks/api/publisher.hook";
-import { IMessage } from "@/interfaces/message.interface";
 import {
   ICreatePublisher,
   IUpdatePublisher,
 } from "@/interfaces/publisher.interface";
-import {
-  createPublisher,
-  deletePublisher,
-  updatePublisher,
-} from "@/lib/publisher.lib";
 import { fillFormInput } from "@/lib/utils";
+import {
+  useCreatePublisher,
+  useDeletePublisher,
+  useUpdatePublisher,
+} from "@/mutations/api/publishers";
 import {
   publisherCreateFormSchema,
   publisherUpdateFormSchema,
 } from "@/schema/publisher.schema";
+import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
-import { clearForm } from "@/utils/form";
-import { toast } from "@/hooks/use-toast";
 
 export default function Publisher() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,13 +47,18 @@ export default function Publisher() {
     },
   });
 
-  const {
-    data: publishers,
-    error,
-    isLoading: isLoadingPublishers,
-    refetch,
-  } = useGetAllPublisher();
+  const { data: publishers, error } = useGetAllPublisher();
   const { data: publisher } = useGetOnePublisher(uuid || "");
+
+  const { mutate: createPublisher } = useCreatePublisher(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: updatePublisher } = useUpdatePublisher(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: deletePublisher } = useDeletePublisher(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
 
   useEffect(() => {
     if (isEditable && isModalOpen && publisher) {
@@ -69,25 +72,7 @@ export default function Publisher() {
   }, [publisher, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
-    deletePublisher(uuid)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-        refetch();
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    deletePublisher(uuid);
   };
 
   const handleUpdate = (uuid: string) => {
@@ -98,46 +83,11 @@ export default function Publisher() {
 
   const modifyPublisher = (publisher: IUpdatePublisher) => {
     if (!uuid) return;
-
-    updatePublisher(uuid, publisher)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    updatePublisher({ uuid, data: publisher });
   };
 
   const savePublisher = (publisher: ICreatePublisher) => {
-    createPublisher(publisher)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    createPublisher(publisher);
   };
 
   const handleSubmit = async (
@@ -148,8 +98,6 @@ export default function Publisher() {
     } else {
       savePublisher(formData);
     }
-
-    refetch();
   };
 
   return (
