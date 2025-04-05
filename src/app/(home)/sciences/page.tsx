@@ -7,20 +7,22 @@ import {
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { useGetAllScience, useGetOneScience } from "@/hooks/api/science.hook";
-import { IMessage } from "@/interfaces/message.interface";
 import { ICreateScience, IUpdateScience } from "@/interfaces/science.interface";
-import { createScience, deleteScience, updateScience } from "@/lib/science.lib";
 import { fillFormInput } from "@/lib/utils";
+import {
+  useCreateScience,
+  useDeleteScience,
+  useUpdateScience,
+} from "@/mutations/api/sciences";
 import {
   scienceCreateFormSchema,
   scienceUpdateFormSchema,
 } from "@/schema/science.schema";
+import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
-import { clearForm } from "@/utils/form";
-import { toast } from "@/hooks/use-toast";
 
 export default function Science() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,13 +41,18 @@ export default function Science() {
     },
   });
 
-  const {
-    data: sciences,
-    isLoading: isLoadingScience,
-    error,
-    refetch,
-  } = useGetAllScience();
+  const { data: sciences, error } = useGetAllScience();
   const { data: science } = useGetOneScience(uuid || "");
+
+  const { mutate: createScience } = useCreateScience(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: updateScience } = useUpdateScience(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: deleteScience } = useDeleteScience(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
 
   useEffect(() => {
     if (isEditable && isModalOpen && science) {
@@ -58,25 +65,7 @@ export default function Science() {
   }, [science, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
-    deleteScience(uuid)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-        refetch();
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    deleteScience(uuid);
   };
 
   const handleUpdate = (uuid: string) => {
@@ -87,46 +76,11 @@ export default function Science() {
 
   const modifyScience = (science: IUpdateScience) => {
     if (!uuid) return;
-
-    updateScience(uuid, science)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    updateScience({ uuid, data: science });
   };
 
   const saveScience = (science: ICreateScience) => {
-    createScience(science)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    createScience(science);
   };
 
   const handleSubmit = async (formData: ICreateScience | IUpdateScience) => {
@@ -135,8 +89,6 @@ export default function Science() {
     } else {
       saveScience(formData);
     }
-
-    refetch();
   };
 
   return (
