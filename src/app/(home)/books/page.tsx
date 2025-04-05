@@ -13,7 +13,11 @@ import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import { useGetAllPublisher } from "@/hooks/api/publisher.hook";
 import { useGetAllScience } from "@/hooks/api/science.hook";
 import { fillFormInput } from "@/lib/utils";
-import { useCreateBook, useDeleteBook, useUpdateBook } from "@/mutations/api/books";
+import {
+  useCreateBook,
+  useDeleteBook,
+  useUpdateBook,
+} from "@/mutations/api/books";
 import { ICreateBook, IUpdateBook } from "@/providers/http/books/interface";
 import {
   bookCreateFormSchema,
@@ -62,7 +66,7 @@ export default function Book() {
   const {
     data: books,
     error: bookError,
-    isLoading: isLoadingBook
+    isLoading: isLoadingBook,
   } = useGetAllBook();
   const { data: book } = useGetOneBook(uuid || "");
   const { data: bibliographyTypes, isLoading: isLoadingBibliographyType } =
@@ -168,7 +172,7 @@ export default function Book() {
   ]);
 
   useEffect(() => {
-    if(isEditable && isModalOpen && book) {
+    if (isEditable && isModalOpen && book) {
       fillFormInput(form, [
         { property: "name", value: book.name },
         {
@@ -203,10 +207,10 @@ export default function Book() {
           property: "authorUUIDs",
           value: book.authors.map((author) => author.uuid),
         },
-      ]);  
+      ]);
     }
 
-    if(!isModalOpen || !isEditable) {
+    if (!isModalOpen || !isEditable) {
       clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
     }
   }, [book, isModalOpen, isEditable]);
