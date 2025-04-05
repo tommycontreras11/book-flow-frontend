@@ -10,18 +10,16 @@ import {
   UseGetAllBibliographyType,
   UseGetOneBibliographyType,
 } from "@/hooks/api/bibliography-type.hook";
-import { toast } from "@/hooks/use-toast";
 import {
   ICreateBibliographyType,
   IUpdateBibliographyType,
 } from "@/interfaces/bibliography-type.interface";
-import { IMessage } from "@/interfaces/message.interface";
-import {
-  createBibliographyType,
-  deleteBibliographyType,
-  updateBibliographyType,
-} from "@/lib/bibliography-type.lib";
 import { fillFormInput } from "@/lib/utils";
+import {
+  useCreateBibliographyType,
+  useDeleteBibliographyType,
+  useUpdateBibliographyType,
+} from "@/mutations/api/bibliography-types";
 import {
   bibliographyTypeCreateFormSchema,
   bibliographyTypeUpdateFormSchema,
@@ -55,11 +53,20 @@ export default function BibliographyType() {
   const {
     data: bibliographyTypes,
     error,
-    isLoading: isLoadingBibliographyType,
     refetch,
   } = UseGetAllBibliographyType();
 
   const { data: bibliographyType } = UseGetOneBibliographyType(uuid || "");
+
+  const { mutate: createBibliographyType } = useCreateBibliographyType(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: updateBibliographyType } = useUpdateBibliographyType(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: deleteBibliographyType } = useDeleteBibliographyType(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
 
   useEffect(() => {
     if (isEditable && isModalOpen && bibliographyType) {
@@ -72,25 +79,7 @@ export default function BibliographyType() {
   }, [bibliographyType, isModalOpen, isEditable, uuid]);
 
   const handleDelete = (uuid: string) => {
-    deleteBibliographyType(uuid)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-        refetch();
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    deleteBibliographyType(uuid);
   };
 
   const handleUpdate = (uuid: string) => {
@@ -103,46 +92,11 @@ export default function BibliographyType() {
     bibliographyType: IUpdateBibliographyType
   ) => {
     if (!uuid) return;
-
-    updateBibliographyType(uuid, bibliographyType)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    updateBibliographyType({ uuid, data: bibliographyType });
   };
 
   const saveBibliographyType = (bibliographyType: ICreateBibliographyType) => {
-    createBibliographyType(bibliographyType)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    createBibliographyType(bibliographyType);
   };
 
   const handleSubmit = async (
