@@ -136,18 +136,13 @@ class Base {
 
 	protected delete<T extends unknown>(url: string, config: AxiosRequestConfig = {}, data: object = {}): Promise<any> {
 
-	    const token = localStorage.getItem('token')
-
 	    return new Promise((resolve, reject) => {
 	        this.axios
 	            .delete<T>(url, {
-	                ...config,
-	                withCredentials: true,
-	                data,
-	                headers: {
-	                    ...config.headers,
-	                    token,
-	                }
+					...config,
+					headers: {
+						...config.headers
+					}
 	            })
 	            .then((res) => resolve(res.data))
 	            .catch((error: AxiosError<any>) => {
