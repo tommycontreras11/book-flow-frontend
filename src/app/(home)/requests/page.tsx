@@ -12,22 +12,33 @@ import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { StatusRequestEnum } from "@/enums/request.enum";
 import { useGetAllRequest } from "@/hooks/api/request.hook";
-import { IMessage } from "@/interfaces/message.interface";
-import { updateRequestEmployeeStatus } from "@/lib/request.lib";
+import { useUpdateRequestEmployeeStatus } from "@/mutations/api/requests";
 import { useMemo } from "react";
 
 export default function Request() {
   const { user } = useAuth();
 
-  const isEmployee = useMemo(() => user?.role === UserRoleEnum.EMPLOYEE, [user]);
+  const isEmployee = useMemo(
+    () => user?.role === UserRoleEnum.EMPLOYEE,
+    [user]
+  );
 
-  const { data: requests, isLoading, error, refetch } = useGetAllRequest(isEmployee, isEmployee
-    ? [StatusRequestEnum.PENDING]
-    : [
-        StatusRequestEnum.PENDING,
-        StatusRequestEnum.APPROVAL,
-        StatusRequestEnum.BORROWED,
-      ])
+  const {
+    data: requests,
+    error,
+  } = useGetAllRequest(
+    isEmployee,
+    isEmployee
+      ? [StatusRequestEnum.PENDING]
+      : [
+          StatusRequestEnum.PENDING,
+          StatusRequestEnum.APPROVAL,
+          StatusRequestEnum.BORROWED,
+        ]
+  );
+
+  const { mutate: updateRequestEmployeeStatus } =
+    useUpdateRequestEmployeeStatus();
 
   const isRequestPending = requests?.some(
     (request) => request.status === StatusRequestEnum.PENDING
@@ -40,23 +51,19 @@ export default function Request() {
     if (!isEmployee) return;
 
     updateRequestEmployeeStatus({
-      requestUUID: uuid,
-      employeeUUID: user!.uuid,
-      status,
-    })
-      .then((data: IMessage) => {
-        console.log(data.message);
-        refetch();
-      })
-      .catch((err) => console.log(err));
+      uuid,
+      data: {
+        employeeUUID: user!.uuid,
+        status,
+      },
+    });
   };
 
   return (
     <>
       {user ? (
         <div className="mx-auto w-full overflow-x-auto">
-          {isEmployee &&
-          isRequestPending ? (
+          {isEmployee && isRequestPending ? (
             <h2 className="text-2xl text-center font-medium">
               Pending Requests
             </h2>

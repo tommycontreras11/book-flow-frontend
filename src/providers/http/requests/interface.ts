@@ -20,7 +20,6 @@ export interface IUpdateRequest {
  }
 
 export interface IUpdateRequestEmployeeStatus {
-  requestUUID: string;
   employeeUUID: string;
   status: StatusRequestEnum;
 }

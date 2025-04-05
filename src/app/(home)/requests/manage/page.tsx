@@ -9,11 +9,9 @@ import { requestStatusTableDefinitions } from "@/definitions/common.definition";
 import { StatusRequestEnum } from "@/enums/request.enum";
 import { useGetAllBook } from "@/hooks/api/book.hook";
 import { useGetAllRequest, useGetOneRequest } from "@/hooks/api/request.hook";
-import { toast } from "@/hooks/use-toast";
-import { IMessage } from "@/interfaces/message.interface";
 import { IUpdateRequest } from "@/interfaces/request.interface";
-import { deleteRequest, updateRequest } from "@/lib/request.lib";
 import { fillFormInput } from "@/lib/utils";
+import { useDeleteRequest, useUpdateRequest } from "@/mutations/api/requests";
 import { requestUpdateFormSchema } from "@/schema/request.schema";
 import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,6 +46,13 @@ export default function Manage() {
     refetch: refetchRequest,
   } = useGetOneRequest(uuid ?? "");
   const { data: books, isLoading: isLoadingBooks } = useGetAllBook();
+
+  const { mutate: updateRequest } = useUpdateRequest(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: deleteRequest } = useDeleteRequest(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
 
   useEffect(() => {
     if (isLoadingBooks) return;
@@ -105,25 +110,7 @@ export default function Manage() {
   }, [request, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
-    deleteRequest(uuid)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-        refetch();
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    deleteRequest(uuid);
   };
 
   const handleUpdate = (uuid: string) => {
@@ -134,34 +121,12 @@ export default function Manage() {
 
   const modifyRequest = (request: IUpdateRequest) => {
     if (!uuid) return;
-
-    updateRequest(uuid, request)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-        refetchRequest();
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    updateRequest({ uuid, data: request });
   };
 
   const handleSubmit = async (formData: IUpdateRequest) => {
-    if (uuid) {
-      modifyRequest(formData);
-      refetch();
-      return;
-    }
+    if (!uuid) return;
+    modifyRequest(formData);
   };
 
   return (
