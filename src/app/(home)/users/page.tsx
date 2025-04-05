@@ -8,18 +8,22 @@ import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { PersonTypeEnum } from "@/enums/common.enum";
 import { useGetAllUser, useGetOneUser } from "@/hooks/api/user.hook";
-import { IMessage } from "@/interfaces/message.interface";
 import { ICreateUser, IUpdateUser } from "@/interfaces/user.interface";
-import { createUser, deleteUser, updateUser } from "@/lib/user.lib";
 import { fillFormInput } from "@/lib/utils";
-import { userCreateFormSchema, userUpdateFormSchema } from "@/schema/user.schema";
+import {
+  useCreateUser,
+  useDeleteUser,
+  useUpdateUser,
+} from "@/mutations/api/users";
+import {
+  userCreateFormSchema,
+  userUpdateFormSchema,
+} from "@/schema/user.schema";
+import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
 import { columns } from "./table/column";
-import { clearForm } from "@/utils/form";
-import { toast } from "@/hooks/use-toast";
 
 export default function User() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +48,9 @@ export default function User() {
   ]);
 
   const form = useForm<ICreateUser | IUpdateUser>({
-    resolver: zodResolver(isEditable ? userUpdateFormSchema : userCreateFormSchema),
+    resolver: zodResolver(
+      isEditable ? userUpdateFormSchema : userCreateFormSchema
+    ),
     defaultValues: {
       name: "",
       email: "",
@@ -54,10 +60,18 @@ export default function User() {
     },
   });
 
-  const { data: users, error, isLoading, refetch } = useGetAllUser();
+  const { data: users, error } = useGetAllUser();
   const { data: user } = useGetOneUser(uuid || "");
 
-  useEffect(() => {}, [users, isLoading]);
+  const { mutate: createUser } = useCreateUser(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: updateUser } = useUpdateUser(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: deleteUser } = useDeleteUser(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -89,25 +103,7 @@ export default function User() {
   }, [user, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
-    deleteUser(uuid)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-        refetch();
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    deleteUser(uuid);
   };
 
   const handleUpdate = (uuid: string) => {
@@ -118,46 +114,11 @@ export default function User() {
 
   const modifyUser = (user: IUpdateUser) => {
     if (!uuid) return;
-
-    updateUser(uuid, user)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    updateUser({ uuid, data: user });
   };
 
   const saveUser = (user: ICreateUser) => {
-    createUser(user)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    createUser(user);
   };
 
   const handleSubmit = async (formData: ICreateUser | IUpdateUser) => {
@@ -166,8 +127,6 @@ export default function User() {
     } else {
       saveUser(formData as ICreateUser);
     }
-
-    refetch();
   };
 
   return (
