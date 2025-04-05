@@ -18,33 +18,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { toast, useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
+import { IAuth } from "@/providers/http/auth/interface";
+import { authLoginFormSchema } from "@/schema/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-export const formSchema = z.object({
-  email: z
-    .string()
-    .email({ message: "Invalid email" })
-    .refine((value) => value.trim().length > 0, "Email is required"),
-  password: z
-    .string()
-    .refine((value) => value.trim().length > 0, "Password is required"),
-});
 
 export default function SignIn() {
   const { login } = useAuth();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<IAuth>({
+    resolver: zodResolver(authLoginFormSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: IAuth) {
     try {
       await login(values);
     } catch (error: any) {
