@@ -16,17 +16,18 @@ import { useAuth } from "@/contexts/auth-context";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { StatusRequestEnum } from "@/enums/request.enum";
 import { useGetAllRequest } from "@/hooks/api/request.hook";
-import { toast } from "@/hooks/use-toast";
 import { ICreateLoanManagement } from "@/interfaces/loan-management.interface";
-import { IMessage } from "@/interfaces/message.interface";
-import { createLoanManagement } from "@/lib/loan-management.lib";
+import { useCreateLoanManagement } from "@/mutations/api/loans-management";
 import { loanManagementFormSchema } from "@/schema/loan-management";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function loanManagement() {
-  const [isUser, setIsUser] = useState<boolean>(false);
+  const { user } = useAuth();
+
+  const isUser = useMemo(() => user?.role === UserRoleEnum.USER, [user]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestUUID, setRequestUUID] = useState<string | null>(null);
   const [loanManagementFields, setLoanManagementFields] = useState<
@@ -44,39 +45,20 @@ export default function loanManagement() {
     },
   });
 
-  const { user } = useAuth();
-
-  const {
-    data: requests,
-    isLoading,
-    error,
-    refetch,
-  } = useGetAllRequest(
+  const { data: requests, error } = useGetAllRequest(
     isUser,
     isUser
       ? [StatusRequestEnum.APPROVAL, StatusRequestEnum.BORROWED]
       : undefined
   );
 
-  useEffect(() => {
-    if (!user) return;
-
-    setIsUser(user?.role === UserRoleEnum.USER);
-  }, [requests, isLoading, user, isUser]);
+  const { mutate: createLoanManagement } = useCreateLoanManagement();
 
   const saveLoanManagement = (loanManagement: ICreateLoanManagement) => {
-    createLoanManagement(loanManagement)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        setIsModalOpen(false);
-        form.reset();
-      })
-      .catch((err) => console.log(err.message));
+    createLoanManagement(loanManagement);
+    form.reset();
+    setRequestUUID(null);
+    setIsModalOpen(false);
   };
 
   const handleLoanManagement = (
@@ -91,13 +73,14 @@ export default function loanManagement() {
   const handleSubmit = async (formData: Partial<ICreateLoanManagement>) => {
     if (!requestUUID) return;
     saveLoanManagement({ ...formData, requestUUID } as ICreateLoanManagement);
-    refetch();
   };
   return (
     <div className="mx-auto w-full overflow-x-auto">
       {!requests ||
         (!requests?.find(
-          (request) => request.status === StatusRequestEnum.APPROVAL || request.status === StatusRequestEnum.BORROWED
+          (request) =>
+            request.status === StatusRequestEnum.APPROVAL ||
+            request.status === StatusRequestEnum.BORROWED
         ) && <h3 className="text-center font-medium">No approval requests</h3>)}
       {requests &&
         requests.map((request) => (
@@ -126,7 +109,7 @@ export default function loanManagement() {
 
       <CreateUpdateForm<ICreateLoanManagement>
         isEditable={false}
-        entityName="Language"
+        entityName="Loan Management"
         fields={loanManagementFields}
         form={form}
         onSubmit={handleSubmit}
