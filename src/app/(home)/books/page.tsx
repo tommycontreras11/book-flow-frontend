@@ -13,7 +13,6 @@ import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import { useGetAllPublisher } from "@/hooks/api/publisher.hook";
 import { useGetAllScience } from "@/hooks/api/science.hook";
 import { IMessage } from "@/interfaces/message.interface";
-import { createBook, deleteBook, updateBook } from "@/lib/book.lib";
 import { fillFormInput } from "@/lib/utils";
 import {
   bookCreateFormSchema,
@@ -26,6 +25,7 @@ import { columns } from "./table/column";
 import { ICreateBook, IUpdateBook } from "@/providers/http/books/interface";
 import { toast } from "@/hooks/use-toast";
 import { clearForm } from "@/utils/form";
+import { useCreateBook, useDeleteBook, useUpdateBook } from "@/mutations/api/books";
 
 export default function Book() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,6 +75,16 @@ export default function Book() {
   const { data: publishers, isLoading: isLoadingPublisher } =
     useGetAllPublisher();
   const { data: sciences, isLoading: isLoadingScience } = useGetAllScience();
+
+  const { mutate: createBook } = useCreateBook(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: updateBook } = useUpdateBook(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: deleteBook } = useDeleteBook(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
 
   useEffect(() => {
     if (
@@ -205,25 +215,7 @@ export default function Book() {
   }, [book, isModalOpen, isEditable]);
 
   const handleDelete = (uuid: string) => {
-    deleteBook(uuid)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-        refetch();
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    deleteBook(uuid);
   };
 
   const handleUpdate = (uuid: string) => {
@@ -234,46 +226,11 @@ export default function Book() {
 
   const modifyBook = (book: FormData) => {
     if (!uuid) return;
-
-    updateBook(uuid, book)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    updateBook({ uuid, data: book });
   };
 
   const saveBook = (book: FormData) => {
-    createBook(book)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-        clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    createBook(book);
   };
 
   const handleSubmit = (book: ICreateBook | IUpdateBook) => {

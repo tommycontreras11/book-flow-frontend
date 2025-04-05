@@ -18,6 +18,22 @@ class BooksProvider extends Base {
     public getOne(uuid: string): Promise<IResponse<IBook>> {
         return this.get(`/${uuid}`);
     }
+
+    public create(data: FormData) {
+        return this.post('/', data, {}, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+    }
+
+    public update(uuid: string, data: FormData) {
+        return this.patch(`/${uuid}`, data, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+    }
+
+    public destroy(uuid: string) {
+        return this.delete(`/${uuid}`)
+    }
 }
 
 const booksProvider = new BooksProvider();
