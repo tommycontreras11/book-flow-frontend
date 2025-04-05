@@ -10,6 +10,7 @@ export function useCreateBibliographyType(
   onSuccessCallback?: (data: any) => void
 ) {
   const queryClient = useQueryClient();
+
   return useMutation(
     (data: ICreateBibliographyType) => bibliographyTypesProvider.create(data),
     getMutationOptions(queryClient, "bibliography-types", null, {
@@ -22,6 +23,7 @@ export function useUpdateBibliographyType(
   onSuccessCallback?: (data: any) => void
 ) {
   const queryClient = useQueryClient();
+
   return useMutation(
     ({ uuid, data }: { uuid: string; data: IUpdateBibliographyType }) =>
       bibliographyTypesProvider.update(uuid, data),
@@ -35,6 +37,7 @@ export function useDeleteBibliographyType(
   onSuccessCallback?: (data: any) => void
 ) {
   const queryClient = useQueryClient();
+  
   return useMutation(
     (uuid: string) => bibliographyTypesProvider.destroy(uuid),
     getMutationOptions(queryClient, "bibliography-types", "bibliography-type", {

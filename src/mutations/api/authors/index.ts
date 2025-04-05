@@ -5,6 +5,7 @@ import { ICreateAuthor, IUpdateAuthor } from "@/providers/http/authors/interface
 
 export function useCreateAuthor(onSuccessCallback?: (data: any) => void) {
   const queryClient = useQueryClient();
+  
   return useMutation(
     (data: ICreateAuthor) => authorsProvider.create(data),
     getMutationOptions(queryClient, "authors", null, {
@@ -15,6 +16,7 @@ export function useCreateAuthor(onSuccessCallback?: (data: any) => void) {
 
 export function useUpdateAuthor(onSuccessCallback?: (data: any) => void) {
   const queryClient = useQueryClient();
+
   return useMutation(
     ({ uuid, data }: { uuid: string; data: IUpdateAuthor }) =>
       authorsProvider.update(uuid, data),
@@ -26,6 +28,7 @@ export function useUpdateAuthor(onSuccessCallback?: (data: any) => void) {
 
 export function useDeleteAuthor(onSuccessCallback?: (data: any) => void) {
   const queryClient = useQueryClient();
+
   return useMutation(
     (uuid: string) =>
       authorsProvider.destroy(uuid),
