@@ -1,7 +1,7 @@
 import bibliographyTypesProvider from "@/providers/http/bibliography-types";
 import { useQuery } from "react-query";
 
-export function UseGetAllBibliographyType() {
+export function useGetAllBibliographyType() {
     const queryClient = useQuery({
         queryKey: ['bibliography-types'],
         retry: 1,
@@ -14,7 +14,7 @@ export function UseGetAllBibliographyType() {
     }
 }
 
-export function UseGetOneBibliographyType(uuid: string) {
+export function useGetOneBibliographyType(uuid: string) {
     const queryClient = useQuery({
         queryKey: ['bibliography-type', uuid],
         retry: 1,

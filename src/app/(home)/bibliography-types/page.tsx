@@ -7,8 +7,8 @@ import {
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import {
-  UseGetAllBibliographyType,
-  UseGetOneBibliographyType,
+  useGetAllBibliographyType,
+  useGetOneBibliographyType,
 } from "@/hooks/api/bibliography-type.hook";
 import {
   ICreateBibliographyType,
@@ -53,9 +53,9 @@ export default function BibliographyType() {
   const {
     data: bibliographyTypes,
     error,
-  } = UseGetAllBibliographyType();
+  } = useGetAllBibliographyType();
 
-  const { data: bibliographyType } = UseGetOneBibliographyType(uuid || "");
+  const { data: bibliographyType } = useGetOneBibliographyType(uuid || "");
 
   const { mutate: createBibliographyType } = useCreateBibliographyType(() => {
     clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
