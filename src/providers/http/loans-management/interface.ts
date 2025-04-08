@@ -13,15 +13,19 @@ export interface ILoanManagement {
   status: LoanManagementEnum;
 }
 
-export interface ICreateLoanManagement extends Partial<Omit<ILoanManagement, "uuid" | "loan_number" | "date_loan" | "quantity_day" | "amount_day" | "request" | "status">> { 
-  requestUUID: string;
+export interface ILoanManagementFilter {
+  bibliography_type?: string;
+  language?: string;
+  date_loan?: Date;
+  date_return?: Date;
 }
 
-export interface IUpdateLoanManagement extends Partial<ICreateLoanManagement> { }
+export interface ICreateLoanManagement {
+  requestUUID: string;
+  date_return: Date;
+  comment: string | null;
+}
 
-export interface ILoanManagementFilter {
-  bibliographyType?: string;
-  language?: string;
-  dateLoan?: string;
-  dateReturn?: string;
+export interface IUpdateLoanManagement extends Partial<ICreateLoanManagement> {
+  status: LoanManagementEnum;
 }

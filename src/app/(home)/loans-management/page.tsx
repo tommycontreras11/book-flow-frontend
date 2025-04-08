@@ -4,111 +4,112 @@ import {
   CreateUpdateForm,
   IFormField,
 } from "@/components/common/modal/create-update";
-import { Button } from "@/components/ui/button";
+import DataTable from "@/components/common/table/data-table";
+import { commonStatusTableDefinitions } from "@/definitions/common.definition";
+import { LoanManagementEnum } from "@/enums/loan-management.enum";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { useAuth } from "@/contexts/auth-context";
-import { UserRoleEnum } from "@/enums/common.enum";
-import { StatusRequestEnum } from "@/enums/request.enum";
-import { useGetAllRequest } from "@/hooks/api/request.hook";
-import { ICreateLoanManagement } from "@/interfaces/loan-management.interface";
-import { useCreateLoanManagement } from "@/mutations/api/loans-management";
-import { loanManagementFormSchema } from "@/schema/loan-management";
+  useGetAllLoanManagement,
+  useGetOneLoanManagement,
+} from "@/hooks/api/loan-management";
+import {
+  useDeleteLoanManagement,
+  useUpdateLoanManagement,
+} from "@/mutations/api/loans-management";
+import { IUpdateLoanManagement } from "@/providers/http/loans-management/interface";
+import { loanManagementUpdateFormSchema } from "@/schema/loan-management";
+import { clearForm } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { columns } from "./table/column";
+import { fillFormInput } from "@/lib/utils";
 
-export default function loanManagement() {
-  const { user } = useAuth();
-
-  const isUser = useMemo(() => user?.role === UserRoleEnum.USER, [user]);
-
+export default function LoanManagement() {
+  const [isEditable, setIsEditable] = useState(false);
+  const [uuid, setUUID] = useState<string | null>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [requestUUID, setRequestUUID] = useState<string | null>(null);
   const [loanManagementFields, setLoanManagementFields] = useState<
     IFormField[]
   >([
-    { name: "comment", label: "Comment", type: "text" },
     { name: "date_return", label: "Date Return", type: "date" },
+    {
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: Object.values(LoanManagementEnum).map((status) => ({
+        label: status,
+        value: status,
+      })),
+    },
+    { name: "comment", label: "Comment", type: "text" },
   ]);
 
-  const form = useForm<ICreateLoanManagement>({
-    resolver: zodResolver(loanManagementFormSchema),
+  const form = useForm<IUpdateLoanManagement>({
+    resolver: zodResolver(loanManagementUpdateFormSchema),
     defaultValues: {
       comment: "",
+      status: undefined,
       date_return: undefined,
     },
   });
 
-  const { data: requests, error } = useGetAllRequest(
-    isUser,
-    isUser
-      ? [StatusRequestEnum.APPROVAL, StatusRequestEnum.BORROWED]
-      : undefined
+  const { data: loans } = useGetAllLoanManagement();
+
+  const { data: loan, isLoading: isLoadingLoan } = useGetOneLoanManagement(
+    uuid || ""
   );
 
-  const { mutate: createLoanManagement } = useCreateLoanManagement();
+  const { mutate: updateLoanManagement } = useUpdateLoanManagement(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
+  const { mutate: deleteLoanManagement } = useDeleteLoanManagement(() => {
+    clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
+  });
 
-  const saveLoanManagement = (loanManagement: ICreateLoanManagement) => {
-    createLoanManagement(loanManagement);
-    form.reset();
-    setRequestUUID(null);
-    setIsModalOpen(false);
+  useEffect(() => {
+    if (isEditable && isModalOpen && loan) {
+      fillFormInput(form, [
+        { property: "comment", value: loan.comment },
+        { property: "status", value: loan.status },
+        { property: "date_return", value: new Date(`${loan.date_return}`) },
+      ]);
+    }
+
+    if (!isModalOpen || !isEditable) {
+      clearForm(form, false, setIsModalOpen, setIsEditable, setUUID);
+    }
+  }, [loan, isModalOpen, isEditable]);
+
+  const handleSubmit = (values: Partial<IUpdateLoanManagement>) => {
+    if (!uuid) return;
+    modifyBook(values);
   };
 
-  const handleLoanManagement = (
-    requestUUID: string,
-    status: StatusRequestEnum
-  ) => {
-    setRequestUUID(requestUUID);
-    status === StatusRequestEnum.BORROWED && handleSubmit({ requestUUID });
-    status === StatusRequestEnum.APPROVAL && setIsModalOpen(true);
+  const handleUpdate = (uuid: string) => {
+    setIsEditable(true);
+    setIsModalOpen(true);
+    setUUID(uuid);
   };
 
-  const handleSubmit = async (formData: Partial<ICreateLoanManagement>) => {
-    if (!requestUUID) return;
-    saveLoanManagement({ ...formData, requestUUID } as ICreateLoanManagement);
+  const modifyBook = (loanManagement: Partial<IUpdateLoanManagement>) => {
+    if (!uuid) return;
+    updateLoanManagement({ uuid, data: loanManagement });
   };
+
+  const handleDelete = (uuid: string) => {
+    deleteLoanManagement(uuid);
+  };
+
   return (
     <div className="mx-auto w-full overflow-x-auto">
-      {!requests ||
-        (!requests?.find(
-          (request) =>
-            request.status === StatusRequestEnum.APPROVAL ||
-            request.status === StatusRequestEnum.BORROWED
-        ) && <h3 className="text-center font-medium">No approval requests</h3>)}
-      {requests &&
-        requests.map((request) => (
-          <Card className="w-[350px]" key={request.uuid}>
-            <CardHeader>
-              <CardTitle>{request.book.name}</CardTitle>
-            </CardHeader>
-            <CardContent>{request.status}</CardContent>
-            {user?.role === UserRoleEnum.USER &&
-              (request.status === StatusRequestEnum.APPROVAL ||
-                request.status === StatusRequestEnum.BORROWED) && (
-                <CardFooter className="flex justify-between">
-                  <Button
-                    onClick={() =>
-                      handleLoanManagement(request.uuid, request.status)
-                    }
-                  >
-                    {request.status === StatusRequestEnum.APPROVAL
-                      ? "Borrow"
-                      : "Return"}
-                  </Button>
-                </CardFooter>
-              )}
-          </Card>
-        ))}
+      <DataTable
+        data={loans || []}
+        columns={columns({ handleUpdate, handleDelete })}
+        definitions={commonStatusTableDefinitions}
+      />
 
-      <CreateUpdateForm<ICreateLoanManagement>
-        isEditable={false}
+      <CreateUpdateForm<IUpdateLoanManagement>
+        isEditable={isEditable}
         entityName="Loan Management"
         fields={loanManagementFields}
         form={form}
