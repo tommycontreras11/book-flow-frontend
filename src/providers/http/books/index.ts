@@ -7,8 +7,8 @@ class BooksProvider extends Base {
         super(`${config.apiURL}/books`)
     }
 
-    public getAll(): Promise<IResponse<IBook[]>> {
-        return this.get('/');
+    public getAll(science?: string | null): Promise<IResponse<IBook[]>> {
+        return this.get(`/${!!science && science != "All" ? `?science=${science}` : ''}`);
     }
 
     public getStats(): Promise<IResponse<IBookStats>> {

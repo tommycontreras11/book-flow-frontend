@@ -17,4 +17,8 @@ export const bookCreateFormSchema = z.object({
     : z.any().optional(),
 });
 
+export const bookFilterSchema = z.object({
+  science: z.string().optional()
+})
+
 export const bookUpdateFormSchema = bookCreateFormSchema.partial();

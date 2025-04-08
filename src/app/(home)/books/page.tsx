@@ -7,7 +7,7 @@ import {
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { useGetAllAuthor } from "@/hooks/api/author.hook";
-import { UseGetAllBibliographyType } from "@/hooks/api/bibliography-type.hook";
+import { useGetAllBibliographyType } from "@/hooks/api/bibliography-type.hook";
 import { useGetAllBook, useGetOneBook } from "@/hooks/api/book.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import { useGetAllPublisher } from "@/hooks/api/publisher.hook";
@@ -70,7 +70,7 @@ export default function Book() {
   } = useGetAllBook();
   const { data: book } = useGetOneBook(uuid || "");
   const { data: bibliographyTypes, isLoading: isLoadingBibliographyType } =
-    UseGetAllBibliographyType();
+    useGetAllBibliographyType();
   const { data: languages, isLoading: isLoadingLanguage } = useGetAllLanguage();
   const { data: authors, isLoading: isLoadingAuthor } = useGetAllAuthor();
   const { data: publishers, isLoading: isLoadingPublisher } =

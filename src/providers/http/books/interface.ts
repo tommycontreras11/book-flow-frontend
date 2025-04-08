@@ -24,6 +24,10 @@ export interface IBook {
   file: File
 }
 
+export interface IBookFilter {
+  science?: string;
+}
+
 export interface IBookStats {
   quickStats: IQuickStats[];
   recentActivities: IRecentActivity[];
