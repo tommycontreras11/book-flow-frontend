@@ -13,7 +13,7 @@ export function QuickStatsCard({ quickStats }: QuickStatsCardProps) {
   const getIndicatorColor = (type: IQuickStats["type"]) => {
     switch (type) {
       case BookQuickStatsEnum.TOTAL:
-        return "text-blue-700";
+        return "text-sky-700";
         case BookQuickStatsEnum.AVAILABLE:
           return "text-green-700";
         case BookQuickStatsEnum.BORROWED:

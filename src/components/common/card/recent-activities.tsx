@@ -13,13 +13,13 @@ export function RecentActivitiesCard({ activities }: RecentActivitiesCardProps) 
   const getIndicatorColor = (type: IRecentActivity["type"]) => {
     switch (type) {
       case BookRecentActivitiesEnum.BORROWED:
-        return "bg-blue-500";
+        return "bg-sky-700";
       case BookRecentActivitiesEnum.RETURNED:
-        return "bg-green-500";
+        return "bg-green-700";
       case BookRecentActivitiesEnum.REGISTERED:
-        return "bg-red-500";
+        return "bg-red-700";
       default:
-        return "bg-gray-500";
+        return "bg-gray-700";
     }
   };
 
