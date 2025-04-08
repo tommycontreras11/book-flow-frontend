@@ -112,14 +112,6 @@ const data: IAppSidebarProps = {
         userRole: UserRoleEnum.EMPLOYEE,
       },
     },
-    {
-      name: "Loans Management",
-      url: "/loans-management",
-      icon: BookOpenCheck,
-      visibleProps: {
-        userRole: UserRoleEnum.USER,
-      },
-    },
   ],
   secondaryNav: [
     {
@@ -131,17 +123,41 @@ const data: IAppSidebarProps = {
       },
       items: [
         {
-          title: "Manage",
-          url: "/requests/manage",
+          title: "Requests",
+          url: "/requests",
           visibleProps: {
             userRole: UserRoleEnum.EMPLOYEE,
           },
         },
         {
-          title: "Requests",
-          url: "/requests",
+          title: "My Requests",
+          url: "/requests/my-requests",
           visibleProps: {
             bothRoles: true,
+          },
+        },
+      ],
+    },
+    {
+      title: "Loans Management",
+      url: "#",
+      icon: BookOpenCheck,
+      visibleProps: {
+        bothRoles: true,
+      },
+      items: [
+        {
+          title: "Loans",
+          url: "/loans-management",
+          visibleProps: {
+            userRole: UserRoleEnum.EMPLOYEE,
+          },
+        },
+        {
+          title: "My Loans",
+          url: "/loans-management/my-loans",
+          visibleProps: {
+            userRole: UserRoleEnum.USER,
           },
         },
       ],
