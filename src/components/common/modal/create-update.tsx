@@ -48,7 +48,7 @@ export interface IFormField {
     | "select"
     | "multi-select"
     | "file";
-  defaultValue?: string | number;
+  defaultValue?: string | number | Date;
   blockDatesAfterToday?: boolean;
   options?: IOptionsFormField[];
 }
@@ -81,13 +81,17 @@ export function CreateUpdateForm<T extends FieldValues>({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogTrigger asChild></DialogTrigger>
       <DialogContent
-        className="w-full max-w-full sm:max-w-lg p-4 sm:p-6"
+        className="w-[90vw] max-w-md p-4 sm:p-6"
         aria-describedby={undefined}
         aria-description="Create or update a resource"
       >
         <DialogHeader>
           <DialogTitle>
-            {isEditable ? `Update ${entityName}` : `Create ${entityName}`}
+            {isEditable
+              ? `Update ${entityName}`
+              : entityName == "Filters"
+              ? entityName
+              : `Create ${entityName}`}
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -126,7 +130,7 @@ export function CreateUpdateForm<T extends FieldValues>({
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-[240px] pl-3 text-left font-normal",
+                                  "w-full justify-start pl-3 text-left font-normal",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
@@ -141,12 +145,13 @@ export function CreateUpdateForm<T extends FieldValues>({
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
+                              key={form.watch(field.name)}
                               mode="single"
                               selected={field.value ?? undefined}
                               onSelect={field.onChange}
                               disabled={(date) => {
-                                if (fieldInput.blockDatesAfterToday) { 
-                                  return date > new Date()
+                                if (fieldInput.blockDatesAfterToday) {
+                                  return date > new Date();
                                 }
                                 return false;
                               }}
