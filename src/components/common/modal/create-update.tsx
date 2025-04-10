@@ -32,10 +32,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export interface IFormField {
   name: string;
@@ -58,7 +58,7 @@ export interface IOptionsFormField {
   value: string;
 }
 
-interface CreateUpdateFormProps<T extends FieldValues> {
+export interface CreateUpdateFormProps<T extends FieldValues> {
   isEditable: boolean;
   entityName: string;
   fields: IFormField[];

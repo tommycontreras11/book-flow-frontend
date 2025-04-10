@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { StatusRequestEnum } from "@/enums/request.enum";
-import { IMeUser } from "@/interfaces/auth.interface";
+import { IMeUser } from "@/providers/http/auth/interface";
 import { IBook } from "@/providers/http/books/interface";
 import { IRequest } from "@/providers/http/requests/interface";
 

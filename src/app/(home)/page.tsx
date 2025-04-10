@@ -4,32 +4,30 @@ import BookCard from "@/components/common/card/book";
 import { QuickStatsCard } from "@/components/common/card/quick-stats";
 import { RecentActivitiesCard } from "@/components/common/card/recent-activities";
 import { TopBorrowedBooksCard } from "@/components/common/card/top-borrowed-books";
-import {
-  CreateUpdateForm,
-  IFormField,
-} from "@/components/common/modal/create-update";
+import { Filter } from "@/components/common/filter/filter";
+import { IFormField } from "@/components/common/modal/create-update";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import { useGetAllBook, useGetAllBookStat } from "@/hooks/api/book.hook";
 import { useGetAllScience } from "@/hooks/api/science.hook";
 import { toast } from "@/hooks/use-toast";
-import { IMessage } from "@/interfaces/message.interface";
-import { ICreateRequest } from "@/interfaces/request.interface";
-import { createRequest } from "@/lib/request.lib";
+import { useCreateRequest } from "@/mutations/api/requests";
 import { IBookFilter } from "@/providers/http/books/interface";
+import { ICreateRequest } from "@/providers/http/requests/interface";
 import { bookFilterSchema } from "@/schema/book.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SlidersHorizontal } from "lucide-react";
+import { Trash } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
-  const [science, setScience] = useState<string | null>(null);
-  const isEmployee = useMemo(() => user?.role === "EMPLOYEE", [user]);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [science, setScience] = useState<string | null>(null);
   const [filterFields, setFilterFields] = useState<IFormField[]>([]);
+
+  const isEmployee = useMemo(() => user?.role === "EMPLOYEE", [user]);
 
   const form = useForm<IBookFilter>({
     resolver: zodResolver(bookFilterSchema),
@@ -57,6 +55,8 @@ export default function Home() {
 
   const { data: sciences, isLoading: isLoadingSciences } = useGetAllScience();
 
+  const { mutate: createRequest } = useCreateRequest();
+
   const {
     data: booksStats,
     error: bookStatError,
@@ -64,23 +64,7 @@ export default function Home() {
   } = useGetAllBookStat(user?.role === "EMPLOYEE");
 
   const saveRequest = (request: ICreateRequest) => {
-    createRequest(request)
-      .then((data: IMessage) => {
-        toast({
-          title: "Success",
-          description: data.message,
-          variant: "default",
-          duration: 3000,
-        });
-      })
-      .catch((err) => {
-        toast({
-          title: "Error",
-          description: err.message,
-          variant: "destructive",
-          duration: 3000,
-        });
-      });
+    createRequest(request);
   };
 
   const handleRequestBook = async (bookUUID: string) => {
@@ -94,7 +78,6 @@ export default function Home() {
       return;
     }
     saveRequest({ bookUUID, userUUID: user.uuid });
-    refetch();
   };
 
   const handleSubmit = ({ science }: IBookFilter) => {
@@ -105,8 +88,12 @@ export default function Home() {
     setIsModalOpen(false);
   };
 
+  const resetFilters = () => {
+    setScience(null);
+  };
+
   useEffect(() => {
-    if (isLoadingSciences) return;
+    if (isLoadingSciences || !sciences) return;
 
     setFilterFields((prevFields) => {
       if (!prevFields.find((field) => field.name === "science")) {
@@ -121,91 +108,88 @@ export default function Home() {
                 label: "All",
                 value: "All",
               },
-              ...(sciences?.map((science) => ({
+              ...sciences.map((science) => ({
                 label: science.name,
                 value: science.name,
-              })) || []),
+              })),
             ],
           },
         ];
       }
       return prevFields;
     });
-  }, [sciences]);
+  }, [isLoadingSciences, sciences]);
 
   return (
     <>
-      {!isLoadingBookStat && isEmployee && booksStats && (
+      {isLoadingBookStat && isEmployee && booksStats && (
         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-          <>
-            <QuickStatsCard quickStats={booksStats?.quickStats || []} />
-            <RecentActivitiesCard
-              activities={booksStats?.recentActivities || []}
-            />
-            <TopBorrowedBooksCard books={booksStats?.topBorrowedBooks || []} />
-          </>
+          <QuickStatsCard quickStats={booksStats?.quickStats || []} />
+          <RecentActivitiesCard
+            activities={booksStats?.recentActivities || []}
+          />
+          <TopBorrowedBooksCard books={booksStats?.topBorrowedBooks || []} />
         </div>
       )}
 
-      <div className={`flex flex-col ${isAnyBookAvailable ? "items-end" : "items-center"} w-full max-w-6xl mx-auto px-4`}>
-        {/* Filter Button */}
-        {/* <div className="mb-3">
-          <Button
-            className="hover:text-sky-800 text-sky-700 font-bold py-2 px-4 rounded"
-            variant={"outline"}
-            onClick={() => setIsModalOpen(true)}
-          >
-            <SlidersHorizontal className="mr-2" />
-            Filter
-          </Button>
-        </div> */}
-
+      <div className={`flex flex-col w-full max-w-6xl mx-auto px-4`}>
         {isAnyBookAvailable ? (
           <>
             <div className="mb-3">
-              <Button
-                className="hover:bg-sky-800 bg-sky-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => setIsModalOpen(true)}
-              >
-                <SlidersHorizontal className="mr-2" />
-                Filter
-              </Button>
-            </div>
-            <CreateUpdateForm<IBookFilter>
-              isEditable={false}
-              entityName="Filters"
-              fields={filterFields}
-              form={form}
-              onSubmit={handleSubmit}
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-            />
+              <div className="flex justify-end items-end">
+                <Filter<IBookFilter>
+                  isEditable={false}
+                  entityName="Filters"
+                  fields={filterFields}
+                  form={form}
+                  onSubmit={handleSubmit}
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                  setIsModalOpen={() => setIsModalOpen(true)}
+                />
+              </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
-              {!isLoadingBook &&
-                books
-                  ?.filter(
-                    (book) =>
-                      !book.requests.length ||
-                      book?.requests.every(
-                        (request) => request?.user?.uuid !== user?.uuid
-                      )
-                  )
-                  .map((book) => (
-                    <div key={book.uuid} className="w-full">
-                      <BookCard
-                        book={book}
-                        user={user || undefined}
-                        handleSubmit={() => handleRequestBook(book.uuid)}
-                      />
-                    </div>
-                  ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                {!isLoadingBook &&
+                  books &&
+                  books
+                    .filter(
+                      (book) =>
+                        !book.requests.length ||
+                        book?.requests.every(
+                          (request) => request?.user?.uuid !== user?.uuid
+                        )
+                    )
+                    .map((book) => (
+                      <div key={book.uuid} className="w-full">
+                        <BookCard
+                          book={book}
+                          user={user || undefined}
+                          handleSubmit={() => handleRequestBook(book.uuid)}
+                        />
+                      </div>
+                    ))}
+              </div>
             </div>
           </>
         ) : (
-          <h2 className="text-2xl text-center font-medium mb-6">
-            No books available
-          </h2>
+          <>
+            {science ? (
+              <div className="flex justify-end items-end">
+                <Button
+                  className="hover:bg-sky-800 bg-sky-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={resetFilters}
+                >
+                  <Trash className="mr-2" />
+                  Reset filters
+                </Button>
+              </div>
+            ) : (
+              <h2 className="text-2xl text-center font-medium mb-6">
+                No books available
+              </h2>
+            )}
+          </>
         )}
       </div>
     </>
