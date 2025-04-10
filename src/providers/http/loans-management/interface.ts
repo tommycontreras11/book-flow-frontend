@@ -16,8 +16,8 @@ export interface ILoanManagement {
 export interface ILoanManagementFilter {
   bibliography_type?: string;
   language?: string;
-  date_loan?: Date;
-  date_return?: Date;
+  date_loan?: string;
+  date_return?: string;
 }
 
 export interface ICreateLoanManagement {

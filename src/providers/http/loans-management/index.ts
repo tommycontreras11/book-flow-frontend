@@ -17,7 +17,6 @@ class LoansManagementProvider extends Base {
     filters?: ILoanManagementFilter
   ): Promise<IResponse<ILoanManagement[]>> {
     let filtersString = appendFilterString(filters);
-
     return this.get(`/${filtersString != undefined ? filtersString : ""}`);
   }
 

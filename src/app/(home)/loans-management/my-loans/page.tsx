@@ -1,23 +1,21 @@
 "use client";
 
 import BookCard from "@/components/common/card/book";
+import { Filter } from "@/components/common/filter/filter";
 import {
-  CreateUpdateForm,
-  IFormField,
+  IFormField
 } from "@/components/common/modal/create-update";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import { useGetAllBibliographyType } from "@/hooks/api/bibliography-type.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import { useGetAllLoanManagement } from "@/hooks/api/loan-management";
 import {
-  ILoanManagement,
-  ILoanManagementFilter,
+  ILoanManagementFilter
 } from "@/providers/http/loans-management/interface";
 import { loanManagementFilterSchema } from "@/schema/loan-management";
+import { extractFullDate } from "@/utils/date";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SlidersHorizontal } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function MyLoanManagement() {
@@ -125,8 +123,8 @@ export default function MyLoanManagement() {
     setFilters({
       bibliography_type: data.bibliography_type,
       language: data.language,
-      date_loan: data.date_loan,
-      date_return: data.date_return,
+      date_loan: extractFullDate(data.date_loan ? new Date(data.date_loan) : undefined),
+      date_return: extractFullDate(data.date_return ? new Date(data.date_return) : undefined),
     });
 
     form.reset();
@@ -134,35 +132,44 @@ export default function MyLoanManagement() {
   };
 
   return (
-    <div className="flex flex-col items-end w-full max-w-6xl mx-auto px-4">
-      <div className="mb-1">
-        <Button
-          className="hover:bg-sky-800 bg-sky-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <SlidersHorizontal className="mr-2" />
-          Filter
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
-        {!isLoadingLoan &&
-          loans?.map((loan: ILoanManagement) => (
-            <div key={loan.uuid} className="w-full">
-              <BookCard book={loan.request.book} request={loan.request} user={user || undefined} />
-            </div>
-          ))}
-      </div>
-
-      <CreateUpdateForm<ILoanManagementFilter>
-        isEditable={false}
-        entityName="Filters"
-        fields={loanManagementFilterFields}
-        form={form}
-        onSubmit={handleSubmit}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+    <div
+      className={`flex flex-col ${
+        loans && loans?.length > 0 ? "items-end" : "items-center"
+      } w-full max-w-6xl mx-auto px-4`}
+    >
+      {loans && loans.length > 0 ? (
+        <>
+          <div className="flex justify-end items-end">
+            <Filter<ILoanManagementFilter>
+              isEditable={false}
+              entityName="Filters"
+              fields={loanManagementFilterFields}
+              form={form}
+              onSubmit={handleSubmit}
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              setIsModalOpen={() => setIsModalOpen(true)}
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
+            {loans.map((loan) => (
+              <div key={loan.uuid} className="w-full">
+                <BookCard
+                  book={loan.request.book}
+                  request={loan.request}
+                  user={user || undefined}
+                />
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        !isLoadingLoan && loans?.length === 0 && (
+          <h2 className="text-2xl text-center font-medium mb-6">
+          Every reader starts somewhere — grab your first book!
+        </h2>
+        )
+      )}
     </div>
   );
 }
