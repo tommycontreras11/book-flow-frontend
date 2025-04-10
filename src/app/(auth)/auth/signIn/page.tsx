@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { toast } from "@/hooks/use-toast";
 import { IAuth } from "@/providers/http/auth/interface";
 import { authLoginFormSchema } from "@/schema/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,16 +35,7 @@ export default function SignIn() {
   });
 
   async function onSubmit(values: IAuth) {
-    try {
-      await login(values);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message ?? "Something went wrong",
-        variant: "destructive",
-        duration: 3000
-      });
-    }
+    login(values);
   }
 
   return (

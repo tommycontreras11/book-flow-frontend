@@ -1,12 +1,11 @@
 "use client";
 
 import { useMe } from "@/hooks/api/auth.hook";
-import { IMeUser } from "@/interfaces/auth.interface";
-import { me, signIn, signOut } from "@/lib/auth.lib";
-import { createUser } from "@/lib/user.lib";
-import { IAuth } from "@/providers/http/auth/interface";
+import { deleteCookie, me, saveCookie } from "@/lib/auth.lib";
+import { useSignIn, useSignOut } from "@/mutations/api/auth";
+import { useCreateUser } from "@/mutations/api/users";
+import { IAuth, IMeUser } from "@/providers/http/auth/interface";
 import { ICreateUser } from "@/providers/http/users/interface";
-import { handleApiError } from "@/utils/error";
 import { useRouter } from "next/navigation";
 import {
   createContext,
@@ -46,7 +45,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data, isLoading } = useMe();
   const router = useRouter();
 
+  const { mutate: createUser } = useCreateUser(() => {
+    router.push("/auth/signIn");
+  });
+
+  const { mutate: signOut } = useSignOut(() => {
+    deleteCookie().then(() => {
+      setUser(null);
+      setIsLoggedIn(false);
+      window.location.replace("/");
+    });
+  });
+
+  const { mutate: signIn } = useSignIn(async (data) => {
+    await saveCookie(data?.originalToken)
+
+    me().then((data) => {      
+      setUser(data.data);
+      setIsLoggedIn(true);
+      router.push("/");
+    });
+  });
+
   useEffect(() => {
+    if(isLoading) return;
+
     const validateUser = async () => {
       if (data) {
         setUser(data);
@@ -59,36 +82,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     validateUser();
   }, [data, isLoading]);
 
-  const login = async (values: IAuth) => {
-    try {
-      await signIn(values);
-      const { data }: { data: IMeUser } = await me();
-      setUser(data);
-      setIsLoggedIn(true);
-      router.push("/");
-    } catch (err) {
-      throw new Error(handleApiError(err).message);
-    }
+  const login = (values: IAuth) => {
+    signIn(values);
   };
 
-  const register = async (values: ICreateUser) => {
-    try {
-      await createUser(values);
-      router.push("/auth/signIn");
-    } catch (err) {
-      throw new Error(handleApiError(err).message);
-    }
+  const register = (values: ICreateUser) => {
+    createUser(values);
   };
 
-  const logout = async () => {
-    try {
-      await signOut();
-      setUser(null);
-      setIsLoggedIn(false);
-      window.location.replace("/");
-    } catch (err) {
-      throw new Error(handleApiError(err).message);
-    }
+  const logout = () => {
+    signOut(undefined);
   };
 
   return (

@@ -2,29 +2,9 @@
 
 import api from "./api";
 
-import { IAuth, IMeUser } from "@/interfaces/auth.interface";
+import { IMeUser } from "@/providers/http/auth/interface";
 import { cookies } from "next/headers";
 import { config } from "./config";
-import { handleApiError } from "@/utils/error";
-
-export const signIn = async (auth: IAuth) => {
-  try {
-    const response = await api.post(config.apiURL + "/auth/signIn", auth);
-    await saveCookie(response.data.originalToken);
-  } catch (error: any) {
-    throw new Error(handleApiError(error).message);
-  }
-};
-
-export const signOut = async () => {
-  try {
-    const response = await api.post(config.apiURL + "/auth/signOut");
-    await deleteCookie();
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 export const me = async (): Promise<IResponse<IMeUser>> => {
   try {
