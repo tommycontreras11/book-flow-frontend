@@ -3,7 +3,7 @@ import { QueryClient } from "react-query";
 
 export function getMutationOptions(
   queryClient: QueryClient,
-  keyToInvalidateAll: string,  
+  keyToInvalidateAll?: string | null,  
   keyToInvalidateOne?: string | null,  
   overrides?: {
     onSuccess?: (data: any) => void;
@@ -12,8 +12,8 @@ export function getMutationOptions(
 ) {
   return {
     onSuccess: (data: any, variables: any) => {
-      variables.uuid && queryClient.invalidateQueries([keyToInvalidateOne, variables.uuid]);
-        queryClient.invalidateQueries(keyToInvalidateAll);
+      variables?.uuid && queryClient.invalidateQueries([keyToInvalidateOne, variables?.uuid]);
+      keyToInvalidateAll && queryClient.invalidateQueries(keyToInvalidateAll);
       toast({
         title: "Success",
         description: data.message,
