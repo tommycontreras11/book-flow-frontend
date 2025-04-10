@@ -12,7 +12,7 @@ export function useCreateRequest(onSuccessCallback?: (data: any) => void) {
 
   return useMutation(
     (data: ICreateRequest) => requestsProvider.create(data),
-    getMutationOptions(queryClient, "requests", null, {
+    getMutationOptions(queryClient, "books", null, {
       onSuccess: onSuccessCallback,
     })
   );

@@ -39,8 +39,7 @@ export default function Home() {
   const {
     data: books,
     error: bookError,
-    isLoading: isLoadingBook,
-    refetch,
+    isLoading: isLoadingBook
   } = useGetAllBook(science);
 
   const isAnyBookAvailable = useMemo(

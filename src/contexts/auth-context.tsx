@@ -68,8 +68,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    if(isLoading) return;
-
     const validateUser = async () => {
       if (data) {
         setUser(data);

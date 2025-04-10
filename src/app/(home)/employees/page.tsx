@@ -11,7 +11,6 @@ import {
   useGetAllEmployee,
   useGetOneEmployee,
 } from "@/hooks/api/employee.hook";
-import { fillFormInput } from "@/lib/utils";
 import {
   useCreateEmployee,
   useDeleteEmployee,
@@ -25,7 +24,7 @@ import {
   employeeCreateFormSchema,
   employeeUpdateFormSchema,
 } from "@/schema/employee.schema";
-import { clearForm } from "@/utils/form";
+import { clearForm, fillFormInput } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";
