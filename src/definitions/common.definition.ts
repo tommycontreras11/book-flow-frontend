@@ -1,15 +1,18 @@
+import { StatusEnum } from "@/enums/common.enum";
+import { LoanManagementEnum } from "@/enums/loan-management.enum";
+import { StatusRequestEnum } from "@/enums/request.enum";
 import { IStatusTableDefinitions } from "@/interfaces/table.interface";
 import { CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import { ArrowDown, BookmarkCheck, BookOpenCheck, CircleDashed, X } from "lucide-react";
 
 export const commonStatusTableDefinitions: IStatusTableDefinitions[] = [
   {
-    value: "ACTIVE",
+    value: StatusEnum.ACTIVE,
     label: "Active",
     icon: CheckCircledIcon,
   },
   {
-    value: "INACTIVE",
+    value: StatusEnum.INACTIVE,
     label: "Inactive",
     icon: CrossCircledIcon,
   },
@@ -17,27 +20,27 @@ export const commonStatusTableDefinitions: IStatusTableDefinitions[] = [
 
 export const requestStatusTableDefinitions: IStatusTableDefinitions[] = [
   {
-    value: "COMPLETED",
+    value: StatusRequestEnum.COMPLETED,
     label: "Completed",
     icon: CheckCircledIcon,
   },
   {
-    value: "BORROWED",
+    value: StatusRequestEnum.BORROWED,
     label: "Borrowed",
     icon: BookmarkCheck,
   },
   {
-    value: "APPROVAL",
+    value: StatusRequestEnum.APPROVAL,
     label: "Approval",
     icon: BookOpenCheck,
   },
   {
-    value: "DENIED",
+    value: StatusRequestEnum.DENIED,
     label: "Denied",
     icon: X,
   },
   {
-    value: "PENDING",
+    value: StatusRequestEnum.PENDING,
     label: "Pending",
     icon: CircleDashed,
   },
@@ -45,12 +48,12 @@ export const requestStatusTableDefinitions: IStatusTableDefinitions[] = [
 
 export const loanStatusTableDefinitions: IStatusTableDefinitions[] = [
   {
-    value: "BORROWED",
+    value: LoanManagementEnum.BORROWED,
     label: "Borrowed",
     icon: BookmarkCheck,
   },
   {
-    value: "RETURNED",
+    value: LoanManagementEnum.RETURNED,
     label: "Returned",
     icon: ArrowDown,
   },
