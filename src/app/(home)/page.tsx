@@ -39,7 +39,7 @@ export default function Home() {
   const {
     data: books,
     error: bookError,
-    isLoading: isLoadingBook
+    isLoading: isLoadingBook,
   } = useGetAllBook(science);
 
   const isAnyBookAvailable = useMemo(
@@ -121,7 +121,7 @@ export default function Home() {
 
   return (
     <>
-      {isLoadingBookStat && isEmployee && booksStats && (
+      {!isLoadingBookStat && isEmployee && (
         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
           <QuickStatsCard quickStats={booksStats?.quickStats || []} />
           <RecentActivitiesCard
@@ -132,64 +132,71 @@ export default function Home() {
       )}
 
       <div className={`flex flex-col w-full max-w-6xl mx-auto px-4`}>
-        {isAnyBookAvailable ? (
-          <>
-            <div className="mb-3">
-              <div className="flex justify-end items-end">
-                <Filter<IBookFilter>
-                  isEditable={false}
-                  entityName="Filters"
-                  fields={filterFields}
-                  form={form}
-                  onSubmit={handleSubmit}
-                  isOpen={isModalOpen}
-                  onClose={() => setIsModalOpen(false)}
-                  setIsModalOpen={() => setIsModalOpen(true)}
-                />
-              </div>
+        <>
+          {!isLoadingBook && (
+            <>
+              {isAnyBookAvailable && (
+                <>
+                  <div className="mb-3">
+                    <div className="flex justify-end items-end">
+                      <Filter<IBookFilter>
+                        isEditable={false}
+                        entityName="Filters"
+                        fields={filterFields}
+                        form={form}
+                        onSubmit={handleSubmit}
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                        setIsModalOpen={() => setIsModalOpen(true)}
+                      />
+                    </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                {!isLoadingBook &&
-                  books &&
-                  books
-                    .filter(
-                      (book) =>
-                        !book.requests.length ||
-                        book?.requests.every(
-                          (request) => request?.user?.uuid !== user?.uuid
-                        )
-                    )
-                    .map((book) => (
-                      <div key={book.uuid} className="w-full">
-                        <BookCard
-                          book={book}
-                          user={user || undefined}
-                          handleSubmit={() => handleRequestBook(book.uuid)}
-                        />
-                      </div>
-                    ))}
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            {science ? (
-              <div className="flex justify-end items-end">
-                <Button
-                  className="hover:bg-sky-800 bg-sky-700 text-white font-bold py-2 px-4 rounded"
-                  onClick={resetFilters}
-                >
-                  <Trash className="mr-2" />
-                  Reset filters
-                </Button>
-              </div>
-            ) : (
-              <h2 className="text-2xl text-center font-medium mb-6">
-                No books available
-              </h2>
-            )}
-          </>
-        )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                      {!isLoadingBook &&
+                        books &&
+                        books
+                          .filter(
+                            (book) =>
+                              !book.requests.length ||
+                              book?.requests.every(
+                                (request) => request?.user?.uuid !== user?.uuid
+                              )
+                          )
+                          .map((book) => (
+                            <div key={book.uuid} className="w-full">
+                              <BookCard
+                                book={book}
+                                user={user || undefined}
+                                handleSubmit={() =>
+                                  handleRequestBook(book.uuid)
+                                }
+                              />
+                            </div>
+                          ))}
+                    </div>
+                  </div>
+                </>
+              )}
+              {science && (
+                <div className="flex justify-end items-end">
+                  <Button
+                    className="hover:bg-sky-800 bg-sky-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={resetFilters}
+                  >
+                    <Trash className="mr-2" />
+                    Reset filters
+                  </Button>
+                </div>
+              )}
+
+              {books?.length === 0 && (
+                <h2 className="text-2xl text-center font-medium mb-6">
+                  No books available
+                </h2>
+              )}
+            </>
+          )}
+        </>
       </div>
     </>
   );
