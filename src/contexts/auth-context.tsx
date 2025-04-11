@@ -68,17 +68,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
+    if(isLoading) {
+      setLoading(false)
+      return;
+    };
+
     const validateUser = async () => {
       if (data) {
         setUser(data);
         setIsLoggedIn(true);
       } else {
-        setLoading(false);
+        setUser(null);
       }
     };
 
     validateUser();
-  }, [data, isLoading]);
+  }, [isLoading]);
 
   const login = (values: IAuth) => {
     signIn(values);
