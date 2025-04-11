@@ -139,16 +139,26 @@ export default function Home() {
                 <>
                   <div className="mb-3">
                     <div className="flex justify-end items-end">
-                      <Filter<IBookFilter>
-                        isEditable={false}
-                        entityName="Filters"
-                        fields={filterFields}
-                        form={form}
-                        onSubmit={handleSubmit}
-                        isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
-                        setIsModalOpen={() => setIsModalOpen(true)}
-                      />
+                      {science ? (
+                        <Button
+                          className="hover:bg-sky-800 bg-sky-700 text-white font-bold py-2 px-4 rounded"
+                          onClick={resetFilters}
+                        >
+                          <Trash className="mr-2" />
+                          Reset filters
+                        </Button>
+                      ) : (
+                        <Filter<IBookFilter>
+                          isEditable={false}
+                          entityName="Filters"
+                          fields={filterFields}
+                          form={form}
+                          onSubmit={handleSubmit}
+                          isOpen={isModalOpen}
+                          onClose={() => setIsModalOpen(false)}
+                          setIsModalOpen={() => setIsModalOpen(true)}
+                        />
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full">
@@ -176,17 +186,6 @@ export default function Home() {
                     </div>
                   </div>
                 </>
-              )}
-              {science && (
-                <div className="flex justify-end items-end">
-                  <Button
-                    className="hover:bg-sky-800 bg-sky-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={resetFilters}
-                  >
-                    <Trash className="mr-2" />
-                    Reset filters
-                  </Button>
-                </div>
               )}
 
               {books?.length === 0 && (
