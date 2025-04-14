@@ -4,7 +4,7 @@ import { useQuery } from "react-query";
 export function useMe() {
     const queryClient = useQuery({
         queryKey: ['me'],
-        retry: 1,
+        retry: false,
         queryFn: () => authProvider.me()
     })
 

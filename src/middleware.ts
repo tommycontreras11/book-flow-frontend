@@ -1,22 +1,22 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { UserRoleEnum } from "./enums/common.enum";
-import { me } from "./lib/auth.lib";
+import { getCookie, me } from "./lib/auth.lib";
 
 const protectedRoutes = [
-  "/languages",
-  "/bibliography-types",
-  "/sciences",
-  "/publishers",
-  "/authors",
-  "/countries",
-  "/employees",
-  "/users",
-  "/requests",
+  "/admin/languages",
+  "/admin/bibliography-types",
+  "/admin/sciences",
+  "/admin/publishers",
+  "/admin/authors",
+  "/admin/countries",
+  "/admin/employees",
+  "/admin/users",
+  "/admin/requests",
   "/requests/my-requests",
-  "/loans-management",
+  "/admin/loans-management",
   "/loans-management/my-loans",
-  "/books",
+  "/admin/books",
 ];
 
 // Helper function to check if a path is protected
@@ -25,7 +25,8 @@ function isProtectedRoute(path: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  const user = await me();
+  const cookie = await getCookie()
+  const user = cookie ? await me() : null;
 
   const currentPath = request.nextUrl.pathname;
 
