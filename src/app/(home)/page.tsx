@@ -138,7 +138,7 @@ export default function Home() {
               {isAnyBookAvailable && (
                 <>
                   <div className="mb-3">
-                    <div className="flex justify-end items-end">
+                    <div className="flex justify-end items-end mb-3">
                       {science ? (
                         <Button
                           className="hover:bg-sky-800 bg-sky-700 text-white font-bold py-2 px-4 rounded"
