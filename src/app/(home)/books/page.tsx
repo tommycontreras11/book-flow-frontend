@@ -12,7 +12,7 @@ import { useGetAllBook, useGetOneBook } from "@/hooks/api/book.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
 import { useGetAllPublisher } from "@/hooks/api/publisher.hook";
 import { useGetAllScience } from "@/hooks/api/science.hook";
-import { fillFormInput } from "@/lib/utils";
+import { fillFormInput } from "@/utils/form";
 import {
   useCreateBook,
   useDeleteBook,

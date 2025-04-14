@@ -7,18 +7,17 @@ import {
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { useGetAllCountry, useGetOneCountry } from "@/hooks/api/country.hook";
-import { ICreateCountry, IUpdateCountry } from "@/interfaces/country.interface";
-import { fillFormInput } from "@/lib/utils";
 import {
   useCreateCountry,
   useDeleteCountry,
   useUpdateCountry,
 } from "@/mutations/api/countries";
+import { ICreateCountry, IUpdateCountry } from "@/providers/http/countries/interface";
 import {
   countryCreateFormSchema,
   countryUpdateFormSchema,
 } from "@/schema/country.schema";
-import { clearForm } from "@/utils/form";
+import { clearForm, fillFormInput } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";

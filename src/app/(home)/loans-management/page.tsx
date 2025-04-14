@@ -17,12 +17,11 @@ import {
 } from "@/mutations/api/loans-management";
 import { IUpdateLoanManagement } from "@/providers/http/loans-management/interface";
 import { loanManagementUpdateFormSchema } from "@/schema/loan-management";
-import { clearForm } from "@/utils/form";
+import { clearForm, fillFormInput } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
-import { fillFormInput } from "@/lib/utils";
 
 export default function LoanManagement() {
   const [isEditable, setIsEditable] = useState(false);

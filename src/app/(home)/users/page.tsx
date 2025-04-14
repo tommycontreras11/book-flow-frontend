@@ -8,18 +8,17 @@ import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { PersonTypeEnum } from "@/enums/common.enum";
 import { useGetAllUser, useGetOneUser } from "@/hooks/api/user.hook";
-import { ICreateUser, IUpdateUser } from "@/interfaces/user.interface";
-import { fillFormInput } from "@/lib/utils";
 import {
   useCreateUser,
   useDeleteUser,
   useUpdateUser,
 } from "@/mutations/api/users";
+import { ICreateUser, IUpdateUser } from "@/providers/http/users/interface";
 import {
   userCreateFormSchema,
   userUpdateFormSchema,
 } from "@/schema/user.schema";
-import { clearForm } from "@/utils/form";
+import { clearForm, fillFormInput } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm, UseFormReturn } from "react-hook-form";

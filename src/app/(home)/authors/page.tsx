@@ -9,8 +9,6 @@ import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { useGetAllAuthor, useGetOneAuthor } from "@/hooks/api/author.hook";
 import { useGetAllCountry } from "@/hooks/api/country.hook";
 import { useGetAllLanguage } from "@/hooks/api/language.hook";
-import { ICreateAuthor, IUpdateAuthor } from "@/interfaces/author.interface";
-import { fillFormInput } from "@/lib/utils";
 import {
   useCreateAuthor,
   useDeleteAuthor,
@@ -20,11 +18,12 @@ import {
   authorCreateFormSchema,
   authorUpdateFormSchema,
 } from "@/schema/author.schema";
-import { clearForm } from "@/utils/form";
+import { clearForm, fillFormInput } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
+import { ICreateAuthor, IUpdateAuthor } from "@/providers/http/authors/interface";
 
 export default function Author() {
   const [isModalOpen, setIsModalOpen] = useState(false);

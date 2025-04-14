@@ -11,20 +11,19 @@ import {
   useGetOnePublisher,
 } from "@/hooks/api/publisher.hook";
 import {
-  ICreatePublisher,
-  IUpdatePublisher,
-} from "@/interfaces/publisher.interface";
-import { fillFormInput } from "@/lib/utils";
-import {
   useCreatePublisher,
   useDeletePublisher,
   useUpdatePublisher,
 } from "@/mutations/api/publishers";
 import {
+  ICreatePublisher,
+  IUpdatePublisher,
+} from "@/providers/http/publishers/interface";
+import {
   publisherCreateFormSchema,
   publisherUpdateFormSchema,
 } from "@/schema/publisher.schema";
-import { clearForm } from "@/utils/form";
+import { clearForm, fillFormInput } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";

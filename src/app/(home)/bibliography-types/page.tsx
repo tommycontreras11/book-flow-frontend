@@ -11,11 +11,6 @@ import {
   useGetOneBibliographyType,
 } from "@/hooks/api/bibliography-type.hook";
 import {
-  ICreateBibliographyType,
-  IUpdateBibliographyType,
-} from "@/interfaces/bibliography-type.interface";
-import { fillFormInput } from "@/lib/utils";
-import {
   useCreateBibliographyType,
   useDeleteBibliographyType,
   useUpdateBibliographyType,
@@ -24,11 +19,12 @@ import {
   bibliographyTypeCreateFormSchema,
   bibliographyTypeUpdateFormSchema,
 } from "@/schema/bibliography-type.schema";
-import { clearForm } from "@/utils/form";
+import { clearForm, fillFormInput } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
+import { ICreateBibliographyType, IUpdateBibliographyType } from "@/providers/http/bibliography-types/interface";
 
 export default function BibliographyType() {
   const [isModalOpen, setIsModalOpen] = useState(false);

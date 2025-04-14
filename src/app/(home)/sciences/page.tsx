@@ -7,18 +7,17 @@ import {
 import DataTable from "@/components/common/table/data-table";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { useGetAllScience, useGetOneScience } from "@/hooks/api/science.hook";
-import { ICreateScience, IUpdateScience } from "@/interfaces/science.interface";
-import { fillFormInput } from "@/lib/utils";
 import {
   useCreateScience,
   useDeleteScience,
   useUpdateScience,
 } from "@/mutations/api/sciences";
+import { ICreateScience, IUpdateScience } from "@/providers/http/sciences/interface";
 import {
   scienceCreateFormSchema,
   scienceUpdateFormSchema,
 } from "@/schema/science.schema";
-import { clearForm } from "@/utils/form";
+import { clearForm, fillFormInput } from "@/utils/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
