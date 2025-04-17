@@ -28,6 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { columns } from "./table/column";
+import { useGetAllGenre } from "@/hooks/api/genre.hook";
 
 export default function Book() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,6 +36,7 @@ export default function Book() {
   const [uuid, setUUID] = useState<string | null>("");
   const [bookFields, setBookFields] = useState<IFormField[]>([
     { name: "name", label: "Name", type: "text" },
+    { name: "description", label: "Description", type: "text" },
     {
       name: "topographicalSignature",
       label: "Topographical Signature",
@@ -42,6 +44,7 @@ export default function Book() {
     },
     { name: "isbn", label: "Isbn", type: "text" },
     { name: "publicationYear", label: "Publication Year", type: "number" },
+    { name: "pages", label: "Pages", type: "number" },
     { name: "file", label: "File", type: "file" },
   ]);
 
@@ -51,15 +54,18 @@ export default function Book() {
     ),
     defaultValues: {
       name: "",
+      description: "",
       topographicalSignature: "",
       isbn: "",
       publicationYear: 0,
+      pages: 0,
       bibliographyTypeUUID: "",
       publisherUUID: "",
       languageUUID: "",
       scienceUUID: "",
       file: undefined,
       authorUUIDs: [],
+      genreUUIDs: [],
     },
   });
 
@@ -76,6 +82,7 @@ export default function Book() {
   const { data: publishers, isLoading: isLoadingPublisher } =
     useGetAllPublisher();
   const { data: sciences, isLoading: isLoadingScience } = useGetAllScience();
+  const { data: genres, isLoading: isLoadingGenres } = useGetAllGenre();
 
   const { mutate: createBook } = useCreateBook(() => {
     clearForm(form, true, setIsModalOpen, setIsEditable, setUUID);
@@ -93,7 +100,8 @@ export default function Book() {
       isLoadingBibliographyType ||
       isLoadingLanguage ||
       isLoadingPublisher ||
-      isLoadingScience
+      isLoadingScience ||
+      isLoadingGenres
     )
       return;
 
@@ -116,6 +124,15 @@ export default function Book() {
           options: authors?.map((author) => ({
             label: author.name,
             value: author.uuid,
+          })),
+        },
+        {
+          name: "genreUUIDs",
+          label: "Genre",
+          type: "multi-select",
+          options: genres?.map((genre) => ({
+            label: genre.name,
+            value: genre.uuid,
           })),
         },
         {
@@ -169,12 +186,15 @@ export default function Book() {
     isLoadingPublisher,
     sciences,
     isLoadingScience,
+    genres,
+    isLoadingGenres,
   ]);
 
   useEffect(() => {
     if (isEditable && isModalOpen && book) {
       fillFormInput(form, [
         { property: "name", value: book.name },
+        { property: "description", value: book.description },
         {
           property: "topographicalSignature",
           value: book.topographicalSignature,
@@ -186,6 +206,10 @@ export default function Book() {
         {
           property: "publicationYear",
           value: book.publicationYear,
+        },
+        {
+          property: "pages",
+          value: book.pages,
         },
         {
           property: "bibliographyTypeUUID",
@@ -206,6 +230,10 @@ export default function Book() {
         {
           property: "authorUUIDs",
           value: book.authors.map((author) => author.uuid),
+        },
+        {
+          property: "genreUUIDs",
+          value: book.genres.map((genre) => genre.uuid),
         },
       ]);
     }
@@ -238,7 +266,7 @@ export default function Book() {
     const formData = new FormData();
 
     bookFields
-      .filter((x) => x.name !== "authorUUIDs")
+      .filter((x) => x.name !== "authorUUIDs" && x.name !== "genreUUIDs")
       .forEach((field) => {
         const value =
           book?.[field.name as keyof ICreateBook | keyof IUpdateBook];
@@ -250,6 +278,8 @@ export default function Book() {
     book?.authorUUIDs?.forEach((uuid) =>
       formData.append("authorUUIDs[]", uuid)
     );
+
+    book?.genreUUIDs?.forEach((uuid) => formData.append("genreUUIDs[]", uuid));
 
     if (book?.file) {
       formData.append("file", book.file);
