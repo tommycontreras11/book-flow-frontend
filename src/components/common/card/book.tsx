@@ -1,15 +1,25 @@
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { UserRoleEnum } from "@/enums/common.enum";
 import { StatusRequestEnum } from "@/enums/request.enum";
+import { cn } from "@/lib/utils";
 import { IMeUser } from "@/providers/http/auth/interface";
 import { IBook } from "@/providers/http/books/interface";
 import { IRequest } from "@/providers/http/requests/interface";
+import Link from "next/link";
 
 export default function BookCard({
   book,
   request,
   user,
   isRequestToAcceptOrDeny = false,
+  isAnyBookAvailable = false,
   handleSubmit,
   handleDenySubmit,
 }: {
@@ -17,57 +27,71 @@ export default function BookCard({
   request?: IRequest;
   user?: IMeUser | null;
   isRequestToAcceptOrDeny?: boolean;
+  isAnyBookAvailable?: boolean;
   handleSubmit?: () => void;
   handleDenySubmit?: () => void;
 }) {
   const isRegularUser = user?.role === UserRoleEnum.USER;
 
   return (
-    <div className="w-full min-h-[290px] bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl dark:bg-gray-950 cursor-pointer">
-      <img
-        src={book.url}
-        alt="Product Image"
-        width={200}
-        height={200}
-        className="w-full h-56 object-cover"
-        style={{ aspectRatio: "300/300", objectFit: "cover" }}
-      />
-      <div className="flex-1 p-4 space-y-2 flex flex-col justify-between">
-        <h3 className="text-xl font-semibold">{book.name}</h3>
-
-        {book?.language?.name || book?.publicationYear ? (
-          <div className="mt-auto flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-            {book?.language?.name && <span>{book.language.name}</span>}
-            {book?.publicationYear && (
-              <span className="font-bold">{book.publicationYear}</span>
-            )}
+    <Card key={book.uuid} className="overflow-hidden">
+      <Link href={`/books/${book.uuid}`}>
+        <div className="aspect-[3/3] relative">
+          <img
+            src={book.url}
+            alt={book.name}
+            className="object-cover w-full h-full transition-transform group-hover:scale-105"
+          />
+        </div>
+        <CardHeader>
+          <CardTitle>{book.name}</CardTitle>
+          <p className="text-muted-foreground">{book.authors[0].name}</p>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <span
+              className={cn(
+                "text-sm",
+                isAnyBookAvailable
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-yellow-600 dark:text-yellow-400"
+              )}
+            >
+              {book.status.charAt(0).toUpperCase() +
+                book.status.slice(1).toLowerCase()}
+            </span>
           </div>
-        ) : null}
-
-        {((isRegularUser && !request) || !user) && (
-          <Button onClick={handleSubmit}>Request Book</Button>
-        )}
-
-        {(request?.status === StatusRequestEnum.APPROVAL ||
-          request?.status === StatusRequestEnum.BORROWED) &&
-          isRegularUser &&
-          request && (
-            <div className="mt-auto flex justify-end items-center text-sm text-gray-500 dark:text-gray-400">
-              <Button onClick={handleSubmit}>
-                {request?.status === StatusRequestEnum.APPROVAL
-                  ? "Borrow"
-                  : "Return"}
-              </Button>
-            </div>
+        </CardContent>
+      </Link>
+      {isAnyBookAvailable && (
+        <CardFooter>
+          {((isRegularUser && !request) || !user) && (
+            <Button className="w-full" onClick={handleSubmit}>
+              Request Book
+            </Button>
           )}
 
-        {user?.role === UserRoleEnum.EMPLOYEE && isRequestToAcceptOrDeny && (
-          <div className="mt-auto flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-            <Button onClick={handleSubmit}>Approve</Button>
-            <Button onClick={handleDenySubmit}>Deny</Button>
-          </div>
-        )}
-      </div>
-    </div>
+          {(request?.status === StatusRequestEnum.APPROVAL ||
+            request?.status === StatusRequestEnum.BORROWED) &&
+            isRegularUser &&
+            request && (
+              <div className="mt-auto flex justify-end items-center text-sm text-gray-500 dark:text-gray-400">
+                <Button onClick={handleSubmit}>
+                  {request?.status === StatusRequestEnum.APPROVAL
+                    ? "Borrow"
+                    : "Return"}
+                </Button>
+              </div>
+            )}
+
+          {user?.role === UserRoleEnum.EMPLOYEE && isRequestToAcceptOrDeny && (
+            <div className="mt-auto flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+              <Button onClick={handleSubmit}>Approve</Button>
+              <Button onClick={handleDenySubmit}>Deny</Button>
+            </div>
+          )}
+        </CardFooter>
+      )}
+    </Card>
   );
 }
