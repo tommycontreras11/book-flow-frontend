@@ -4,6 +4,8 @@ import { UserRoleEnum } from "./enums/common.enum";
 import { getCookie, me } from "./lib/auth.lib";
 
 const protectedRoutes = [
+  "/admin",
+  "/admin/genres",
   "/admin/languages",
   "/admin/bibliography-types",
   "/admin/sciences",
@@ -34,7 +36,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (isProtectedRoute(currentPath) && user?.message) {
+  if (isProtectedRoute(currentPath) && !user) {
     return NextResponse.redirect(new URL("auth/signIn", request.url));
   }
 
