@@ -7,7 +7,7 @@ import { StatusEnum } from "@/enums/common.enum";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { DataTableColumnHeader } from "@/components/common/table/data-table-column-header";
 import { DataTableRowActions } from "@/components/common/table/data-table-row-actions";
-import { ILanguage } from "@/interfaces/language.interface";
+import { ILanguage } from "@/providers/http/languages/interface";
 
 // Pass `handleUpdate` and `handleDelete` as props to columns
 export const columns = ({
