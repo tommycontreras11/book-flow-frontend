@@ -14,7 +14,7 @@ export interface IBook {
   description: string;
   topographicalSignature: string;
   isbn: string;
-  publicationYear: number;
+  publishedDate: Date;
   pages: number;
   publisher: IPublisher;
   language: ILanguage;

@@ -266,6 +266,7 @@ export default function Home() {
     }
     saveRequest({ bookUUID, userUUID: user.uuid });
   };
+  
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex flex-col items-center text-center mb-12">

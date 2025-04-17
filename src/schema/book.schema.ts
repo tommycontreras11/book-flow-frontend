@@ -7,7 +7,12 @@ export const bookCreateFormSchema = z.object({
   description: z.string().min(1, "Description is required"),
   topographicalSignature: z.string().min(1, "Topographical Signature is required"),
   isbn: z.string().min(1, "ISBN is required"),
-  publicationYear: z.coerce.number().min(1, "Publication year must be greater than 0"),
+  publishedDate: z
+  .date()
+  .refine(
+    (value) => value <= new Date(),
+    "Entry date must be less than or equal to today's date"
+  ),
   pages: z.coerce.number().min(1, "Pages must be greater than 0"),
   bibliographyTypeUUID: z.string().uuid("Bibliography type must be a valid UUID"),
   publisherUUID: z.string().uuid("Publisher must be a valid UUID"),

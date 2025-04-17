@@ -39,9 +39,9 @@ export const columns = ({
     ),
   },
   {
-    accessorKey: "publicationYear",
+    accessorKey: "publishedDate",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={"Publication Year"} />
+      <DataTableColumnHeader column={column} title={"Published Date"} />
     ),
   },
   {

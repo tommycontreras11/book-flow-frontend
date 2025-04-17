@@ -43,7 +43,12 @@ export default function Book() {
       type: "text",
     },
     { name: "isbn", label: "Isbn", type: "text" },
-    { name: "publicationYear", label: "Publication Year", type: "number" },
+    {
+      name: "publishedDate",
+      label: "Published Date",
+      type: "date",
+      blockDatesAfterToday: true,
+    },
     { name: "pages", label: "Pages", type: "number" },
     { name: "file", label: "File", type: "file" },
   ]);
@@ -57,7 +62,7 @@ export default function Book() {
       description: "",
       topographicalSignature: "",
       isbn: "",
-      publicationYear: 0,
+      publishedDate: undefined,
       pages: 0,
       bibliographyTypeUUID: "",
       publisherUUID: "",
@@ -204,8 +209,8 @@ export default function Book() {
           value: book.isbn,
         },
         {
-          property: "publicationYear",
-          value: book.publicationYear,
+          property: "publishedDate",
+          value: book.publishedDate,
         },
         {
           property: "pages",
@@ -266,7 +271,7 @@ export default function Book() {
     const formData = new FormData();
 
     bookFields
-      .filter((x) => x.name !== "authorUUIDs" && x.name !== "genreUUIDs")
+      .filter((x) => x.name !== "authorUUIDs" && x.name !== "genreUUIDs" && x.name !== "publishedDate")
       .forEach((field) => {
         const value =
           book?.[field.name as keyof ICreateBook | keyof IUpdateBook];
@@ -278,6 +283,8 @@ export default function Book() {
     book?.authorUUIDs?.forEach((uuid) =>
       formData.append("authorUUIDs[]", uuid)
     );
+
+    book.publishedDate && formData.append("publishedDate", book.publishedDate.toISOString());
 
     book?.genreUUIDs?.forEach((uuid) => formData.append("genreUUIDs[]", uuid));
 
