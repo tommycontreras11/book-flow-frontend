@@ -218,8 +218,8 @@ import { useMemo, useState } from "react";
 export default function Home() {
   const { user } = useAuth();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [science, setScience] = useState<string | null>(null);
+  const [search, setSearch] = useState<string | null>(null);
+  const [inputValue, setInputValue] = useState("");
   const [filterFields, setFilterFields] = useState<IFormField[]>([]);
 
   const isEmployee = useMemo(() => user?.role === "EMPLOYEE", [user]);
@@ -228,7 +228,7 @@ export default function Home() {
     data: books,
     error: bookError,
     isLoading: isLoadingBook,
-  } = useGetAllBook(science);
+  } = useGetAllBook(search);
 
   const isAnyBookAvailable = useMemo(
     () =>
@@ -266,7 +266,7 @@ export default function Home() {
     }
     saveRequest({ bookUUID, userUUID: user.uuid });
   };
-  
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex flex-col items-center text-center mb-12">
@@ -276,8 +276,11 @@ export default function Home() {
           adventure. Borrow books easily and manage your loans all in one place.
         </p>
         <div className="flex w-full max-w-lg gap-2">
-          <Input placeholder="Search by title, author, or genre..." />
-          <Button>
+          <Input
+            placeholder="Search by title, author, or genre..."
+            onChange={(e) => setInputValue(e.target.value)}
+          />
+          <Button type="submit" onClick={() => setSearch(inputValue)}>
             <Search className="h-4 w-4 mr-2" />
             Search
           </Button>

@@ -1,11 +1,11 @@
 import booksProvider from "@/providers/http/books";
 import { useQuery } from "react-query";
 
-export function useGetAllBook(science?: string | null) {
+export function useGetAllBook(search?: string | null) {
     const queryInfo = useQuery({
-        queryKey: ['books', science],
+        queryKey: ['books', search],
         retry: 1,
-        queryFn: () => booksProvider.getAll(science),
+        queryFn: () => booksProvider.getAll(search),
     })
 
     return {
