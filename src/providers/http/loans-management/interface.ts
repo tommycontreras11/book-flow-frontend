@@ -10,6 +10,7 @@ export interface ILoanManagement {
   quantity_day: number;
   comment: string | null;
   request: IRequest;
+  due_date_progress: number;
   status: LoanManagementEnum;
 }
 

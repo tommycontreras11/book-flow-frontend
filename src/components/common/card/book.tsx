@@ -71,20 +71,15 @@ export default function BookCard({
             </Button>
           )}
 
-          {(request?.status === StatusRequestEnum.APPROVAL ||
-            request?.status === StatusRequestEnum.BORROWED) &&
+          {request?.status === StatusRequestEnum.APPROVAL &&
             isRegularUser &&
             request && (
               <div className="mt-auto flex justify-end items-center text-sm text-gray-500 dark:text-gray-400">
-                <Button onClick={handleSubmit}>
-                  {request?.status === StatusRequestEnum.APPROVAL
-                    ? "Borrow"
-                    : "Return"}
-                </Button>
+                <Button className="w-full" onClick={handleSubmit}>Borrow</Button>
               </div>
             )}
 
-          {user?.role === UserRoleEnum.EMPLOYEE && isRequestToAcceptOrDeny && (
+          {!isRegularUser && isRequestToAcceptOrDeny && (
             <div className="mt-auto flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
               <Button onClick={handleSubmit}>Approve</Button>
               <Button onClick={handleDenySubmit}>Deny</Button>
