@@ -15,7 +15,7 @@ const protectedRoutes = [
   "/admin/employees",
   "/admin/users",
   "/admin/requests",
-  "/requests/my-requests",
+  "/my-requests",
   "/admin/loans-management",
   "/loans-management/my-loans",
   "/admin/books",
@@ -43,18 +43,18 @@ export async function middleware(request: NextRequest) {
   let allowedRoutes = [...protectedRoutes];
 
   if (
-    (currentPath === "/requests/my-requests" || currentPath === "/loans-management/my-loans") &&
+    (currentPath === "/my-requests" || currentPath === "/loans-management/my-loans") &&
     user?.data?.role === UserRoleEnum.USER
   ) {
     allowedRoutes = allowedRoutes.filter(
-      (route) => route !== "/requests/my-requests" && route !== "/loans-management/my-loans"
+      (route) => route !== "/my-requests" && route !== "/loans-management/my-loans"
     );
   }
 
   if (
     user?.data?.role === UserRoleEnum.USER &&
     isProtectedRoute(currentPath) &&
-    !["/requests/my-requests", "/loans-management/my-loans"].includes(currentPath)
+    !["/my-requests", "/loans-management/my-loans"].includes(currentPath)
   ) {
     return NextResponse.redirect(new URL("/", request.url));
   }

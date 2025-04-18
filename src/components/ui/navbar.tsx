@@ -1,6 +1,6 @@
 "use client"
 
-import { Book, User } from "lucide-react"
+import { Book, ClipboardList, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -13,6 +13,7 @@ export default function Navbar() {
   const navigation = [
     { name: 'Explore', href: '/', icon: Book },
     { name: 'My Books', href: '/my-books', icon: Book },
+    { name: 'My Requests', href: '/my-requests', icon: ClipboardList },
   ]
 
   return (

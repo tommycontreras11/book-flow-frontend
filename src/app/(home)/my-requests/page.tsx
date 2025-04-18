@@ -14,6 +14,7 @@ import { useUpdateRequestEmployeeStatus } from "@/mutations/api/requests";
 import { ICreateLoanManagement } from "@/providers/http/loans-management/interface";
 import { loanManagementCreateFormSchema } from "@/schema/loan-management";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BookMarked } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -47,8 +48,7 @@ export default function MyRequest() {
       ? [StatusRequestEnum.PENDING]
       : [
           StatusRequestEnum.PENDING,
-          StatusRequestEnum.APPROVAL,
-          StatusRequestEnum.BORROWED,
+          StatusRequestEnum.APPROVAL
         ]
   );
 
@@ -108,30 +108,49 @@ export default function MyRequest() {
   };
 
   const handleSubmit = async (formData: Partial<ICreateLoanManagement>) => {
-    console.log(requestUUID)
     if (!requestUUID) return;
     saveLoanManagement({ ...formData, requestUUID });
   };
 
   return (
-    <>
-      {user ? (
-        <div className="mx-auto w-full">
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      {user && (
+        <>
           {isEmployee ? (
             <h2 className="text-2xl text-center font-medium mb-6">
-              {isRequestPending
-                ? "Requests Awaiting Your Approval"
-                : "No pending requests"}
+              {isRequestPending ? (
+                "Requests Awaiting Your Approval"
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <BookMarked className="h-12 w-12 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">
+                    No pending requests yet
+                  </h3>
+                  <p>Books awaiting your approval will appear here.</p>
+                </div>
+              )}
             </h2>
           ) : (
             <h2 className="text-2xl text-center font-medium mb-6">
-              {isRequestPending
-                ? "Awaiting approval from the employee"
-                : isRequestApprove
-                ? "Pending Borrow Requests"
-                : isRequestBorrow
-                ? "Pending Return Requests"
-                : "No pending requests"}
+              {isRequestPending ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <BookMarked className="h-12 w-12 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">
+                    Pending Requests
+                  </h3>
+                  <p>Awaiting approval from the employee.</p>
+                </div>
+              ) : isRequestApprove ? (
+                "Pending Borrow Requests"
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                <BookMarked className="h-12 w-12 mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">
+                  No Pending Requests
+                </h3>
+                <p>Request a book to be borrowed.</p>
+              </div>
+              )}
             </h2>
           )}
 
@@ -143,6 +162,7 @@ export default function MyRequest() {
                   request={request}
                   book={request.book}
                   user={user || undefined}
+                  isAnyBookAvailable={true}
                   isRequestToAcceptOrDeny={user?.role === UserRoleEnum.EMPLOYEE}
                   handleSubmit={() => {
                     if (!isRequestBorrow && !isRequestApprove) {
@@ -150,8 +170,6 @@ export default function MyRequest() {
                         request.uuid,
                         StatusRequestEnum.APPROVAL
                       );
-                    } else {
-                      handleLoanManagement(request.uuid, request.status);
                     }
                   }}
                   handleDenySubmit={() =>
@@ -175,8 +193,8 @@ export default function MyRequest() {
               )}
             </div>
           )}
-        </div>
-      ) : null}
-    </>
+        </>
+      )}
+    </div>
   );
 }
