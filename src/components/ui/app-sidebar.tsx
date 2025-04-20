@@ -23,7 +23,6 @@ import {
 } from "lucide-react";
 import * as React from "react";
 import { MainNav } from "./nav-main";
-import { SecondaryNav } from "./nav-secondary";
 import { NavUser } from "./nav-user";
 import { TeamSwitcher } from "./team-switcher";
 
@@ -112,60 +111,26 @@ const data: IAppSidebarProps = {
         userRole: UserRoleEnum.EMPLOYEE,
       },
     },
-  ],
-  secondaryNav: [
     {
-      title: "Requests",
-      url: "#",
+      name: "Requests",
+      url: "/requests",
       icon: ClipboardList,
       visibleProps: {
-        bothRoles: true,
+        userRole: UserRoleEnum.EMPLOYEE,
       },
-      items: [
-        {
-          title: "Requests",
-          url: "/requests",
-          visibleProps: {
-            userRole: UserRoleEnum.EMPLOYEE,
-          },
-        },
-        {
-          title: "My Requests",
-          url: "/requests/my-requests",
-          visibleProps: {
-            bothRoles: true,
-          },
-        },
-      ],
     },
     {
-      title: "Loans Management",
-      url: "#",
+      name: "Loans",
+      url: "/loans-management",
       icon: BookOpenCheck,
       visibleProps: {
-        bothRoles: true,
+        userRole: UserRoleEnum.EMPLOYEE,
       },
-      items: [
-        {
-          title: "Loans",
-          url: "/loans-management",
-          visibleProps: {
-            userRole: UserRoleEnum.EMPLOYEE,
-          },
-        },
-        {
-          title: "My Loans",
-          url: "/loans-management/my-loans",
-          visibleProps: {
-            userRole: UserRoleEnum.USER,
-          },
-        },
-      ],
     },
   ],
 };
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, isLoggedIn } = useAuth();
+  const { user } = useAuth();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -181,16 +146,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 nav.visibleProps?.bothRoles
           )}
         />
-        {isLoggedIn && (
-          <SecondaryNav
-            items={data.secondaryNav.filter((nav) =>
-              !user?.uuid
-                ? nav.visibleProps?.default
-                : nav.visibleProps?.userRole == user.role ||
-                  nav.visibleProps?.bothRoles
-            )}
-          />
-        )}
+        {/* 
+          {isLoggedIn && (
+             <SecondaryNav
+               items={data.secondaryNav.filter((nav) =>
+                 !user?.uuid
+                   ? nav.visibleProps?.default
+                   : nav.visibleProps?.userRole == user.role ||
+                     nav.visibleProps?.bothRoles
+               )}
+             />
+          )}
+        */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

@@ -4,7 +4,7 @@ import { ForwardRefExoticComponent, RefAttributes } from "react";
 
 export interface IAppSidebarProps {
   mainNav: IAppSidebarMainNavItemProps[];
-  secondaryNav: IAppSidebarSecondaryNavItemProps[];
+  //secondaryNav: IAppSidebarSecondaryNavItemProps[];
 }
 
 export interface IAppSidebarSecondaryNavItemProps extends IAppSidebarItemProps {
