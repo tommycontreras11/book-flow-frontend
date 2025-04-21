@@ -31,13 +31,12 @@
 //   );
 // }
 
-import "./../globals.css";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import Navbar from "@/components/ui/navbar";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import Navbar from "@/components/ui/navbar";
-import { AuthProvider } from "@/contexts/auth-context";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./../globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -52,19 +51,17 @@ export default function HomeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <div className="min-h-screen flex flex-col">
-          <Navbar />
-          <main className="flex-1">{children}</main>
-        </div>
-        <Toaster />
-      </ThemeProvider>
-    </AuthProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1">{children}</main>
+      </div>
+      <Toaster />
+    </ThemeProvider>
   );
 }
