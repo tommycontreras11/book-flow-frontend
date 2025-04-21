@@ -1,26 +1,39 @@
-"use client"
+"use client";
 
-import { Book, ClipboardList, User } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
+import { Book, BookUser, ClipboardList, Library, LogIn, User } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Navbar() {
-  const pathname = usePathname()
-  
+  const pathname = usePathname();
+  const router = useRouter();
+
   const navigation = [
-    { name: 'Explore', href: '/', icon: Book },
-    { name: 'My Books', href: '/my-books', icon: Book },
-    { name: 'My Requests', href: '/my-requests', icon: ClipboardList },
-  ]
+    { name: "Explore", href: "/", icon: Book },
+    { name: "My Books", href: "/my-books", icon: BookUser },
+    { name: "My Requests", href: "/my-requests", icon: ClipboardList },
+  ];
+
+  const { isLoggedIn } = useAuth();
 
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4 max-w-7xl mx-auto">
         <Link href="/" className="flex items-center gap-2 mr-6">
-          <Book className="h-6 w-6" />
+          <Library className="h-6 w-6" />
           <span className="text-xl font-semibold">BookFlow</span>
         </Link>
         <nav className="flex items-center gap-4 flex-1">
@@ -30,8 +43,8 @@ export default function Navbar() {
               href={item.href}
               className={cn(
                 "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
-                pathname === item.href 
-                  ? "bg-primary text-primary-foreground" 
+                pathname === item.href
+                  ? "bg-primary text-primary-foreground"
                   : "hover:bg-muted"
               )}
             >
@@ -42,11 +55,39 @@ export default function Navbar() {
         </nav>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <Button variant="outline" size="icon">
-            <User className="h-4 w-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <User className="h-4 w-4" />
+                <span className="sr-only">Open user menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">Account</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    Manage your account
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.push(
+                      `${isLoggedIn ? "/auth/sign-out" : "/auth/sign-in"}`
+                    )
+                  }
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  <span>{isLoggedIn ? "Sign Out" : "Sign In"}</span>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
-  )
+  );
 }
