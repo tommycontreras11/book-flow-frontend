@@ -41,7 +41,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Authors",
-      url: "/authors",
+      url: "/admin/authors",
       icon: BookUser,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -49,7 +49,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Books",
-      url: "/books",
+      url: "/admin/books",
       icon: Book,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -57,7 +57,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Publishers",
-      url: "/publishers",
+      url: "/admin/publishers",
       icon: BookUser,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -65,7 +65,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Bibliography Types",
-      url: "/bibliography-types",
+      url: "/admin/bibliography-types",
       icon: BookType,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -73,7 +73,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Countries",
-      url: "/countries",
+      url: "/admin/countries",
       icon: Earth,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -81,7 +81,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Languages",
-      url: "/languages",
+      url: "/admin/languages",
       icon: Languages,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -89,7 +89,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Sciences",
-      url: "/sciences",
+      url: "/admin/sciences",
       icon: BookA,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -97,7 +97,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Employees",
-      url: "/employees",
+      url: "/admin/employees",
       icon: Building,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -105,7 +105,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Users",
-      url: "/users",
+      url: "/admin/users",
       icon: UserCog,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -113,7 +113,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Requests",
-      url: "/requests",
+      url: "/admin/requests",
       icon: ClipboardList,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -121,7 +121,7 @@ const data: IAppSidebarProps = {
     },
     {
       name: "Loans",
-      url: "/loans-management",
+      url: "/admin/loans-management",
       icon: BookOpenCheck,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
@@ -146,18 +146,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 nav.visibleProps?.bothRoles
           )}
         />
-        {/* 
-          {isLoggedIn && (
-             <SecondaryNav
-               items={data.secondaryNav.filter((nav) =>
-                 !user?.uuid
-                   ? nav.visibleProps?.default
-                   : nav.visibleProps?.userRole == user.role ||
-                     nav.visibleProps?.bothRoles
-               )}
-             />
-          )}
-        */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
