@@ -3,12 +3,11 @@
 import { ColumnDef } from "@tanstack/react-table";
 import clsx from "clsx";
 
-import { IAuthor } from "@/interfaces/author.interface";
 import { StatusEnum } from "@/enums/common.enum";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { DataTableColumnHeader } from "@/components/common/table/data-table-column-header";
 import { DataTableRowActions } from "@/components/common/table/data-table-row-actions";
-import { IUser } from "@/interfaces/user.interface";
+import { IUser } from "@/providers/http/users/interface";
 
 // Pass `handleUpdate` and `handleDelete` as props to columns
 export const columns = ({

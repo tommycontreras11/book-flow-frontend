@@ -7,7 +7,7 @@ import { StatusEnum } from "@/enums/common.enum";
 import { commonStatusTableDefinitions } from "@/definitions/common.definition";
 import { DataTableColumnHeader } from "@/components/common/table/data-table-column-header";
 import { DataTableRowActions } from "@/components/common/table/data-table-row-actions";
-import { ILanguage } from "@/interfaces/language.interface";
+import { IPublisher } from "@/providers/http/publishers/interface";
 
 // Pass `handleUpdate` and `handleDelete` as props to columns
 export const columns = ({
@@ -16,7 +16,7 @@ export const columns = ({
 }: {
   handleUpdate: (uuid: string) => void;
   handleDelete: (uuid: string) => void;
-}): ColumnDef<ILanguage>[] => [
+}): ColumnDef<IPublisher>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => (
