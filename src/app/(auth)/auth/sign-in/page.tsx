@@ -109,7 +109,7 @@ export default function SignIn() {
                 <div className="mt-4 text-center text-sm">
                   Don&apos;t have an account?{" "}
                   <a
-                    href="/auth/signUp"
+                    href="/auth/sign-up"
                     className="underline underline-offset-4"
                   >
                     Sign up
