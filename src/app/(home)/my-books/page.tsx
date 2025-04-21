@@ -66,72 +66,80 @@ export default function MyBooks() {
         </TabsList>
 
         <TabsContent value="borrowed" className="space-y-8">
-          <div className="grid gap-6 md:grid-cols-2">
-            {loans &&
-              loans
-                .filter((l) => l.status !== LoanManagementEnum.RETURNED)
-                .map((loan) => {
-                  let dateLoan = new Date(loan.date_loan);
-                  dateLoan.setDate(dateLoan.getDate() + loan.quantity_day);
-                  return (
-                    <Card key={loan.uuid}>
-                      <div className="flex gap-4 p-6">
-                        <div className="w-24 h-32 relative">
-                          <img
-                            src={loan.request.book.url}
-                            alt={loan.request.book.name}
-                            className="object-cover w-full h-full rounded-md"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <CardHeader className="p-0">
-                            <CardTitle className="text-xl">
-                              {loan.request.book.name}
-                            </CardTitle>
-                            <p className="text-muted-foreground">
-                              {loan.request.book.authors[0].name}
-                            </p>
-                          </CardHeader>
-                          <CardContent className="p-0 mt-4">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Calendar className="h-4 w-4" />
-                              Due {dateLoan.toDateString()}
-                            </div>
-                            <div className="mt-2">
-                              <div className="text-sm text-muted-foreground mb-1">
-                                Reading Progress: {loan.due_date_progress}%
+          {loans?.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <BookMarked className="h-12 w-12 mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No books borrowed yet</h3>
+              <p>Books you've borrowed will appear here</p>
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2">
+              {loans &&
+                loans
+                  .filter((l) => l.status !== LoanManagementEnum.RETURNED)
+                  .map((loan) => {
+                    let dateLoan = new Date(loan.date_loan);
+                    dateLoan.setDate(dateLoan.getDate() + loan.quantity_day);
+                    return (
+                      <Card key={loan.uuid}>
+                        <div className="flex gap-4 p-6">
+                          <div className="w-24 h-32 relative">
+                            <img
+                              src={loan.request.book.url}
+                              alt={loan.request.book.name}
+                              className="object-cover w-full h-full rounded-md"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <CardHeader className="p-0">
+                              <CardTitle className="text-xl">
+                                {loan.request.book.name}
+                              </CardTitle>
+                              <p className="text-muted-foreground">
+                                {loan.request.book.authors[0].name}
+                              </p>
+                            </CardHeader>
+                            <CardContent className="p-0 mt-4">
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Calendar className="h-4 w-4" />
+                                Due {dateLoan.toDateString()}
                               </div>
-                              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-primary"
-                                  style={{
-                                    width: `${loan.due_date_progress}%`,
-                                  }}
-                                />
+                              <div className="mt-2">
+                                <div className="text-sm text-muted-foreground mb-1">
+                                  Reading Progress: {loan.due_date_progress}%
+                                </div>
+                                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-primary"
+                                    style={{
+                                      width: `${loan.due_date_progress}%`,
+                                    }}
+                                  />
+                                </div>
                               </div>
-                            </div>
-                          </CardContent>
-                          {bookReturned !== loan.loan_number && (
-                            <CardFooter className="p-0 mt-4">
-                              <Button
-                                variant="outline"
-                                className="w-full"
-                                onClick={() =>
-                                  handleSubmit({
-                                    requestUUID: loan.request.uuid,
-                                  })
-                                }
-                              >
-                                Return Book
-                              </Button>
-                            </CardFooter>
-                          )}
+                            </CardContent>
+                            {bookReturned !== loan.loan_number && (
+                              <CardFooter className="p-0 mt-4">
+                                <Button
+                                  variant="outline"
+                                  className="w-full"
+                                  onClick={() =>
+                                    handleSubmit({
+                                      requestUUID: loan.request.uuid,
+                                    })
+                                  }
+                                >
+                                  Return Book
+                                </Button>
+                              </CardFooter>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  );
-                })}
-          </div>
+                      </Card>
+                    );
+                  })}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="history">

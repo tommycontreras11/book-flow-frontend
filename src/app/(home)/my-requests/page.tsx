@@ -14,6 +14,7 @@ import { useUpdateRequestEmployeeStatus } from "@/mutations/api/requests";
 import { ICreateLoanManagement } from "@/providers/http/loans-management/interface";
 import { loanManagementCreateFormSchema } from "@/schema/loan-management";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { set } from "date-fns";
 import { BookMarked } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -103,7 +104,6 @@ export default function MyRequest() {
     status: StatusRequestEnum
   ) => {
     setRequestUUID(requestUUID);
-    status === StatusRequestEnum.BORROWED && handleSubmit({ requestUUID });
     status === StatusRequestEnum.APPROVAL && setIsModalOpen(true);
   };
 
@@ -169,6 +169,11 @@ export default function MyRequest() {
                       modifyRequestEmployeeStatus(
                         request.uuid,
                         StatusRequestEnum.APPROVAL
+                      );
+                    }else {
+                      handleLoanManagement(
+                        request.uuid,
+                        request.status
                       );
                     }
                   }}
