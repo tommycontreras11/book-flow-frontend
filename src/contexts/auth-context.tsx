@@ -1,11 +1,12 @@
 "use client";
 
 import { useMe } from "@/hooks/api/auth.hook";
-import { deleteCookie, me, saveCookie } from "@/lib/auth.lib";
+import { me } from "@/lib/auth.lib";
 import { useSignIn, useSignOut } from "@/mutations/api/auth";
 import { useCreateUser } from "@/mutations/api/users";
 import { IAuth, IMeUser } from "@/providers/http/auth/interface";
 import { ICreateUser } from "@/providers/http/users/interface";
+import { deleteCookie, saveCookie } from "@/utils/cookie";
 import { useRouter } from "next/navigation";
 import {
   createContext,
@@ -68,22 +69,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    if(isLoading) {
-      setLoading(false)
-      return;
-    };
-
     const validateUser = async () => {
       if (data) {
         setUser(data);
         setIsLoggedIn(true);
       } else {
-        setUser(null);
+        setUser(null);      
+        setLoading(false)
       }
     };
 
     validateUser();
-  }, [isLoading]);
+  }, [data]);
 
   const login = (values: IAuth) => {
     signIn(values);

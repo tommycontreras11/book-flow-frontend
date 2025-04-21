@@ -1,6 +1,6 @@
 import axios from "axios";
 import { config } from "./config";
-import { getCookie } from "./auth.lib";
+import { getCookie } from "@/utils/cookie";
 
 const api = axios.create({
   baseURL: config.apiURL, // Use your base URL here

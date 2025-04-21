@@ -1,7 +1,8 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { UserRoleEnum } from "./enums/common.enum";
-import { getCookie, me } from "./lib/auth.lib";
+import { getCookie } from "./utils/cookie";
+import { me } from "./lib/auth.lib";
 
 const protectedRoutes = [
   "/admin",
@@ -15,10 +16,10 @@ const protectedRoutes = [
   "/admin/employees",
   "/admin/users",
   "/admin/requests",
-  "/my-requests",
-  "/admin/loans-management",
-  "/loans-management/my-loans",
   "/admin/books",
+  "/admin/loans-management",
+  "/my-requests",
+  "/my-loans",
 ];
 
 // Helper function to check if a path is protected
@@ -27,7 +28,8 @@ function isProtectedRoute(path: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  const cookie = await getCookie()
+  const cookie = await getCookie();
+
   const user = cookie ? await me() : null;
 
   const currentPath = request.nextUrl.pathname;
@@ -43,18 +45,18 @@ export async function middleware(request: NextRequest) {
   let allowedRoutes = [...protectedRoutes];
 
   if (
-    (currentPath === "/my-requests" || currentPath === "/loans-management/my-loans") &&
+    (currentPath === "/my-requests" || currentPath === "/my-loans") &&
     user?.data?.role === UserRoleEnum.USER
   ) {
     allowedRoutes = allowedRoutes.filter(
-      (route) => route !== "/my-requests" && route !== "/loans-management/my-loans"
+      (route) => route !== "/my-requests" && route !== "/my-loans"
     );
   }
 
   if (
     user?.data?.role === UserRoleEnum.USER &&
     isProtectedRoute(currentPath) &&
-    !["/my-requests", "/loans-management/my-loans"].includes(currentPath)
+    !["/my-requests", "/my-loans"].includes(currentPath)
   ) {
     return NextResponse.redirect(new URL("/", request.url));
   }
@@ -72,6 +74,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|__nextjs_original-stack-frames).*)",
   ],
 };
