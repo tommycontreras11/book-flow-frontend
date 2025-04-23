@@ -47,10 +47,7 @@ export default function MyRequest() {
     !!user,
     isEmployee
       ? [StatusRequestEnum.PENDING]
-      : [
-          StatusRequestEnum.PENDING,
-          StatusRequestEnum.APPROVAL
-        ]
+      : [StatusRequestEnum.PENDING, StatusRequestEnum.APPROVAL]
   );
 
   const { mutate: updateRequestEmployeeStatus } =
@@ -135,21 +132,19 @@ export default function MyRequest() {
               {isRequestPending ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <BookMarked className="h-12 w-12 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">
-                    Pending Requests
-                  </h3>
+                  <h3 className="text-lg font-medium mb-2">Pending Requests</h3>
                   <p>Awaiting approval from the employee.</p>
                 </div>
               ) : isRequestApprove ? (
                 "Pending Borrow Requests"
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
-                <BookMarked className="h-12 w-12 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">
-                  No Pending Requests
-                </h3>
-                <p>Request a book to be borrowed.</p>
-              </div>
+                  <BookMarked className="h-12 w-12 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">
+                    No Pending Requests
+                  </h3>
+                  <p>Request a book to be borrowed.</p>
+                </div>
               )}
             </h2>
           )}
@@ -162,7 +157,6 @@ export default function MyRequest() {
                   request={request}
                   book={request.book}
                   user={user || undefined}
-                  isAnyBookAvailable={true}
                   isRequestToAcceptOrDeny={user?.role === UserRoleEnum.EMPLOYEE}
                   handleSubmit={() => {
                     if (!isRequestBorrow && !isRequestApprove) {
@@ -170,11 +164,8 @@ export default function MyRequest() {
                         request.uuid,
                         StatusRequestEnum.APPROVAL
                       );
-                    }else {
-                      handleLoanManagement(
-                        request.uuid,
-                        request.status
-                      );
+                    } else {
+                      handleLoanManagement(request.uuid, request.status);
                     }
                   }}
                   handleDenySubmit={() =>
@@ -185,6 +176,7 @@ export default function MyRequest() {
                   }
                 />
               ))}
+
               {isRequestApprove && (
                 <CreateUpdateForm<ICreateLoanManagement>
                   isEditable={false}

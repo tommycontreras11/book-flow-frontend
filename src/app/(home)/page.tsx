@@ -297,15 +297,16 @@ export default function Home() {
                   (request) => request?.user?.uuid !== user?.uuid
                 )
             )
-            .map((book) => (
-              <BookCard
-                key={book.uuid}
-                book={book}
-                user={user || undefined}
-                isAnyBookAvailable={isAnyBookAvailable}
-                handleSubmit={() => handleRequestBook(book.uuid)}
-              />
-            ))}
+            .map((book) => {              
+              return (
+                <BookCard
+                  key={book.uuid}
+                  book={book}
+                  user={user || undefined}
+                  handleSubmit={() => handleRequestBook(book.uuid)}
+                />
+              );
+            })}
       </div>
     </div>
   );
