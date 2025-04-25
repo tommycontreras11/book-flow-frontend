@@ -51,7 +51,7 @@ export default function BookDetails({
   if (!isLoadingBook && !book) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Book not found</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">Book not found</h1>
         <Link href="/">
           <Button variant="outline">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -62,7 +62,7 @@ export default function BookDetails({
     );
   }
 
-  return !isLoadingBook && book ? (
+  return (!isLoadingBook && book) && (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <Link href="/">
         <Button variant="outline" className="mb-6">
@@ -94,10 +94,9 @@ export default function BookDetails({
           <div>
             <h1 className="text-3xl font-bold mb-2">{book.name}</h1>
             <div className="flex flex-wrap gap-2 text-muted-foreground">
-              {book.authors.map((author, index) => (
+              {book.authors.map((author) => (
                 <span key={author.uuid}>
-                  {author.name}
-                  {index < book.authors.length - 1 && " • "}
+                  {" • " + author.name}
                 </span>
               ))}
             </div>
@@ -177,5 +176,5 @@ export default function BookDetails({
         </div>
       </div>
     </div>
-  ) : null;
+  )
 }
