@@ -204,7 +204,6 @@
 "use client";
 
 import BookCard from "@/components/common/card/book";
-import { IFormField } from "@/components/common/modal/create-update";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
@@ -220,7 +219,6 @@ export default function Home() {
 
   const [search, setSearch] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
-  const [filterFields, setFilterFields] = useState<IFormField[]>([]);
 
   const isEmployee = useMemo(() => user?.role === "EMPLOYEE", [user]);
 
@@ -229,18 +227,6 @@ export default function Home() {
     error: bookError,
     isLoading: isLoadingBook,
   } = useGetAllBook(search);
-
-  const isAnyBookAvailable = useMemo(
-    () =>
-      !!books?.filter(
-        (book) =>
-          !book.requests.length ||
-          book?.requests.every((request) => request?.user?.uuid !== user?.uuid)
-      )?.length,
-    [books]
-  );
-
-  // const { data: sciences, isLoading: isLoadingSciences } = useGetAllScience();
 
   const { mutate: createRequest } = useCreateRequest();
 
@@ -288,7 +274,7 @@ export default function Home() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
-        {books &&
+        {!isLoadingBook && books &&
           books
             .filter(
               (book) =>
