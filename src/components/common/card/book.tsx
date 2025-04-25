@@ -17,20 +17,18 @@ import Link from "next/link";
 export default function BookCard({
   book,
   request,
-  user,
+  isEmployee,
   isRequestToAcceptOrDeny = false,
   handleSubmit,
   handleDenySubmit,
 }: {
   book: IBook;
   request?: IRequest;
-  user?: IMeUser | null;
+  isEmployee?: boolean | null;
   isRequestToAcceptOrDeny?: boolean;
   handleSubmit?: () => void;
   handleDenySubmit?: () => void;
 }) {
-  const isRegularUser = user?.role === UserRoleEnum.USER;
-
   const isAnyBookAvailable =
     request &&
     [StatusRequestEnum.APPROVAL, StatusRequestEnum.PENDING].includes(
@@ -76,7 +74,7 @@ export default function BookCard({
           </div>
         </CardContent>
       </Link>
-      {((isRegularUser && !request) || !user) && (
+      {((!isEmployee && !request) || isEmployee === null) && (
         <CardFooter>
           <Button className="w-full" onClick={handleSubmit}>
             Request Book
@@ -87,7 +85,7 @@ export default function BookCard({
       {isAnyBookAvailable && (
         <>
           {request?.status === StatusRequestEnum.APPROVAL &&
-            isRegularUser &&
+            !isEmployee &&
             request && (
               <CardFooter>
                 <div className="mt-auto flex justify-end items-center text-sm text-gray-500 dark:text-gray-400">
@@ -97,7 +95,7 @@ export default function BookCard({
                 </div>
               </CardFooter>
             )}
-          {!isRegularUser && isRequestToAcceptOrDeny && (
+          {!isEmployee && isRequestToAcceptOrDeny && (
             <CardFooter>
               <div className="mt-auto flex justify-between items-center w-full text-sm text-gray-500 dark:text-gray-400">
                 <div>

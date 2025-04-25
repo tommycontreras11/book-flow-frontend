@@ -156,7 +156,7 @@ export default function MyRequest() {
                   key={request.uuid}
                   request={request}
                   book={request.book}
-                  user={user || undefined}
+                  isEmployee={user == null ? null : user.role === UserRoleEnum.EMPLOYEE}
                   isRequestToAcceptOrDeny={user?.role === UserRoleEnum.EMPLOYEE}
                   handleSubmit={() => {
                     if (!isRequestBorrow && !isRequestApprove) {

@@ -207,6 +207,7 @@ import BookCard from "@/components/common/card/book";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
+import { UserRoleEnum } from "@/enums/common.enum";
 import { useGetAllBook } from "@/hooks/api/book.hook";
 import { toast } from "@/hooks/use-toast";
 import { useCreateRequest } from "@/mutations/api/requests";
@@ -288,7 +289,7 @@ export default function Home() {
                 <BookCard
                   key={book.uuid}
                   book={book}
-                  user={user || undefined}
+                  isEmployee={user == null ? null : user.role === UserRoleEnum.EMPLOYEE}
                   handleSubmit={() => handleRequestBook(book.uuid)}
                 />
               );
