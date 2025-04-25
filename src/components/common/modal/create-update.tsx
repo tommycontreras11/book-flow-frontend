@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Controller, Path, UseFormReturn } from "react-hook-form";
 
+import { DatePicker } from "@/components/ui/date-picker";
 import { FieldValues } from "react-hook-form";
 import { MultiSelect } from "../../ui/multi-select";
 import {
@@ -27,15 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 
 export interface IFormField {
   name: string;
@@ -123,7 +115,7 @@ export function CreateUpdateForm<T extends FieldValues>({
                         </FormControl>
                       )}
 
-                      {fieldInput.type === "date" && (
+                      {/* {fieldInput.type === "date" && (
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -149,16 +141,32 @@ export function CreateUpdateForm<T extends FieldValues>({
                               mode="single"
                               selected={field.value ?? undefined}
                               onSelect={field.onChange}
-                              disabled={(date) => {
-                                if (fieldInput.blockDatesAfterToday) {
-                                  return date > new Date();
-                                }
-                                return false;
-                              }}
                               initialFocus
                             />
                           </PopoverContent>
                         </Popover>
+                      )} */}
+
+                      {fieldInput.type === "date" && (
+                        <FormControl>
+                          <DatePicker
+                            key={form.watch(field.name)}
+                            date={
+                              field.value ? new Date(field.value) : undefined
+                            }
+                            setDate={(date) => {
+                              if (date) {
+                                field.onChange(date);
+                              }
+                            }}
+                            disabled={(date) => {
+                              if (fieldInput.blockDatesAfterToday) {
+                                return date > new Date();
+                              }
+                              return false;
+                            }}
+                          />
+                        </FormControl>
                       )}
 
                       {fieldInput.type === "password" && (
