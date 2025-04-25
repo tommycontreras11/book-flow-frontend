@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isProtectedRoute(currentPath) && !user) {
-    return NextResponse.redirect(new URL("auth/signIn", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   let allowedRoutes = [...protectedRoutes];
