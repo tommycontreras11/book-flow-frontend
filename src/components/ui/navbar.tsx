@@ -12,12 +12,29 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/contexts/auth-context";
+import { UserRoleEnum } from "@/enums/common.enum";
 import { cn } from "@/lib/utils";
-import { Book, BookUser, ClipboardList, Library, LogIn, User } from "lucide-react";
+import {
+  Book,
+  BookUser,
+  ClipboardList,
+  Library,
+  LogIn,
+  NotepadText,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 export default function Navbar() {
+  const { isLoggedIn, user } = useAuth();
+
+  const isEmployee = useMemo(
+    () => user?.role === UserRoleEnum.EMPLOYEE,
+    [user]
+  );
+
   const pathname = usePathname();
   const router = useRouter();
 
@@ -25,9 +42,8 @@ export default function Navbar() {
     { name: "Explore", href: "/", icon: Book },
     { name: "My Books", href: "/my-books", icon: BookUser },
     { name: "My Requests", href: "/my-requests", icon: ClipboardList },
+    ...(isEmployee ? [{ name: "Management", href: "/admin", icon: NotepadText }] : []),
   ];
-
-  const { isLoggedIn } = useAuth();
 
   return (
     <div className="border-b">
