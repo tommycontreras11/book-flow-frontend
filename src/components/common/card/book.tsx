@@ -13,27 +13,35 @@ import { IMeUser } from "@/providers/http/auth/interface";
 import { IBook } from "@/providers/http/books/interface";
 import { IRequest } from "@/providers/http/requests/interface";
 import Link from "next/link";
+import { useMemo } from "react";
 
 export default function BookCard({
   book,
   request,
-  isEmployee,
+  user,
   isRequestToAcceptOrDeny = false,
   handleSubmit,
   handleDenySubmit,
 }: {
   book: IBook;
   request?: IRequest;
-  isEmployee?: boolean | null;
+  user?: IMeUser | null;
   isRequestToAcceptOrDeny?: boolean;
   handleSubmit?: () => void;
   handleDenySubmit?: () => void;
 }) {
-  const isAnyBookAvailable =
-    request &&
-    [StatusRequestEnum.APPROVAL, StatusRequestEnum.PENDING].includes(
-      request.status
-    );
+  let isAnyBookAvailable =
+    book?.requests?.find((request) => request.user?.uuid === user?.uuid)
+      ?.status || request?.status;
+
+  const isEmployee = useMemo(
+    () => (user == null ? null : user.role === UserRoleEnum.EMPLOYEE),
+    [user]
+  );
+
+  if (isEmployee) {
+    isAnyBookAvailable = request?.status;
+  }
 
   return (
     <Card key={book.uuid} className="overflow-hidden">
@@ -56,25 +64,33 @@ export default function BookCard({
                 "text-sm",
                 !isAnyBookAvailable
                   ? "text-green-600 dark:text-green-400"
-                  : request?.status === StatusRequestEnum.APPROVAL
+                  : isAnyBookAvailable === StatusRequestEnum.APPROVAL
                   ? "text-blue-600 dark:text-blue-400"
-                  : request?.status === StatusRequestEnum.PENDING
+                  : isAnyBookAvailable === StatusRequestEnum.PENDING
                   ? "text-yellow-600 dark:text-yellow-400"
+                  : isAnyBookAvailable === StatusRequestEnum.BORROWED
+                  ? "text-orange-600 dark:text-orange-400"
+                  : isAnyBookAvailable === StatusRequestEnum.COMPLETED
+                  ? "text-green-600 dark:text-green-400"
                   : "text-red-600 dark:text-red-400"
               )}
             >
               {!isAnyBookAvailable
                 ? "Available"
-                : request?.status === StatusRequestEnum.APPROVAL
-                ? "Borrow Request"
-                : request?.status === StatusRequestEnum.PENDING
+                : isAnyBookAvailable === StatusRequestEnum.APPROVAL
+                ? "Pending to Borrow"
+                : isAnyBookAvailable === StatusRequestEnum.PENDING
                 ? "Pending Approval Request"
+                : isAnyBookAvailable === StatusRequestEnum.BORROWED
+                ? "On Loan"
+                : isAnyBookAvailable === StatusRequestEnum.COMPLETED
+                ? "Completed"
                 : "Pending Return Request"}
             </span>
           </div>
         </CardContent>
       </Link>
-      {((!isEmployee && !request) || isEmployee === null) && (
+      {((!isEmployee && !isAnyBookAvailable) || isEmployee === null) && (
         <CardFooter>
           <Button className="w-full" onClick={handleSubmit}>
             Request Book
@@ -82,33 +98,30 @@ export default function BookCard({
         </CardFooter>
       )}
 
-      {isAnyBookAvailable && (
-        <>
-          {request?.status === StatusRequestEnum.APPROVAL &&
-            !isEmployee &&
-            request && (
-              <CardFooter>
-                <div className="mt-auto flex justify-end items-center text-sm text-gray-500 dark:text-gray-400">
-                  <Button className="w-full" onClick={handleSubmit}>
-                    Borrow
-                  </Button>
-                </div>
-              </CardFooter>
-            )}
-          {!isEmployee && isRequestToAcceptOrDeny && (
-            <CardFooter>
-              <div className="mt-auto flex justify-between items-center w-full text-sm text-gray-500 dark:text-gray-400">
-                <div>
-                  <Button onClick={handleSubmit}>Approve</Button>
-                </div>
-                <div className="flex-grow" />
-                <div>
-                  <Button onClick={handleDenySubmit}>Deny</Button>
-                </div>
-              </div>
-            </CardFooter>
-          )}
-        </>
+      {isAnyBookAvailable === StatusRequestEnum.APPROVAL &&
+        !isEmployee &&
+        request && (
+          <CardFooter>
+            <div className="mt-auto flex justify-end items-center text-sm text-gray-500 dark:text-gray-400">
+              <Button className="w-full" onClick={handleSubmit}>
+                Borrow
+              </Button>
+            </div>
+          </CardFooter>
+        )}
+
+      {isEmployee && isRequestToAcceptOrDeny && (
+        <CardFooter>
+          <div className="mt-auto flex justify-between items-center w-full text-sm text-gray-500 dark:text-gray-400">
+            <div>
+              <Button onClick={handleSubmit}>Approve</Button>
+            </div>
+            <div className="flex-grow" />
+            <div>
+              <Button onClick={handleDenySubmit}>Deny</Button>
+            </div>
+          </div>
+        </CardFooter>
       )}
     </Card>
   );
