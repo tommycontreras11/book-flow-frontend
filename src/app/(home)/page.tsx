@@ -207,7 +207,6 @@ import BookCard from "@/components/common/card/book";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { UserRoleEnum } from "@/enums/common.enum";
 import { useGetAllBook } from "@/hooks/api/book.hook";
 import { toast } from "@/hooks/use-toast";
 import { useCreateRequest } from "@/mutations/api/requests";
@@ -277,19 +276,19 @@ export default function Home() {
       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
         {!isLoadingBook && books &&
           books
-            .filter(
-              (book) =>
-                !book.requests.length ||
-                book?.requests.every(
-                  (request) => request?.user?.uuid !== user?.uuid
-                )
-            )
+            // .filter(
+            //   (book) =>
+            //     !book.requests.length ||
+            //     book?.requests.every(
+            //       (request) => request?.user?.uuid !== user?.uuid
+            //     )
+            // )
             .map((book) => {              
               return (
                 <BookCard
                   key={book.uuid}
                   book={book}
-                  isEmployee={user == null ? null : user.role === UserRoleEnum.EMPLOYEE}
+                  user={user}
                   handleSubmit={() => handleRequestBook(book.uuid)}
                 />
               );

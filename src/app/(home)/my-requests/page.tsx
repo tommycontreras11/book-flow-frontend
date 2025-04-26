@@ -14,7 +14,6 @@ import { useUpdateRequestEmployeeStatus } from "@/mutations/api/requests";
 import { ICreateLoanManagement } from "@/providers/http/loans-management/interface";
 import { loanManagementCreateFormSchema } from "@/schema/loan-management";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { set } from "date-fns";
 import { BookMarked } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -47,7 +46,7 @@ export default function MyRequest() {
     !!user,
     isEmployee
       ? [StatusRequestEnum.PENDING]
-      : [StatusRequestEnum.PENDING, StatusRequestEnum.APPROVAL]
+      : [StatusRequestEnum.PENDING, StatusRequestEnum.APPROVAL, StatusRequestEnum.BORROWED, StatusRequestEnum.COMPLETED]
   );
 
   const { mutate: updateRequestEmployeeStatus } =
@@ -156,7 +155,7 @@ export default function MyRequest() {
                   key={request.uuid}
                   request={request}
                   book={request.book}
-                  isEmployee={user == null ? null : user.role === UserRoleEnum.EMPLOYEE}
+                  user={user}
                   isRequestToAcceptOrDeny={user?.role === UserRoleEnum.EMPLOYEE}
                   handleSubmit={() => {
                     if (!isRequestBorrow && !isRequestApprove) {
