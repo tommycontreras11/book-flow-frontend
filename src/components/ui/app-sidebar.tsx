@@ -12,6 +12,7 @@ import {
   Book,
   BookA,
   BookOpenCheck,
+  BookText,
   BookType,
   BookUser,
   Building,
@@ -123,6 +124,14 @@ const data: IAppSidebarProps = {
       name: "Loans",
       url: "/admin/loans-management",
       icon: BookOpenCheck,
+      visibleProps: {
+        userRole: UserRoleEnum.EMPLOYEE,
+      },
+    },
+    {
+      name: "Comments",
+      url: "/admin/comments",
+      icon: BookText,
       visibleProps: {
         userRole: UserRoleEnum.EMPLOYEE,
       },
