@@ -8,7 +8,9 @@ export interface IComment {
   book: IBook;
   user: IUser;
   parentComment?: IComment;
-  fileName: string;
+  replies?: IComment[];
+  url?: string;
+  createdAt: Date;
   status: StatusEnum
 }
 
