@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import CommentsDialog from "@/components/ui/comment-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { StatusRequestEnum } from "@/enums/request.enum";
 import { useGetOneBook } from "@/hooks/api/book.hook";
@@ -18,10 +19,10 @@ export default function BookDetails({
 }: {
   params: Promise<{ uuid: string }>;
 }) {
+  const { user } = useAuth();
   const { uuid } = React.use(params);
 
   const { data: book, isLoading: isLoadingBook } = useGetOneBook(uuid);
-  const { user } = useAuth();
 
   const isRegularUser = useMemo(() => user?.role === "USER", [user]);
 
@@ -194,6 +195,7 @@ export default function BookDetails({
                 </div>
               </div>
             </div>
+            <CommentsDialog bookUUID={book.uuid} />
           </div>
         </div>
       </div>

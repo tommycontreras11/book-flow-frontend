@@ -10,36 +10,24 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/auth-context";
-import { useGetOneComment } from "@/hooks/api/comment.hook";
+import { useGetOneCommentByBook } from "@/hooks/api/comment.hook";
 import { useCreateComment } from "@/mutations/api/comments";
 import { IComment } from "@/providers/http/comments/interface";
-import { formatDistanceToNow, set } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { Image as ImageIcon, MessageSquare, Send } from "lucide-react";
 import { useState } from "react";
 
-interface Comment {
-  id: number;
-  user: string;
-  content: string;
-  createdAt: Date;
-  image?: string;
-  replies?: Comment[];
-  parentId?: number;
-}
-
-export default function CommentsDialog() {
+export default function CommentsDialog({ bookUUID }: { bookUUID: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [newReply, setNewReply] = useState("");
   const [replyingTo, setReplyingTo] = useState<{ uuid: string } | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const [uuid, setUUID] = useState<string | null>(null);
   const { user } = useAuth();
 
-  const { data: comment, isLoading: isLoadingComment } = useGetOneComment(
-    "2e88adcd-59a3-4656-8f43-7d432840eda2"
-  );
+  const { data: comment, isLoading: isLoadingComment } =
+    useGetOneCommentByBook(bookUUID);
 
   const { mutate: createComment } = useCreateComment(() => {
     setNewComment("");
@@ -48,42 +36,28 @@ export default function CommentsDialog() {
     setReplyingTo(null);
   });
 
-  const getComments = (): any => {
+  const getReplies = (): any => {
     if (!comment?.replies || isLoadingComment) return;
+    let i = 0;
+
     return (
       <>
         <div className="ml-8 space-y-4">
-          {comment?.replies.map((reply) => (
-            <>
-              <CommentComponent key={reply.uuid} comment={reply} />
-            </>
-          ))}
+          {comment.replies.map((c) => {
+            const element = (
+              <CommentComponent
+                key={i == 0 ? comment.uuid : c.uuid}
+                comment={i == 0 ? comment : c}
+              />
+            );
+
+            i++;
+            return element;
+          })}
         </div>
       </>
     );
   };
-
-  // const addReplyToComment = (
-  //   commentsList: Comment[],
-  //   parentId: number,
-  //   newReply: Comment
-  // ): Comment[] => {
-  //   return commentsList.map(comment => {
-  //     if (comment.id === parentId) {
-  //       return {
-  //         ...comment,
-  //         replies: [...(comment.replies || []), newReply]
-  //       }
-  //     }
-  //     if (comment.replies) {
-  //       return {
-  //         ...comment,
-  //         replies: addReplyToComment(comment.replies, parentId, newReply)
-  //       }
-  //     }
-  //     return comment
-  //   })
-  // }
 
   const handleSubmit = (e: React.FormEvent, parentUUID?: string) => {
     e.preventDefault();
@@ -100,8 +74,8 @@ export default function CommentsDialog() {
       formData.append("content", newComment);
     }
 
-    formData.append("userUUID", user?.uuid);
-    formData.append("bookUUID", "2e88adcd-59a3-4656-8f43-7d432840eda2");
+    formData.append("userUUID", user.uuid);
+    formData.append("bookUUID", bookUUID);
 
     createComment(formData);
   };
@@ -109,11 +83,7 @@ export default function CommentsDialog() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // In a real app, you'd upload to a server
-      // For demo, we'll use a placeholder image
-      setSelectedImage(
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&q=80"
-      );
+      setSelectedImage(URL.createObjectURL(file));
     }
   };
 
@@ -159,21 +129,12 @@ export default function CommentsDialog() {
         </div>
       </div>
 
-      {replyingTo?.uuid === comment.uuid && (
+      {!preview && replyingTo?.uuid === comment.uuid && (
         <div className="ml-8">
           <form
             onSubmit={(e) => handleSubmit(e, comment.uuid)}
             className="flex gap-2"
           >
-            {/* <Textarea
-              placeholder="Write a reply..."
-              value={newReply}
-              onChange={(e) => setNewReply(e.target.value)}
-              className="min-h-[60px]"
-            />
-            <Button type="submit" size="icon">
-              <Send className="h-4 w-4" />
-            </Button> */}
             <Textarea
               placeholder="Write a reply..."
               value={newReply}
@@ -236,7 +197,6 @@ export default function CommentsDialog() {
       )}
     </div>
   );
-  // return getComments(comment)
 
   return (
     <div className="space-y-4">
@@ -246,7 +206,7 @@ export default function CommentsDialog() {
             <div className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
-                {comment.replies?.length} Comments
+                {comment.totalComments} Comments
               </span>
             </div>
             <Button
@@ -262,7 +222,10 @@ export default function CommentsDialog() {
       )}
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent
+          className="max-w-2xl max-h-[80vh] overflow-y-auto"
+          aria-describedby={undefined}
+        >
           <DialogHeader>
             <DialogTitle>Comments</DialogTitle>
           </DialogHeader>
@@ -319,7 +282,7 @@ export default function CommentsDialog() {
               )}
             </form>
 
-            {getComments()}
+            {getReplies()}
           </div>
         </DialogContent>
       </Dialog>
