@@ -15,6 +15,10 @@ export class CommentsProvider extends Base {
     return this.get(`/${uuid}`);
   }
 
+  public getOneByBook(uuid?: string): Promise<IResponse<IComment>> {
+    return this.get(`/${uuid}/book`);
+  }
+
   public create(data: FormData) {
     return this.post(
       "",

@@ -2,28 +2,42 @@ import commentsProvider from "@/providers/http/comments";
 import { useQuery } from "react-query";
 
 export function useGetAllComment() {
-    const queryClient = useQuery({
-        queryKey: ["comments"],
-        retry: 1,
-        queryFn: () => commentsProvider.getAll()
-    })
+  const queryClient = useQuery({
+    queryKey: ["comments"],
+    retry: 1,
+    queryFn: () => commentsProvider.getAll(),
+  });
 
-    return {
-        ...queryClient,
-        data: queryClient.data?.data,
-    }
+  return {
+    ...queryClient,
+    data: queryClient.data?.data,
+  };
 }
 
 export function useGetOneComment(uuid?: string) {
-    const queryClient = useQuery({
-        queryKey: ["comment", uuid],
-        retry: 1,
-        queryFn: () => commentsProvider.getOne(uuid),
-        enabled: !!uuid,
-    })
+  const queryClient = useQuery({
+    queryKey: ["comment", uuid],
+    retry: 1,
+    queryFn: () => commentsProvider.getOne(uuid),
+    enabled: !!uuid,
+  });
 
-    return {
-        ...queryClient,
-        data: queryClient.data?.data,
-    }
+  return {
+    ...queryClient,
+    data: queryClient.data?.data,
+  };
+}
+
+export function useGetOneCommentByBook(uuid?: string) {
+  const queryClient = useQuery({
+    queryKey: ["comment-by-book", uuid],
+    retry: 1,
+    queryFn: () => commentsProvider.getOneByBook(uuid),
+    enabled: !!uuid,
+  });
+
+  return {
+    ...queryClient,
+    data: queryClient.data?.data,
+  };
 }

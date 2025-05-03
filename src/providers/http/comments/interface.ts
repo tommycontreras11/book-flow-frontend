@@ -7,11 +7,11 @@ export interface IComment {
   content: string;
   book: IBook;
   user: IUser;
-  parentComment?: IComment;
-  replies?: IComment[];
   url?: string;
-  createdAt: Date;
+  replies?: IComment[];
+  totalComments: number;
   status: StatusEnum
+  createdAt: Date;
 }
 
 export interface ICreateComment {
