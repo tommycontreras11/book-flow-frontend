@@ -89,9 +89,11 @@ export default function CommentsDialog({ bookUUID }: { bookUUID: string }) {
 
   const CommentComponent = ({
     comment,
+    isReply = false,
     preview = false,
   }: {
     comment: IComment;
+    isReply?: boolean;
     preview?: boolean;
   }) => (
     <div className="space-y-4">
@@ -189,9 +191,9 @@ export default function CommentsDialog({ bookUUID }: { bookUUID: string }) {
       )}
 
       {comment.replies && !preview && (
-        <div className="ml-8 space-y-4">
+        <div className={isReply ? "space-y-4" : "ml-8 space-y-4"}>
           {comment.replies.map((reply) => (
-            <CommentComponent key={reply.uuid} comment={reply} />
+            <CommentComponent key={reply.uuid} isReply comment={reply} />
           ))}
         </div>
       )}
