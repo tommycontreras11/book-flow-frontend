@@ -7,8 +7,8 @@ export class CommentsProvider extends Base {
     super(`${config.apiURL}/comments`);
   }
 
-  public getAll(): Promise<IResponse<IComment[]>> {
-    return this.get("");
+  public getAll(bookUUID?: string): Promise<ICommentResponse<IComment[]>> {
+    return this.get(`${bookUUID ? `?bookUUID=${bookUUID}` : ""}`);
   }
 
   public getOne(uuid?: string): Promise<IResponse<IComment>> {

@@ -1,16 +1,18 @@
 import commentsProvider from "@/providers/http/comments";
 import { useQuery } from "react-query";
 
-export function useGetAllComment() {
+export function useGetAllComment(bookUUID?: string) {
   const queryClient = useQuery({
-    queryKey: ["comments"],
+    queryKey: ["comments", bookUUID],
     retry: 1,
-    queryFn: () => commentsProvider.getAll(),
+    queryFn: () => commentsProvider.getAll(bookUUID),
+    enabled: !!bookUUID,
   });
 
   return {
     ...queryClient,
-    data: queryClient.data?.data,
+    data: queryClient.data?.data.comments,
+    totalComments: queryClient.data?.data.totalComments,
   };
 }
 

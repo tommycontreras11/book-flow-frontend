@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/auth-context";
-import { useGetOneCommentByBook } from "@/hooks/api/comment.hook";
+import { useGetAllComment } from "@/hooks/api/comment.hook";
 import { useCreateComment } from "@/mutations/api/comments";
 import { IComment } from "@/providers/http/comments/interface";
 import { formatDistanceToNow } from "date-fns";
@@ -19,44 +19,42 @@ import { useState } from "react";
 
 export default function CommentsDialog({ bookUUID }: { bookUUID: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenReply, setIsOpenReply] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [newReply, setNewReply] = useState("");
   const [replyingTo, setReplyingTo] = useState<{ uuid: string } | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
+    new Set()
+  );
 
   const { user } = useAuth();
 
-  const { data: comment, isLoading: isLoadingComment } =
-    useGetOneCommentByBook(bookUUID);
+  const {
+    data: comments,
+    totalComments,
+    refetch,
+    isLoading: isLoadingComments,
+  } = useGetAllComment(bookUUID);
 
   const { mutate: createComment } = useCreateComment(() => {
     setNewComment("");
     setNewReply("");
     setSelectedImage(null);
     setReplyingTo(null);
+    refetch();
   });
 
-  const getReplies = (): any => {
-    if (!comment?.replies || isLoadingComment) return;
-    let i = 0;
-
-    return (
-      <>
-        <div className="ml-8 space-y-4">
-          {comment.replies.map((c) => {
-            const element = (
-              <CommentComponent
-                key={i == 0 ? comment.uuid : c.uuid}
-                comment={i == 0 ? comment : c}
-              />
-            );
-
-            i++;
-            return element;
-          })}
-        </div>
-      </>
-    );
+  const toggleReplies = (uuid: string) => {
+    setExpandedReplies((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(uuid)) {
+        newSet.delete(uuid);
+      } else {
+        newSet.add(uuid);
+      }
+      return newSet;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent, parentUUID?: string) => {
@@ -91,10 +89,14 @@ export default function CommentsDialog({ bookUUID }: { bookUUID: string }) {
     comment,
     isReply = false,
     preview = false,
+    expandedReplies,
+    toggleReplies,
   }: {
     comment: IComment;
     isReply?: boolean;
     preview?: boolean;
+    expandedReplies: Set<string>;
+    toggleReplies: (uuid: string) => void;
   }) => (
     <div className="space-y-4">
       <div className="flex gap-4 p-4 rounded-lg bg-muted/50">
@@ -119,19 +121,49 @@ export default function CommentsDialog({ bookUUID }: { bookUUID: string }) {
             </div>
           )}
           {!preview && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground"
-              onClick={() => setReplyingTo({ uuid: comment.uuid })}
-            >
-              Reply
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground"
+                onClick={() => {
+                  setReplyingTo({ uuid: comment.uuid });
+                  setIsOpenReply(!isOpenReply);
+                }}
+              >
+                Reply
+              </Button>
+              {comment?.replies && comment?.replies?.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground"
+                  onClick={() => toggleReplies(comment.uuid)}
+                >
+                  {expandedReplies.has(comment.uuid)
+                    ? "Hide replies"
+                    : "View replies"}
+                </Button>
+              )}
+            </>
+          )}
+          {expandedReplies.has(comment.uuid) && comment.replies && (
+            <div className="space-y-4">
+              {comment.replies.map((reply) => (
+                <CommentComponent
+                  key={reply.uuid}
+                  isReply
+                  comment={reply}
+                  expandedReplies={expandedReplies}
+                  toggleReplies={toggleReplies}
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>
 
-      {!preview && replyingTo?.uuid === comment.uuid && (
+      {!preview && replyingTo?.uuid === comment.uuid && isOpenReply && (
         <div className="ml-8">
           <form
             onSubmit={(e) => handleSubmit(e, comment.uuid)}
@@ -189,39 +221,36 @@ export default function CommentsDialog({ bookUUID }: { bookUUID: string }) {
           </form>
         </div>
       )}
-
-      {comment.replies && !preview && (
-        <div className={isReply ? "space-y-4" : "ml-8 space-y-4"}>
-          {comment.replies.map((reply) => (
-            <CommentComponent key={reply.uuid} isReply comment={reply} />
-          ))}
-        </div>
-      )}
     </div>
   );
 
   return (
     <div className="space-y-4">
-      {comment?.replies && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {comment.totalComments} Comments
-              </span>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setIsOpen(true)}
-              className="text-muted-foreground"
-            >
-              View All
-            </Button>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              {totalComments || 0} Comments
+            </span>
           </div>
-          {comment && <CommentComponent comment={comment} preview />}
+          <Button
+            variant="outline"
+            onClick={() => setIsOpen(true)}
+            className="text-muted-foreground"
+          >
+            View All
+          </Button>
         </div>
-      )}
+        {comments && (
+          <CommentComponent
+            expandedReplies={expandedReplies}
+            toggleReplies={toggleReplies}
+            comment={comments[0]}
+            preview
+          />
+        )}
+      </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent
@@ -284,7 +313,20 @@ export default function CommentsDialog({ bookUUID }: { bookUUID: string }) {
               )}
             </form>
 
-            {getReplies()}
+            {!isLoadingComments && comments && (
+              <div className="ml-8 space-y-4">
+                {comments.map((comment) => (
+                  <>
+                    <CommentComponent
+                      key={comment.uuid}
+                      expandedReplies={expandedReplies}
+                      toggleReplies={toggleReplies}
+                      comment={comment}
+                    />
+                  </>
+                ))}
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
